@@ -2062,4 +2062,36 @@ int main(void)
 }
 """)
     }
+
+    @Test fun localTypedefBackReference() {
+        run("""
+int main()
+{
+    typedef double a, b, c[sizeof(a)], d[sizeof(b)];
+
+    assert sizeof(a) == 8;
+    assert sizeof(b) == 8;
+    assert sizeof(c) == 64;
+    assert sizeof(d) == 64;
+
+    return 0;
+}
+""")
+    }
+
+    @Test fun globalTypedefBackReference() {
+        run("""
+typedef double a, b, c[sizeof(a)], d[sizeof(b)];
+
+int main()
+{
+    assert sizeof(a) == 8;
+    assert sizeof(b) == 8;
+    assert sizeof(c) == 64;
+    assert sizeof(d) == 64;
+
+    return 0;
+}
+""")
+    }
 }

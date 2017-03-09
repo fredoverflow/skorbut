@@ -315,11 +315,10 @@ class Parser(lexer: Lexer) : ParserBase(lexer) {
     fun declaration(): Statement {
         val specifiers = declarationSpecifiers1()
         val isTypedef = specifiers.list.any { it.kind() == TYPEDEF }
-        val declarators = commaSeparatedList0(SEMICOLON) { initDeclarator() }
-        expect(SEMICOLON)
-        for (declarator in declarators) {
-            declare(declarator.name, isTypedef)
+        val declarators = commaSeparatedList0(SEMICOLON) {
+            initDeclarator().apply { declare(name, isTypedef) }
         }
+        expect(SEMICOLON)
         return Declaration(specifiers, declarators)
     }
 
@@ -726,11 +725,11 @@ class Parser(lexer: Lexer) : ParserBase(lexer) {
             symbolTable.closeScope()
             return FunctionDefinition(specifiers, firstNamedDeclarator, body, closingBrace)
         } else {
-            val declarators = commaSeparatedList1(initDeclarator(firstNamedDeclarator)) { initDeclarator() }
-            expect(SEMICOLON)
-            for (declarator in declarators) {
-                declare(declarator.name, isTypedef)
+            declare(firstNamedDeclarator.name, isTypedef)
+            val declarators = commaSeparatedList1(initDeclarator(firstNamedDeclarator)) {
+                initDeclarator().apply { declare(name, isTypedef) }
             }
+            expect(SEMICOLON)
             return Declaration(specifiers, declarators)
         }
     }

@@ -265,7 +265,7 @@ class TypeChecker(translationUnit: TranslationUnit) {
         if (value == null) length.root().error("array length must be a compile-time constant")
 
         val len = (value as ArithmeticValue).value.toInt()
-        if (len < 1) length.root().error("array length must be positive")
+        if (len < 1) length.root().error("non-positive array length $len")
 
         return len
     }
