@@ -457,20 +457,20 @@ class TypeChecker(translationUnit: TranslationUnit) {
         }
     }
 
-    private inline fun Expression.determineValue(a: Expression, f: (Value) -> Value) {
+    private inline fun <T : Unary> T.determineValue(f: (Value) -> Value) {
         if (sizeofNesting == 0) {
-            val v = a.value
+            val v = operand.value
             if (v != null) {
                 value = f(v)
             }
         }
     }
 
-    private inline fun Expression.determineValue(a: Expression, b: Expression, f: (Value, Value) -> Value) {
+    private inline fun <T : Binary> T.determineValue(f: (Value, Value) -> Value) {
         if (sizeofNesting == 0) {
-            val v = a.value
+            val v = left.value
             if (v != null) {
-                val w = b.value
+                val w = right.value
                 if (w != null) {
                     value = f(v, w)
                 }
@@ -630,25 +630,25 @@ class TypeChecker(translationUnit: TranslationUnit) {
             is UnaryPlus -> {
                 val operandType = operand.typeCheck().decayed()
                 if (operandType !is ArithmeticType) operator.error("needs arithmetic operand")
-                determineValue(operand, ::unaryPlus)
+                this.determineValue(::unaryPlus)
                 SignedIntType.max(operandType)
             }
             is UnaryMinus -> {
                 val operandType = operand.typeCheck().decayed()
                 if (operandType !is ArithmeticType) operator.error("needs arithmetic operand")
-                determineValue(operand, ::unaryMinus)
+                this.determineValue(::unaryMinus)
                 SignedIntType.max(operandType)
             }
             is BitwiseNot -> {
                 val operandType = operand.typeCheck().decayed()
                 if (operandType !is ArithmeticType || !operandType.isIntegral()) operator.error("needs integral operand")
-                determineValue(operand, ::bitwiseNot)
+                this.determineValue(::bitwiseNot)
                 SignedIntType.max(operandType)
             }
             is LogicalNot -> {
                 val operandType = operand.typeCheck().decayed()
                 if (operandType !is ArithmeticType) operator.error("needs arithmetic operand")
-                determineValue(operand, ::logicalNot)
+                this.determineValue(::logicalNot)
                 SignedIntType
             }
             is SizeofType -> {
@@ -665,7 +665,7 @@ class TypeChecker(translationUnit: TranslationUnit) {
                 val leftType = left.typeCheck().decayed()
                 val rightType = right.typeCheck().decayed()
                 if ((leftType is ArithmeticType) && (rightType is ArithmeticType)) {
-                    determineValue(left, right) { a, b -> multiplicative(a, operator, b) }
+                    this.determineValue { a, b -> multiplicative(a, operator, b) }
                     leftType.usualArithmeticConversions(rightType)
                 } else {
                     operator.error("needs arithmetic operands")
@@ -679,7 +679,7 @@ class TypeChecker(translationUnit: TranslationUnit) {
                 } else if ((leftType is ArithmeticType) && (rightType is PointerType)) {
                     rightType
                 } else if ((leftType is ArithmeticType) && (rightType is ArithmeticType)) {
-                    determineValue(left, right, ::plus)
+                    this.determineValue(::plus)
                     leftType.usualArithmeticConversions(rightType)
                 } else {
                     operator.error("needs arithmetic operands or pointer and arithmetic operands")
@@ -693,7 +693,7 @@ class TypeChecker(translationUnit: TranslationUnit) {
                 } else if ((leftType is PointerType) && (rightType is PointerType)) {
                     SignedIntType
                 } else if ((leftType is ArithmeticType) && (rightType is ArithmeticType)) {
-                    determineValue(left, right, ::minus)
+                    this.determineValue(::minus)
                     leftType.usualArithmeticConversions(rightType)
                 } else {
                     operator.error("needs pointer and/or arithmetic operands")
@@ -703,7 +703,7 @@ class TypeChecker(translationUnit: TranslationUnit) {
                 val leftType = left.typeCheck().decayed()
                 val rightType = right.typeCheck().decayed()
                 if ((leftType is ArithmeticType && leftType.isIntegral()) && (rightType is ArithmeticType && rightType.isIntegral())) {
-                    determineValue(left, right) { a, b -> shift(a, operator, b) }
+                    this.determineValue { a, b -> shift(a, operator, b) }
                     leftType.integralPromotions()
                 } else {
                     operator.error("needs integral operands")
@@ -715,7 +715,7 @@ class TypeChecker(translationUnit: TranslationUnit) {
                 if ((leftType is ComparablePointerType) && (rightType is ComparablePointerType)) {
                     SignedIntType
                 } else if ((leftType is ArithmeticType) && (rightType is ArithmeticType)) {
-                    determineValue(left, right) { a, b -> relationalEquality(a as ArithmeticValue, operator, b as ArithmeticValue) }
+                    this.determineValue { a, b -> relationalEquality(a as ArithmeticValue, operator, b as ArithmeticValue) }
                     SignedIntType
                 } else {
                     operator.error("needs arithmetic or pointer operands")
@@ -726,7 +726,7 @@ class TypeChecker(translationUnit: TranslationUnit) {
                 val rightType = right.typeCheck().decayed()
                 if ((leftType is ArithmeticType && leftType.isIntegral()) && (rightType is ArithmeticType && rightType.isIntegral())) {
                     val typ = leftType.usualArithmeticConversions(rightType)
-                    determineValue(left, right) { a, b -> bitwise(a, operator, b, typ) }
+                    this.determineValue { a, b -> bitwise(a, operator, b, typ) }
                     typ
                 } else {
                     operator.error("needs integral operands")
@@ -736,7 +736,7 @@ class TypeChecker(translationUnit: TranslationUnit) {
                 val leftType = left.typeCheck().decayed()
                 val rightType = right.typeCheck().decayed()
                 if ((leftType is ArithmeticType) && (rightType is ArithmeticType)) {
-                    determineValue(left, right) { a, b ->
+                    this.determineValue { a, b ->
                         when (operator.kind) {
                             AMP_AMP -> {
                                 if ((a as ArithmeticValue).isFalse()) Value.ZERO
