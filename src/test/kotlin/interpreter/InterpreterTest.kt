@@ -2094,4 +2094,26 @@ int main()
 }
 """)
     }
+
+    @Test fun postfixAfterSizeof() {
+        run("""
+int main()
+{
+    char x = 'a';
+    assert sizeof(x)++ == 1;
+    assert sizeof x ++ == 1;
+    return 0;
+}
+""")
+    }
+
+    @Test fun conditionalBindsStrongerThanComma() {
+        run("""
+int main()
+{
+    assert (1 ? 2 : 3, 4) == 4;
+    return 0;
+}
+""")
+    }
 }

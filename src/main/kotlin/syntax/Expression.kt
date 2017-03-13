@@ -65,7 +65,7 @@ class ScanfCall(val scanf: Token, val format: Token, val arguments: List<Express
     override fun toString(): String = "scanf ${format.source} : $type"
 }
 
-class Postfix(f: Token, x: Expression) : Unary(f, x)
+class Postfix(x: Expression, f: Token) : Unary(f, x)
 
 class Subscript(x: Expression, f: Token, y: Expression) : Binary(x, f, y) {
     override fun toString(): String = "[] : $type"
