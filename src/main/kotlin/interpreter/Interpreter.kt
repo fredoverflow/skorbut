@@ -4,6 +4,8 @@ import common.Diagnostic
 import semantic.*
 import semantic.types.*
 import syntax.*
+import syntax.parser.Parser
+import syntax.parser.translationUnit
 import java.util.*
 
 fun FunctionDefinition.returnType(): Type = (namedDeclarator.type as FunctionType).returnType

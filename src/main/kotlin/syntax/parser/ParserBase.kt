@@ -1,6 +1,7 @@
-package syntax
+package syntax.parser
 
 import common.Diagnostic
+import syntax.*
 import java.util.*
 
 abstract class ParserBase(private val lexer: Lexer) {
