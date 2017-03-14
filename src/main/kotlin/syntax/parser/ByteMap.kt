@@ -1,4 +1,4 @@
-package syntax
+package syntax.parser
 
 class ByteMap<V> {
     private val table = arrayOfNulls<Any?>(128)

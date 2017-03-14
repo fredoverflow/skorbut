@@ -1,78 +1,137 @@
 package syntax.parser
 
+import common.Diagnostic
 import semantic.MutableSymbolTable
 import syntax.*
+import java.util.*
 
-const val PRECEDENCE_POSTFIX = 150
-const val PRECEDENCE_PREFIX = 140
-const val PRECEDENCE_COMMA = 10
+class Parser(private val lexer: Lexer) {
+    private var previousEnd: Int = 0
 
-enum class DeclarationState {
-    OPEN, PRIMITIVE, USER_DEFINED, NO_DECLARATOR_REQUIRED
-}
+    var token: Token = lexer.nextToken()
+        private set
 
-class Parser(lexer: Lexer) : ParserBase(lexer) {
+    var current: Byte = token.kind
+        private set
 
-    // ===== Expressions =====
+    var lookahead: Token = lexer.nextToken()
+        private set
 
-    @Suppress("NOTHING_TO_INLINE")
-    inline fun expression(): Expression {
-        return subexpression(outerPrecedence = 0)
+    fun next(): Byte {
+        previousEnd = token.end()
+        token = lookahead
+        current = token.kind
+        lookahead = lexer.nextToken()
+        return current
     }
 
-    @Suppress("NOTHING_TO_INLINE")
-    inline fun assignmentExpression(): Expression {
-        return subexpression(outerPrecedence = PRECEDENCE_COMMA)
+    fun <Result> consume(result: Result): Result {
+        next()
+        return result
     }
 
-    fun subexpression(outerPrecedence: Int): Expression {
-        val nullDenotation = nullDenotations[current] ?: illegalStartOf("expression")
-
-        return subexpression(with(nullDenotation) { this@Parser.parse(consume(token)) }, outerPrecedence)
+    fun expect(expected: Byte): Token {
+        if (current != expected) throw Diagnostic(previousEnd, "expected ${expected.show()}")
+        return consume(token)
     }
 
-    tailrec fun subexpression(left: Expression, outerPrecedence: Int): Expression {
-        val leftDenotation = leftDenotations[current] ?: return left
-        if (leftDenotation.precedence <= outerPrecedence) return left
-
-        return subexpression(with(leftDenotation) { this@Parser.parse(left, consume(token)) }, outerPrecedence)
+    fun illegalStartOf(rule: String): Nothing {
+        token.error("illegal start of $rule")
     }
 
-    private val nullDenotations = ByteMap<NullDenotation>().apply {
-        this[IDENTIFIER] = IdentifierDenotation
-        this[DOUBLE_CONSTANT, FLOAT_CONSTANT, INTEGER_CONSTANT, CHARACTER_CONSTANT] = ConstantDenotation
-        this[STRING_LITERAL] = StringLiteralDenotation
-        this[OPEN_PAREN] = PossibleCastDenotation
-        this[PLUS_PLUS, MINUS_MINUS, AMP, STAR, PLUS, MINUS, TILDE, BANG] = PrefixDenotation
-        this[SIZEOF] = SizeofDenotation
+    fun notImplementedYet(feature: String): Nothing {
+        token.error("$feature not implemented yet")
     }
 
-    private val leftDenotations = ByteMap<LeftDenotation>().apply {
-        this[OPEN_BRACKET] = SubscriptDenotation
-        this[OPEN_PAREN] = FunctionCallDenotation
-        this[DOT] = DirectMemberDenotation
-        this[ARROW] = IndirectMemberDenotation
-        this[PLUS_PLUS, MINUS_MINUS] = PostfixCrementDenotation
+    inline fun <T> commaSeparatedList1(first: T, parse: () -> T): List<T> {
+        if (current != COMMA) return Collections.singletonList(first)
 
-        this[STAR, SLASH, PERCENT] = LeftAssociativeDenotation(130, ::Multiplicative)
-        this[PLUS] = LeftAssociativeDenotation(120, ::Plus)
-        this[MINUS] = LeftAssociativeDenotation(120, ::Minus)
-        this[LESS_LESS, MORE_MORE] = LeftAssociativeDenotation(110, ::Shift)
-        this[LESS, MORE, LESS_EQ, MORE_EQ] = LeftAssociativeDenotation(100, ::RelationalEquality)
-        this[EQ_EQ, BANG_EQ] = LeftAssociativeDenotation(90, ::RelationalEquality)
-        this[AMP] = LeftAssociativeDenotation(80, ::Bitwise)
-        this[CARET] = LeftAssociativeDenotation(70, ::Bitwise)
-        this[PIPE] = LeftAssociativeDenotation(60, ::Bitwise)
-        this[AMP_AMP] = LeftAssociativeDenotation(50, ::Logical)
-        this[PIPE_PIPE] = LeftAssociativeDenotation(40, ::Logical)
-        this[QUESTION] = ConditionalDenotation(30)
-        this[EQ] = RightAssociativeDenotation(20, ::Assignment)
-        this[PLUS_EQ] = RightAssociativeDenotation(20, ::PlusAssignment)
-        this[MINUS_EQ] = RightAssociativeDenotation(20, ::MinusAssignment)
-        this[COMMA] = RightAssociativeDenotation(PRECEDENCE_COMMA, ::Comma)
+        val list = ArrayList<T>()
+        list.add(first)
+        do {
+            next()
+            list.add(parse())
+        } while (current == COMMA)
+        return list
     }
 
-    // ===== Declarations =====
+    inline fun <T> commaSeparatedList1(parse: () -> T): List<T> {
+        return commaSeparatedList1(parse(), parse)
+    }
+
+    inline fun <T> commaSeparatedList0(terminator: Byte, parse: () -> T): List<T> {
+        if (current == terminator) {
+            return Collections.emptyList()
+        } else {
+            return commaSeparatedList1(parse)
+        }
+    }
+
+    inline fun <T> trailingCommaSeparatedList1(terminator: Byte, parse: () -> T): List<T> {
+        val list = ArrayList<T>()
+        list.add(parse())
+        while (current == COMMA && next() != terminator) {
+            list.add(parse())
+        }
+        return list
+    }
+
+    inline fun <T> list1While(good: (Byte) -> Boolean, parse: () -> T): List<T> {
+        val first = parse()
+        if (!good(current)) return Collections.singletonList(first)
+
+        val list = ArrayList<T>()
+        list.add(first)
+        do {
+            list.add(parse())
+        } while (good(current))
+        return list
+    }
+
+    inline fun <T> list0While(good: (Byte) -> Boolean, parse: () -> T): List<T> {
+        if (!good(current)) {
+            return Collections.emptyList()
+        } else {
+            return list1While(good, parse)
+        }
+    }
+
+    inline fun <T> list1Until(terminator: Byte, parse: () -> T): List<T> {
+        return list1While({ it != terminator }, parse)
+    }
+
+    inline fun <T> list0Until(terminator: Byte, parse: () -> T): List<T> {
+        return list0While({ it != terminator }, parse)
+    }
+
+    inline fun collectWhile(good: (Byte) -> Boolean): List<Token> {
+        return list0While(good) { consume(token) }
+    }
+
+    inline fun <T> parenthesized(parse: () -> T): T {
+        expect(OPEN_PAREN)
+        val result = parse()
+        expect(CLOSE_PAREN)
+        return result
+    }
+
+    inline fun <T> braced(parse: () -> T): T {
+        expect(OPEN_BRACE)
+        val result = parse()
+        expect(CLOSE_BRACE)
+        return result
+    }
+
+    inline fun <T> unless(terminator: Byte, parse: () -> T): T? {
+        if (current == terminator) {
+            next()
+            return null
+        } else {
+            val result = parse()
+            expect(terminator)
+            return result
+        }
+    }
 
     val symbolTable = MutableSymbolTable()
 

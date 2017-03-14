@@ -4,6 +4,10 @@ import semantic.types.MarkerIsTypedefName
 import semantic.types.MarkerNotTypedefName
 import syntax.*
 
+enum class DeclarationState {
+    OPEN, PRIMITIVE, USER_DEFINED, NO_DECLARATOR_REQUIRED
+}
+
 fun Parser.declare(name: Token, isTypedefName: Boolean) {
     symbolTable.declare(name, if (isTypedefName) MarkerIsTypedefName else MarkerNotTypedefName, 0)
 }
