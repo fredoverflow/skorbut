@@ -17,19 +17,19 @@ inline fun Parser.assignmentExpression(): Expression {
 }
 
 fun Parser.subexpression(outerPrecedence: Int): Expression {
-    val nullDenotation = nullDenotations[current] ?: illegalStartOf("expression")
+    val nullDenotation = nullDenotations[+current] ?: illegalStartOf("expression")
 
     return subexpression(with(nullDenotation) { parse(consume(token)) }, outerPrecedence)
 }
 
 tailrec fun Parser.subexpression(left: Expression, outerPrecedence: Int): Expression {
-    val leftDenotation = leftDenotations[current] ?: return left
+    val leftDenotation = leftDenotations[+current] ?: return left
     if (leftDenotation.precedence <= outerPrecedence) return left
 
     return subexpression(with(leftDenotation) { parse(left, consume(token)) }, outerPrecedence)
 }
 
-private val nullDenotations = ByteMap<NullDenotation>().apply {
+private val nullDenotations = arrayOfNulls<NullDenotation>(128).apply {
     this[IDENTIFIER] = IdentifierDenotation
     this[DOUBLE_CONSTANT, FLOAT_CONSTANT, INTEGER_CONSTANT, CHARACTER_CONSTANT] = ConstantDenotation
     this[STRING_LITERAL] = StringLiteralDenotation
@@ -38,7 +38,7 @@ private val nullDenotations = ByteMap<NullDenotation>().apply {
     this[SIZEOF] = SizeofDenotation
 }
 
-private val leftDenotations = ByteMap<LeftDenotation>().apply {
+private val leftDenotations = arrayOfNulls<LeftDenotation>(128).apply {
     this[OPEN_BRACKET] = SubscriptDenotation
     this[OPEN_PAREN] = FunctionCallDenotation
     this[DOT] = DirectMemberDenotation
@@ -62,4 +62,14 @@ private val leftDenotations = ByteMap<LeftDenotation>().apply {
     this[PLUS_EQ] = RightAssociativeDenotation(20, ::PlusAssignment)
     this[MINUS_EQ] = RightAssociativeDenotation(20, ::MinusAssignment)
     this[COMMA] = RightAssociativeDenotation(PRECEDENCE_COMMA, ::Comma)
+}
+
+private operator fun <V> Array<V>.set(index: Byte, value: V) {
+    this[+index] = value
+}
+
+private operator fun <V> Array<V>.set(vararg indexes: Byte, value: V) {
+    for (index in indexes) {
+        this[+index] = value
+    }
 }
