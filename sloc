@@ -1,0 +1,3 @@
+# sloc: count significant lines of code
+# INsignificant lines contain only spaces and braces.
+find . -name "*.kt" -exec grep -v "^[{ }]*$" {} + | wc -l
