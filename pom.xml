@@ -98,6 +98,7 @@
                 </executions>
                 <configuration>
                     <injar>${project.build.finalName}-jar-with-dependencies.jar</injar>
+                    <outFilter>META-INF/MANIFEST.MF,!META-INF/**,!kotlin/**</outFilter>
                     <outjar>../../skorbut-release/skorbut.jar</outjar>
                     <libs>
                         <lib>${java.home}/lib/rt.jar</lib>
