@@ -1,8 +1,8 @@
 package ui
 
 import common.Diagnostic
+import freditor.LineNumbers
 import interpreter.Interpreter
-import org.fife.ui.rtextarea.RTextScrollPane
 import semantic.Linter
 import syntax.ASTNode
 import java.awt.*
@@ -58,9 +58,13 @@ class MainFrame : JFrame(Editor.filename) {
             }
         }
 
-        val scrolledEditor = RTextScrollPane(editor)
+        val editorWithLineNumbers = JPanel()
+        editorWithLineNumbers.layout = BoxLayout(editorWithLineNumbers, BoxLayout.X_AXIS)
+        editorWithLineNumbers.add(LineNumbers(editor))
+        editorWithLineNumbers.add(editor)
+        editor.setComponentToRepaint(editorWithLineNumbers)
 
-        val horizontalSplit = JSplitPane(JSplitPane.HORIZONTAL_SPLIT, visualizer, scrolledEditor)
+        val horizontalSplit = JSplitPane(JSplitPane.HORIZONTAL_SPLIT, visualizer, editorWithLineNumbers)
         horizontalSplit.preferredSize = Dimension(1000, 500)
 
         slider.majorTickSpacing = 1
@@ -97,7 +101,6 @@ class MainFrame : JFrame(Editor.filename) {
         verticalSplit.resizeWeight = 1.0
         add(verticalSplit)
 
-        configureHotkeys()
         listenToSyntaxTree()
         listenToSlider()
         listenToButtons()
@@ -106,31 +109,20 @@ class MainFrame : JFrame(Editor.filename) {
         defaultCloseOperation = JFrame.EXIT_ON_CLOSE
         addWindowListener(object : WindowAdapter() {
             override fun windowClosing(event: WindowEvent) {
-                editor.trySaveCode()
-                // editor.tryOpenDirectory()
+                editor.tryToSaveCode()
             }
         })
         pack()
         isVisible = true
         // extendedState = Frame.MAXIMIZED_BOTH
-    }
-
-    private fun configureHotkeys() {
-        editor.configureHotkey("ctrl shift I") {
-            try {
-                editor.indent()
-            } catch (diagnostic: Diagnostic) {
-                editor.caretPosition = diagnostic.position
-                updateDiagnostics(arrayListOf(diagnostic))
-            }
-        }
+        editor.requestFocusInWindow()
     }
 
     private fun listenToSyntaxTree() {
         syntaxTree.addTreeSelectionListener {
             val node = it.newLeadSelectionPath?.lastPathComponent
             if (node is ASTNode) {
-                editor.caretPosition = node.root().start
+                editor.setCursorTo(node.root().start)
             }
             editor.requestFocusInWindow()
         }
@@ -189,7 +181,7 @@ class MainFrame : JFrame(Editor.filename) {
 
     private fun listenToButtons() {
         start.addActionListener {
-            editor.trySaveCode()
+            editor.tryToSaveCode()
             editor.requestFocusInWindow()
             queue.clear()
             tryCompile(andRun = true)
@@ -224,7 +216,7 @@ class MainFrame : JFrame(Editor.filename) {
             compile()
             if (andRun) run()
         } catch (diagnostic: Diagnostic) {
-            editor.caretPosition = diagnostic.position
+            editor.setCursorTo(diagnostic.position)
             updateDiagnostics(arrayListOf(diagnostic))
         } catch (other: Throwable) {
             other.printStackTrace()
@@ -336,16 +328,16 @@ class MainFrame : JFrame(Editor.filename) {
     }
 
     private fun updateCaretPosition(diagnostic: Diagnostic) {
-        if (editor.caretPosition != diagnostic.position) {
-            editor.caretPosition = diagnostic.position
+        if (editor.cursor() != diagnostic.position) {
+            editor.setCursorTo(diagnostic.position)
         } else if (diagnostic.secondPosition != -1) {
-            editor.caretPosition = diagnostic.secondPosition
+            editor.setCursorTo(diagnostic.secondPosition)
         }
     }
 
     private fun pauseAt(position: Int) {
         SwingUtilities.invokeLater {
-            editor.caretPosition = position
+            editor.setCursorTo(position)
         }
         when (fetchEntryFromQueue()) {
             "step" -> {
@@ -387,7 +379,7 @@ class MainFrame : JFrame(Editor.filename) {
             } catch (diagnostic: Diagnostic) {
                 memoryUI.active = false
                 SwingUtilities.invokeLater {
-                    editor.caretPosition = diagnostic.position
+                    editor.setCursorTo(diagnostic.position)
                     JOptionPane.showMessageDialog(this, diagnostic.message, "Runtime error", JOptionPane.ERROR_MESSAGE)
                 }
             } catch (other: Throwable) {
