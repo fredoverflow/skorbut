@@ -53,7 +53,7 @@ class Interpreter(program: String) {
 
         val result = main.execute(Collections.emptyList())
         val exitCode = (result as ArithmeticValue).value.toInt()
-        console.print("\nmain finished with exit code $exitCode\n")
+        console.print("\nmain finished with exit code $exitCode")
         console.update?.invoke()
         if (!memory.heap.isEmpty()) {
             main.closingBrace.error("You forgot to free ${memory.heap.size} heap blocks")
