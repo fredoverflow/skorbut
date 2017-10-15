@@ -1,13 +1,25 @@
 # sloc: count significant lines of code
 # INsignificant lines contain only spaces and/or braces
 
-# $1 language
+# $1 directory
 # $2 extension
-function count {
-	printf "$1: "
-	find src -name "*.$2" -exec grep -v "^[{ }]*$" {} + | wc -l
+function countInDirectory {
+	lines=$(find "src/$1" -name "*.$2" -exec grep -v "^[{ }]*$" {} + | wc -l)
+	if [ $lines -gt 0 ]
+	then
+		printf "$1: $lines\n"
+	fi
 }
 
-#    language   extension
-count "Kotlin" "kt"
-count "  Java" "java"
+# $1 language
+# $2 extension
+function countForLanguage {
+	printf "$1\n"
+	printf "==========\n"
+	countInDirectory main $2
+	countInDirectory test $2
+	printf "\n"
+}
+
+countForLanguage "Kotlin" "kt"
+countForLanguage "Java"   "java"
