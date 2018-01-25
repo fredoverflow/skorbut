@@ -61,19 +61,19 @@ const val VOID: Byte = 30
 const val VOLATILE: Byte = 31
 const val WHILE: Byte = 32
 
-const val OPEN_BRACKET: Byte = 33
-const val CLOSE_BRACKET: Byte = 34
-const val OPEN_PAREN: Byte = 35
-const val CLOSE_PAREN: Byte = 36
+const val OPENING_BRACKET: Byte = 33
+const val CLOSING_BRACKET: Byte = 34
+const val OPENING_PAREN: Byte = 35
+const val CLOSING_PAREN: Byte = 36
 const val DOT: Byte = 37
-const val ARROW: Byte = 38
+const val HYPHEN_MORE: Byte = 38
 
 const val PLUS_PLUS: Byte = 39
-const val MINUS_MINUS: Byte = 40
-const val AMP: Byte = 41
-const val STAR: Byte = 42
+const val HYPHEN_HYPHEN: Byte = 40
+const val AMPERSAND: Byte = 41
+const val ASTERISK: Byte = 42
 const val PLUS: Byte = 43
-const val MINUS: Byte = 44
+const val HYPHEN: Byte = 44
 const val TILDE: Byte = 45
 const val BANG: Byte = 46
 
@@ -83,34 +83,34 @@ const val LESS_LESS: Byte = 49
 const val MORE_MORE: Byte = 50
 const val LESS: Byte = 51
 const val MORE: Byte = 52
-const val LESS_EQ: Byte = 53
-const val MORE_EQ: Byte = 54
-const val EQ_EQ: Byte = 55
-const val BANG_EQ: Byte = 56
+const val LESS_EQUAL: Byte = 53
+const val MORE_EQUAL: Byte = 54
+const val EQUAL_EQUAL: Byte = 55
+const val BANG_EQUAL: Byte = 56
 const val CARET: Byte = 57
-const val PIPE: Byte = 58
-const val AMP_AMP: Byte = 59
-const val PIPE_PIPE: Byte = 60
+const val BAR: Byte = 58
+const val AMPERSAND_AMPERSAND: Byte = 59
+const val BAR_BAR: Byte = 60
 
 const val QUESTION: Byte = 61
 const val COLON: Byte = 62
 
-const val EQ: Byte = 63
-const val STAR_EQ: Byte = 64
-const val SLASH_EQ: Byte = 65
-const val PERCENT_EQ: Byte = 66
-const val PLUS_EQ: Byte = 67
-const val MINUS_EQ: Byte = 68
-const val LESS_LESS_EQ: Byte = 69
-const val MORE_MORE_EQ: Byte = 70
-const val AMP_EQ: Byte = 71
-const val CARET_EQ: Byte = 72
-const val PIPE_EQ: Byte = 73
+const val EQUAL: Byte = 63
+const val ASTERISK_EQUAL: Byte = 64
+const val SLASH_EQUAL: Byte = 65
+const val PERCENT_EQUAL: Byte = 66
+const val PLUS_EQUAL: Byte = 67
+const val HYPHEN_EQUAL: Byte = 68
+const val LESS_LESS_EQUAL: Byte = 69
+const val MORE_MORE_EQUAL: Byte = 70
+const val AMPERSAND_EQUAL: Byte = 71
+const val CARET_EQUAL: Byte = 72
+const val BAR_EQUAL: Byte = 73
 
 const val COMMA: Byte = 74
 
-const val OPEN_BRACE: Byte = 75
-const val CLOSE_BRACE: Byte = 76
+const val OPENING_BRACE: Byte = 75
+const val CLOSING_BRACE: Byte = 76
 const val SEMICOLON: Byte = 77
 
 const val DOUBLE_CONSTANT: Byte = 78
@@ -124,7 +124,7 @@ const val PRINTF: Byte = 83
 const val IDENTIFIER: Byte = 84
 const val SCANF: Byte = 85
 
-const val EOF: Byte = 86
+const val END_OF_INPUT: Byte = 86
 
 fun fakeIdentifier(name: String) = Token(IDENTIFIER, Int.MIN_VALUE, name, name)
 

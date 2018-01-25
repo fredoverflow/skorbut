@@ -33,34 +33,34 @@ private val nullDenotations = arrayOfNulls<NullDenotation>(128).apply {
     this[IDENTIFIER] = IdentifierDenotation
     this[DOUBLE_CONSTANT, FLOAT_CONSTANT, INTEGER_CONSTANT, CHARACTER_CONSTANT] = ConstantDenotation
     this[STRING_LITERAL] = StringLiteralDenotation
-    this[OPEN_PAREN] = PossibleCastDenotation
-    this[PLUS_PLUS, MINUS_MINUS, AMP, STAR, PLUS, MINUS, TILDE, BANG] = PrefixDenotation
+    this[OPENING_PAREN] = PossibleCastDenotation
+    this[PLUS_PLUS, HYPHEN_HYPHEN, AMPERSAND, ASTERISK, PLUS, HYPHEN, TILDE, BANG] = PrefixDenotation
     this[SIZEOF] = SizeofDenotation
 }
 
 private val leftDenotations = arrayOfNulls<LeftDenotation>(128).apply {
-    this[OPEN_BRACKET] = SubscriptDenotation
-    this[OPEN_PAREN] = FunctionCallDenotation
+    this[OPENING_BRACKET] = SubscriptDenotation
+    this[OPENING_PAREN] = FunctionCallDenotation
     this[DOT] = DirectMemberDenotation
-    this[ARROW] = IndirectMemberDenotation
-    this[PLUS_PLUS, MINUS_MINUS] = PostfixCrementDenotation
+    this[HYPHEN_MORE] = IndirectMemberDenotation
+    this[PLUS_PLUS, HYPHEN_HYPHEN] = PostfixCrementDenotation
 
-    this[STAR, SLASH, PERCENT] = LeftAssociativeDenotation(130, ::Multiplicative)
+    this[ASTERISK, SLASH, PERCENT] = LeftAssociativeDenotation(130, ::Multiplicative)
     this[PLUS] = LeftAssociativeDenotation(120, ::Plus)
-    this[MINUS] = LeftAssociativeDenotation(120, ::Minus)
+    this[HYPHEN] = LeftAssociativeDenotation(120, ::Minus)
     this[LESS_LESS, MORE_MORE] = LeftAssociativeDenotation(110, ::Shift)
-    this[LESS, MORE, LESS_EQ, MORE_EQ] = LeftAssociativeDenotation(100, ::RelationalEquality)
-    this[EQ_EQ, BANG_EQ] = LeftAssociativeDenotation(90, ::RelationalEquality)
-    this[AMP] = LeftAssociativeDenotation(80, ::Bitwise)
+    this[LESS, MORE, LESS_EQUAL, MORE_EQUAL] = LeftAssociativeDenotation(100, ::RelationalEquality)
+    this[EQUAL_EQUAL, BANG_EQUAL] = LeftAssociativeDenotation(90, ::RelationalEquality)
+    this[AMPERSAND] = LeftAssociativeDenotation(80, ::Bitwise)
     this[CARET] = LeftAssociativeDenotation(70, ::Bitwise)
-    this[PIPE] = LeftAssociativeDenotation(60, ::Bitwise)
+    this[BAR] = LeftAssociativeDenotation(60, ::Bitwise)
 
-    this[AMP_AMP] = RightAssociativeDenotation(50, ::Logical)
-    this[PIPE_PIPE] = RightAssociativeDenotation(40, ::Logical)
+    this[AMPERSAND_AMPERSAND] = RightAssociativeDenotation(50, ::Logical)
+    this[BAR_BAR] = RightAssociativeDenotation(40, ::Logical)
     this[QUESTION] = ConditionalDenotation(30)
-    this[EQ] = RightAssociativeDenotation(20, ::Assignment)
-    this[PLUS_EQ] = RightAssociativeDenotation(20, ::PlusAssignment)
-    this[MINUS_EQ] = RightAssociativeDenotation(20, ::MinusAssignment)
+    this[EQUAL] = RightAssociativeDenotation(20, ::Assignment)
+    this[PLUS_EQUAL] = RightAssociativeDenotation(20, ::PlusAssignment)
+    this[HYPHEN_EQUAL] = RightAssociativeDenotation(20, ::MinusAssignment)
     this[COMMA] = RightAssociativeDenotation(PRECEDENCE_COMMA, ::Comma)
 }
 

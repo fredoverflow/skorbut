@@ -8,13 +8,13 @@ abstract class LeftDenotation(val precedence: Int) {
 
 object SubscriptDenotation : LeftDenotation(PRECEDENCE_POSTFIX) {
     override fun Parser.parse(left: Expression, openBracket: Token): Expression {
-        return Subscript(left, openBracket, expression()).also { expect(CLOSE_BRACKET) }
+        return Subscript(left, openBracket, expression()).also { expect(CLOSING_BRACKET) }
     }
 }
 
 object FunctionCallDenotation : LeftDenotation(PRECEDENCE_POSTFIX) {
     override fun Parser.parse(left: Expression, openParen: Token): Expression {
-        return FunctionCall(left, commaSeparatedList0(CLOSE_PAREN) { assignmentExpression() }).also { expect(CLOSE_PAREN) }
+        return FunctionCall(left, commaSeparatedList0(CLOSING_PAREN) { assignmentExpression() }).also { expect(CLOSING_PAREN) }
     }
 }
 

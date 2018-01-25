@@ -4,7 +4,7 @@ import syntax.*
 import java.util.Collections
 
 fun Parser.translationUnit(): TranslationUnit {
-    return TranslationUnit(list1Until(EOF) { externalDeclaration() })
+    return TranslationUnit(list1Until(END_OF_INPUT) { externalDeclaration() })
 }
 
 fun Parser.externalDeclaration(): ASTNode {
@@ -18,10 +18,10 @@ fun Parser.externalDeclaration(): ASTNode {
         if (isDeclarationSpecifier(token)) token.error("Did you forget to terminate the above type with a semicolon?")
     }
     val firstNamedDeclarator = namedDeclarator()
-    if (firstNamedDeclarator.declarator is Declarator.Function && current == OPEN_BRACE) {
+    if (firstNamedDeclarator.declarator is Declarator.Function && current == OPENING_BRACE) {
         next()
-        val body = list0Until(CLOSE_BRACE) { statement() }
-        val closingBrace = expect(CLOSE_BRACE)
+        val body = list0Until(CLOSING_BRACE) { statement() }
+        val closingBrace = expect(CLOSING_BRACE)
         symbolTable.closeScope()
         return FunctionDefinition(specifiers, firstNamedDeclarator, body, closingBrace)
     } else {

@@ -11,9 +11,9 @@ fun indent(source: String): String {
     val lexer = Lexer(source)
     var token = lexer.nextToken()
     var newline = source.indexOfOrLength('\n', 0)
-    while (token.kind != EOF) {
+    while (token.kind != END_OF_INPUT) {
         // scan for leading closing braces
-        while (token.start < newline && token.kind == CLOSE_BRACE) {
+        while (token.start < newline && token.kind == CLOSING_BRACE) {
             --indentation
             token = lexer.nextToken()
         }
@@ -21,8 +21,8 @@ fun indent(source: String): String {
         // scan for remaining braces
         while (token.start < newline) {
             when (token.kind) {
-                OPEN_BRACE -> ++indentation
-                CLOSE_BRACE -> --indentation
+                OPENING_BRACE -> ++indentation
+                CLOSING_BRACE -> --indentation
             }
             token = lexer.nextToken()
         }

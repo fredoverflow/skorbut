@@ -56,10 +56,10 @@ class Linter(val translationUnit: TranslationUnit) : LinterBase() {
         val root = root()
         val kind = root.kind
         when (kind) {
-            SIZEOF, OPEN_BRACKET, DOT, ARROW,
-            AMP, STAR, PLUS, MINUS, TILDE, BANG, SLASH, PERCENT,
-            LESS_LESS, MORE_MORE, LESS, MORE, LESS_EQ, MORE_EQ, EQ_EQ, BANG_EQ,
-            CARET, PIPE, AMP_AMP, PIPE_PIPE,
+            SIZEOF, OPENING_BRACKET, DOT, HYPHEN_MORE,
+            AMPERSAND, ASTERISK, PLUS, HYPHEN, TILDE, BANG, SLASH, PERCENT,
+            LESS_LESS, MORE_MORE, LESS, MORE, LESS_EQUAL, MORE_EQUAL, EQUAL_EQUAL, BANG_EQUAL,
+            CARET, BAR, AMPERSAND_AMPERSAND, BAR_BAR,
             DOUBLE_CONSTANT, FLOAT_CONSTANT, INTEGER_CONSTANT,
             CHARACTER_CONSTANT, STRING_LITERAL,
             IDENTIFIER -> root.warn("$root has no effect")

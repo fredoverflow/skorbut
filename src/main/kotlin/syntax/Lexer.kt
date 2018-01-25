@@ -164,48 +164,48 @@ class Lexer(input: String) : LexerBase(input) {
 
             '\"' -> stringLiteral()
 
-            '(' -> consume(OPEN_PAREN)
-            ')' -> consume(CLOSE_PAREN)
+            '(' -> consume(OPENING_PAREN)
+            ')' -> consume(CLOSING_PAREN)
             ',' -> consume(COMMA)
             '.' -> consume(DOT)
             ':' -> consume(COLON)
             ';' -> consume(SEMICOLON)
             '?' -> consume(QUESTION)
-            '[' -> consume(OPEN_BRACKET)
-            ']' -> consume(CLOSE_BRACKET)
-            '{' -> consume(OPEN_BRACE)
-            '}' -> consume(CLOSE_BRACE)
+            '[' -> consume(OPENING_BRACKET)
+            ']' -> consume(CLOSING_BRACKET)
+            '{' -> consume(OPENING_BRACE)
+            '}' -> consume(CLOSING_BRACE)
             '~' -> consume(TILDE)
 
             '!' -> {
                 if (eat() == '=') {
-                    consume(BANG_EQ)
+                    consume(BANG_EQUAL)
                 } else pack(BANG)
             }
 
             '%' -> {
                 if (eat() == '=') {
-                    consume(PERCENT_EQ)
+                    consume(PERCENT_EQUAL)
                 } else pack(PERCENT)
             }
 
             '&' -> {
                 if (eat() == '=') {
-                    consume(AMP_EQ)
+                    consume(AMPERSAND_EQUAL)
                 } else if (ch == '&') {
-                    consume(AMP_AMP)
-                } else pack(AMP)
+                    consume(AMPERSAND_AMPERSAND)
+                } else pack(AMPERSAND)
             }
 
             '*' -> {
                 if (eat() == '=') {
-                    consume(STAR_EQ)
-                } else pack(STAR)
+                    consume(ASTERISK_EQUAL)
+                } else pack(ASTERISK)
             }
 
             '+' -> {
                 if (eat() == '=') {
-                    consume(PLUS_EQ)
+                    consume(PLUS_EQUAL)
                 } else if (ch == '+') {
                     consume(PLUS_PLUS)
                 } else pack(PLUS)
@@ -213,61 +213,61 @@ class Lexer(input: String) : LexerBase(input) {
 
             '-' -> {
                 if (eat() == '=') {
-                    consume(MINUS_EQ)
+                    consume(HYPHEN_EQUAL)
                 } else if (ch == '-') {
-                    consume(MINUS_MINUS)
+                    consume(HYPHEN_HYPHEN)
                 } else if (ch == '>') {
-                    consume(ARROW)
-                } else pack(MINUS)
+                    consume(HYPHEN_MORE)
+                } else pack(HYPHEN)
             }
 
             '/' -> {
                 if (eat() == '=') {
-                    consume(SLASH_EQ)
+                    consume(SLASH_EQUAL)
                 } else pack(SLASH)
             }
 
             '<' -> {
                 if (eat() == '=') {
-                    consume(LESS_EQ)
+                    consume(LESS_EQUAL)
                 } else if (ch == '<') {
                     if (eat() == '=') {
-                        consume(LESS_LESS_EQ)
+                        consume(LESS_LESS_EQUAL)
                     } else pack(LESS_LESS)
                 } else pack(LESS)
             }
 
             '=' -> {
                 if (eat() == '=') {
-                    consume(EQ_EQ)
-                } else pack(EQ)
+                    consume(EQUAL_EQUAL)
+                } else pack(EQUAL)
             }
 
             '>' -> {
                 if (eat() == '=') {
-                    consume(MORE_EQ)
+                    consume(MORE_EQUAL)
                 } else if (ch == '>') {
                     if (eat() == '=') {
-                        consume(MORE_MORE_EQ)
+                        consume(MORE_MORE_EQUAL)
                     } else pack(MORE_MORE)
                 } else pack(MORE)
             }
 
             '^' -> {
                 if (eat() == '=') {
-                    consume(CARET_EQ)
+                    consume(CARET_EQUAL)
                 } else pack(CARET)
             }
 
             '|' -> {
                 if (eat() == '=') {
-                    consume(PIPE_EQ)
+                    consume(BAR_EQUAL)
                 } else if (ch == '|') {
-                    consume(PIPE_PIPE)
-                } else pack(PIPE)
+                    consume(BAR_BAR)
+                } else pack(BAR)
             }
 
-            '\u007f' -> pack(EOF)
+            '\u007f' -> pack(END_OF_INPUT)
 
             else -> error("illegal input character")
         }

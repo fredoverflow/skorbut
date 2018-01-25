@@ -738,11 +738,11 @@ class TypeChecker(translationUnit: TranslationUnit) {
                 if ((leftType is ArithmeticType) && (rightType is ArithmeticType)) {
                     this.determineValue { a, b ->
                         when (operator.kind) {
-                            AMP_AMP -> {
+                            AMPERSAND_AMPERSAND -> {
                                 if ((a as ArithmeticValue).isFalse()) Value.ZERO
                                 else (b as ArithmeticValue).normalizeBool()
                             }
-                            PIPE_PIPE -> {
+                            BAR_BAR -> {
                                 if ((a as ArithmeticValue).isTrue()) Value.ONE
                                 else (b as ArithmeticValue).normalizeBool()
                             }

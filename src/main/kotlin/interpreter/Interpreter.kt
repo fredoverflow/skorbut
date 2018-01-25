@@ -417,10 +417,10 @@ class Interpreter(program: String) {
                     Value.truth(when (operator.kind) {
                         LESS -> a < b
                         MORE -> a > b
-                        LESS_EQ -> a <= b
-                        MORE_EQ -> a >= b
-                        EQ_EQ -> a == b
-                        BANG_EQ -> a != b
+                        LESS_EQUAL -> a <= b
+                        MORE_EQUAL -> a >= b
+                        EQUAL_EQUAL -> a == b
+                        BANG_EQUAL -> a != b
                         else -> error("no evaluate for $this")
                     })
                 } else {
@@ -433,11 +433,11 @@ class Interpreter(program: String) {
             is Logical -> {
                 val left = left.evaluate() as ArithmeticValue
                 when (operator.kind) {
-                    AMP_AMP -> {
+                    AMPERSAND_AMPERSAND -> {
                         if (left.isFalse()) Value.ZERO
                         else (right.evaluate() as ArithmeticValue).normalizeBool()
                     }
-                    PIPE_PIPE -> {
+                    BAR_BAR -> {
                         if (left.isTrue()) Value.ONE
                         else (right.evaluate() as ArithmeticValue).normalizeBool()
                     }
@@ -568,7 +568,7 @@ fun multiplicative(x: Value, operator: Token, y: Value): Value {
     val a = x as ArithmeticValue
     val b = y as ArithmeticValue
     return when (operator.kind) {
-        STAR -> a * b
+        ASTERISK -> a * b
         SLASH -> a / b
         PERCENT -> a % b
         else -> error("no evaluate for $operator")
@@ -607,10 +607,10 @@ fun relationalEquality(x: ArithmeticValue, operator: Token, y: ArithmeticValue):
     return Value.truth(when (operator.kind) {
         LESS -> a < b
         MORE -> a > b
-        LESS_EQ -> a <= b
-        MORE_EQ -> a >= b
-        EQ_EQ -> a == b
-        BANG_EQ -> a != b
+        LESS_EQUAL -> a <= b
+        MORE_EQUAL -> a >= b
+        EQUAL_EQUAL -> a == b
+        BANG_EQUAL -> a != b
         else -> error("no evaluate for $operator")
     })
 }
@@ -619,9 +619,9 @@ fun bitwise(x: Value, operator: Token, y: Value, type: Type): Value {
     val a = (x as ArithmeticValue).value.toLong()
     val b = (y as ArithmeticValue).value.toLong()
     val result = when (operator.kind) {
-        AMP -> a.and(b)
+        AMPERSAND -> a.and(b)
         CARET -> a.xor(b)
-        PIPE -> a.or(b)
+        BAR -> a.or(b)
         else -> error("no evaluate for $operator")
     }
     return type.cast(Value.signedInt(result.toInt()))

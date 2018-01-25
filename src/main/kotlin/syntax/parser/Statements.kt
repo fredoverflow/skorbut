@@ -4,7 +4,7 @@ import syntax.*
 
 fun Parser.statement(): Statement {
     return when (current) {
-        OPEN_BRACE -> block()
+        OPENING_BRACE -> block()
         IF -> selectionStatement()
         SWITCH -> switchStatement()
         CASE -> caseStatement()
@@ -144,13 +144,13 @@ fun Parser.doStatement(): Statement {
 
 fun Parser.forStatement(): Statement {
     val f0r = expect(FOR)
-    expect(OPEN_PAREN)
+    expect(OPENING_PAREN)
     if (!declarationSpecifiers0().isEmpty()) {
         token.error("loop variables must be declared above the loop")
     }
     val init = unless(SEMICOLON) { expression() }
     val check = unless(SEMICOLON) { expression() }
-    val update = unless(CLOSE_PAREN) { expression() }
+    val update = unless(CLOSING_PAREN) { expression() }
     val body = statement()
     return For(f0r, init, check, update, body)
 }
@@ -163,6 +163,6 @@ fun Parser.expressionStatement(): Statement {
 
 fun Parser.block(): Block {
     return symbolTable.scoped {
-        Block(token, braced { list0Until(CLOSE_BRACE) { statement() } })
+        Block(token, braced { list0Until(CLOSING_BRACE) { statement() } })
     }
 }

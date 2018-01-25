@@ -109,16 +109,16 @@ class Parser(private val lexer: Lexer) {
     }
 
     inline fun <T> parenthesized(parse: () -> T): T {
-        expect(OPEN_PAREN)
+        expect(OPENING_PAREN)
         val result = parse()
-        expect(CLOSE_PAREN)
+        expect(CLOSING_PAREN)
         return result
     }
 
     inline fun <T> braced(parse: () -> T): T {
-        expect(OPEN_BRACE)
+        expect(OPENING_BRACE)
         val result = parse()
-        expect(CLOSE_BRACE)
+        expect(CLOSING_BRACE)
         return result
     }
 

@@ -57,7 +57,7 @@ object PossibleCastDenotation : NullDenotation() {
         if (!specifiers.isEmpty()) {
             notImplementedYet("casting")
         } else {
-            return expression().also { expect(CLOSE_PAREN) }
+            return expression().also { expect(CLOSING_PAREN) }
         }
     }
 }
@@ -67,11 +67,11 @@ object PrefixDenotation : NullDenotation() {
         val operand = subexpression(PRECEDENCE_PREFIX)
         return when (operator.kind) {
             PLUS_PLUS,
-            MINUS_MINUS -> Prefix(operator, operand)
-            AMP -> Reference(operator, operand)
-            STAR -> Dereference(operator, operand)
+            HYPHEN_HYPHEN -> Prefix(operator, operand)
+            AMPERSAND -> Reference(operator, operand)
+            ASTERISK -> Dereference(operator, operand)
             PLUS -> UnaryPlus(operator, operand)
-            MINUS -> UnaryMinus(operator, operand)
+            HYPHEN -> UnaryMinus(operator, operand)
             TILDE -> BitwiseNot(operator, operand)
             BANG -> LogicalNot(operator, operand)
             else -> error("no parse for $operator")
@@ -81,16 +81,16 @@ object PrefixDenotation : NullDenotation() {
 
 object SizeofDenotation : NullDenotation() {
     override fun Parser.parse(operator: Token): Expression {
-        if (current == OPEN_PAREN) {
+        if (current == OPENING_PAREN) {
             next()
             val specifiers = declarationSpecifiers0()
             if (!specifiers.isEmpty()) {
                 val result = SizeofType(operator, DeclarationSpecifiers(specifiers), abstractDeclarator())
-                expect(CLOSE_PAREN)
+                expect(CLOSING_PAREN)
                 return result
             } else {
                 val primary = expression()
-                expect(CLOSE_PAREN)
+                expect(CLOSING_PAREN)
                 val unary = subexpression(primary, PRECEDENCE_PREFIX)
                 return SizeofExpression(operator, unary)
             }
