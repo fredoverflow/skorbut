@@ -224,13 +224,21 @@ public class Flexer extends freditor.Flexer {
     public static final int TILDE = -46;
 
     @Override
-    public int openingBrace() {
-        return OPENING_BRACE;
-    }
+    public int indentationDelta(int state) {
+        switch (state) {
+            case OPENING_BRACE:
+            case OPENING_BRACKET:
+            case OPENING_PAREN:
+                return +1;
 
-    @Override
-    public int closingBrace() {
-        return CLOSING_BRACE;
+            case CLOSING_BRACE:
+            case CLOSING_BRACKET:
+            case CLOSING_PAREN:
+                return -1;
+
+            default:
+                return 0;
+        }
     }
 
     @Override
