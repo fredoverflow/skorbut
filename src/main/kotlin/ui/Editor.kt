@@ -1,11 +1,12 @@
 package ui
 
 import freditor.FreditorUI
+import freditor.JavaIndenter
 import java.io.File
 import java.io.IOException
 import java.security.MessageDigest
 
-class Editor : FreditorUI(Flexer(), 0, 25) {
+class Editor : FreditorUI(Flexer.instance, JavaIndenter(Flexer.instance), 0, 25) {
     companion object {
         val directory = "${System.getProperty("user.home")}/skorbut"
         val filenamePrefix = "$directory/skorbut"
