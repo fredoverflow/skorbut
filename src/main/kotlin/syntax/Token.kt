@@ -23,7 +23,7 @@ val TOKENS = arrayOf("assert", "auto", "break", "case", "char", "const", "contin
         "<", ">", "<=", ">=", "==", "!=", "^", "|", "&&", "||", "?", ":",
         "=", "*=", "/=", "%=", "+=", "-=", "<<=", ">>=", "&=", "^=", "|=", ",", "{", "}", ";",
         "double constant", "float constant", "integer constant", "character constant",
-        "string literal", "identifier", "printf", "scanf", "end of file", "\$anon")
+        "string literal", "printf", "identifier", "scanf", "end of input", "\$anon")
 
 fun Byte.show(): String = TOKENS[this.toInt()]
 
