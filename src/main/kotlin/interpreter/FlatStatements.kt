@@ -3,7 +3,6 @@ package interpreter
 import syntax.tree.DeclarationSpecifiers
 import syntax.tree.Expression
 import syntax.tree.NamedDeclarator
-import java.util.*
 
 abstract class FlatStatement {
     open fun transfersControl(): Boolean = false

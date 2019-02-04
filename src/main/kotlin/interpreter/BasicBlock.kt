@@ -1,7 +1,5 @@
 package interpreter
 
-import java.util.*
-
 class BasicBlock {
     private val statements = ArrayList<FlatStatement>()
     fun getStatements(): List<FlatStatement> = statements

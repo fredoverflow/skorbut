@@ -2,6 +2,7 @@ package ui
 
 import freditor.FreditorUI
 import freditor.JavaIndenter
+
 import java.io.File
 import java.io.IOException
 import java.security.MessageDigest

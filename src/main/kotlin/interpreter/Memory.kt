@@ -1,11 +1,13 @@
 package interpreter
 
-import semantic.*
-import semantic.types.*
+import semantic.Symbol
+import semantic.types.ArrayType
+import semantic.types.SignedCharType
+import semantic.types.StructType
+import semantic.types.Type
 import syntax.lexer.fakeIdentifier
 import syntax.lexer.missingIdentifier
 import syntax.tree.NamedDeclarator
-import java.util.*
 
 fun Iterable<String>.synthesizeStringConstantsType(): StructType {
     val symbols = ArrayList<Symbol>()

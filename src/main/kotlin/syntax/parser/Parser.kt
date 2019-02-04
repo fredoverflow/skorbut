@@ -3,7 +3,6 @@ package syntax.parser
 import common.Diagnostic
 import semantic.MutableSymbolTable
 import syntax.lexer.*
-import java.util.*
 
 class Parser(private val lexer: Lexer) {
     private var previousEnd: Int = 0
@@ -44,7 +43,7 @@ class Parser(private val lexer: Lexer) {
     }
 
     inline fun <T> commaSeparatedList1(first: T, parse: () -> T): List<T> {
-        if (current != COMMA) return Collections.singletonList(first)
+        if (current != COMMA) return listOf(first)
 
         val list = ArrayList<T>()
         list.add(first)
@@ -61,7 +60,7 @@ class Parser(private val lexer: Lexer) {
 
     inline fun <T> commaSeparatedList0(terminator: Byte, parse: () -> T): List<T> {
         if (current == terminator) {
-            return Collections.emptyList()
+            return emptyList()
         } else {
             return commaSeparatedList1(parse)
         }
@@ -78,7 +77,7 @@ class Parser(private val lexer: Lexer) {
 
     inline fun <T> list1While(good: (Byte) -> Boolean, parse: () -> T): List<T> {
         val first = parse()
-        if (!good(current)) return Collections.singletonList(first)
+        if (!good(current)) return listOf(first)
 
         val list = ArrayList<T>()
         list.add(first)
@@ -90,7 +89,7 @@ class Parser(private val lexer: Lexer) {
 
     inline fun <T> list0While(good: (Byte) -> Boolean, parse: () -> T): List<T> {
         if (!good(current)) {
-            return Collections.emptyList()
+            return emptyList()
         } else {
             return list1While(good, parse)
         }

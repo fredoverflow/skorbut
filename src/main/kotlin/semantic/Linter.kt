@@ -5,7 +5,6 @@ import interpreter.returnType
 import semantic.types.VoidType
 import syntax.lexer.*
 import syntax.tree.*
-import java.util.HashSet
 
 class Linter(val translationUnit: TranslationUnit) : LinterBase() {
     init {

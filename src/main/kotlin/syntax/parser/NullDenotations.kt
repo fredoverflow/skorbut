@@ -2,7 +2,6 @@ package syntax.parser
 
 import syntax.lexer.*
 import syntax.tree.*
-import java.util.Collections
 
 abstract class NullDenotation {
     abstract fun Parser.parse(token: Token): Expression
@@ -23,7 +22,7 @@ object IdentifierDenotation : NullDenotation() {
             next()
             commaSeparatedList1 { assignmentExpression() }
         } else {
-            Collections.emptyList()
+            emptyList()
         }
         return PrintfCall(printf, format, arguments)
     }
@@ -34,7 +33,7 @@ object IdentifierDenotation : NullDenotation() {
             next()
             commaSeparatedList1 { assignmentExpression() }
         } else {
-            Collections.emptyList()
+            emptyList()
         }
         return ScanfCall(scanf, format, arguments)
     }

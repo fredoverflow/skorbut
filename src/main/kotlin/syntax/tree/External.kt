@@ -4,7 +4,6 @@ import interpreter.BasicBlock
 import semantic.types.StructType
 import semantic.types.StructTypeLater
 import syntax.lexer.Token
-import java.util.*
 
 class TranslationUnit(val externalDeclarations: List<Node>) : Node() {
     val functions = externalDeclarations.filterIsInstance<FunctionDefinition>()

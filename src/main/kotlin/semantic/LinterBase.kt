@@ -1,9 +1,8 @@
 package semantic
 
 import common.Diagnostic
-import syntax.tree.Expression
 import syntax.lexer.Token
-import java.util.ArrayList
+import syntax.tree.Expression
 
 abstract class LinterBase {
     private val warnings = ArrayList<Diagnostic>()

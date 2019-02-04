@@ -1,7 +1,5 @@
 package common
 
-import java.util.HashMap
-
 class Counter {
     private val counter = HashMap<Any, Int>()
 

@@ -3,7 +3,6 @@ package semantic.types
 import semantic.Symbol
 import syntax.lexer.Token
 import syntax.lexer.missingIdentifier
-import java.util.*
 
 abstract class CompletableType : Type {
     private var complete = false
@@ -27,7 +26,7 @@ class StructType(val name: Token, val members: List<Symbol>) : CompletableType()
     override fun toString(): String = "struct $name"
 }
 
-val StructTypeLater = StructType(missingIdentifier, Collections.emptyList())
+val StructTypeLater = StructType(missingIdentifier, emptyList())
 
 class StructTag(val structType: StructType) : Type {
     override fun requiresStorage(): Boolean = false

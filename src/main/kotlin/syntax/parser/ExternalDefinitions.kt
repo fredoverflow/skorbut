@@ -2,7 +2,6 @@ package syntax.parser
 
 import syntax.lexer.*
 import syntax.tree.*
-import java.util.Collections
 
 fun Parser.translationUnit(): TranslationUnit {
     return TranslationUnit(list1Until(END_OF_INPUT) { externalDeclaration() })
@@ -14,7 +13,7 @@ fun Parser.externalDeclaration(): Node {
     if (declarationState == DeclarationState.NO_DECLARATOR_REQUIRED && !isTypedef) {
         if (current == SEMICOLON) {
             next()
-            return Declaration(specifiers, Collections.emptyList())
+            return Declaration(specifiers, emptyList())
         }
         if (isDeclarationSpecifier(token)) token.error("Did you forget to terminate the above type with a semicolon?")
     }

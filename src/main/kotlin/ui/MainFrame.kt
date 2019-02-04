@@ -5,11 +5,18 @@ import freditor.LineNumbers
 import interpreter.Interpreter
 import semantic.Linter
 import syntax.tree.Node
-import java.awt.*
-import java.awt.event.*
+
+import java.awt.BorderLayout
+import java.awt.Dimension
+import java.awt.Toolkit
+import java.awt.event.KeyAdapter
+import java.awt.event.KeyEvent
+import java.awt.event.WindowAdapter
+import java.awt.event.WindowEvent
 import java.util.concurrent.ArrayBlockingQueue
+
 import javax.swing.*
-import javax.swing.event.*
+import javax.swing.event.TreeModelListener
 import javax.swing.tree.TreeModel
 import javax.swing.tree.TreePath
 

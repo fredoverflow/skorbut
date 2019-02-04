@@ -1,13 +1,22 @@
 package ui
 
 import common.Counter
-import interpreter.*
-import semantic.types.*
+import interpreter.Memory
+import interpreter.PointerValue
+import interpreter.Segment
+import semantic.types.ArrayType
+import semantic.types.StructType
+import semantic.types.Type
+
 import java.awt.*
-import java.awt.geom.*
-import java.util.*
+import java.awt.geom.Line2D
+import java.awt.geom.QuadCurve2D
+
 import javax.swing.*
-import javax.swing.border.*
+import javax.swing.border.CompoundBorder
+import javax.swing.border.EmptyBorder
+import javax.swing.border.LineBorder
+import javax.swing.border.TitledBorder
 
 class MemoryUI(var memory: Memory) : JPanel() {
     init {

@@ -1,13 +1,12 @@
 package interpreter
 
 import common.Diagnostic
-import semantic.*
+import semantic.TypeChecker
 import semantic.types.*
 import syntax.lexer.*
 import syntax.parser.Parser
 import syntax.parser.translationUnit
 import syntax.tree.*
-import java.util.*
 
 fun FunctionDefinition.returnType(): Type = (namedDeclarator.type as FunctionType).returnType
 
@@ -52,7 +51,7 @@ class Interpreter(program: String) {
         if (!main.parameters.isEmpty()) main.root().error("main cannot have parameters")
         if (main.returnType() !== SignedIntType) main.root().error("main must return int")
 
-        val result = main.execute(Collections.emptyList())
+        val result = main.execute(emptyList())
         val exitCode = (result as ArithmeticValue).value.toInt()
         console.print("\nmain finished with exit code $exitCode")
         console.update?.invoke()

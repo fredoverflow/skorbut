@@ -5,7 +5,6 @@ import semantic.types.*
 import syntax.lexer.*
 import syntax.tree.*
 import text.skipDigits
-import java.util.*
 
 class TypeChecker(translationUnit: TranslationUnit) {
     private val symbolTable = MutableSymbolTable()

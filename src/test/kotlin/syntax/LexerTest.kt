@@ -1,9 +1,10 @@
 package syntax
 
-import java.util.Random
+import org.junit.Assert.assertEquals
 import org.junit.Test
-import org.junit.Assert.*
 import syntax.lexer.*
+
+import kotlin.random.Random
 
 class LexerTest {
     var lexer = Lexer("")
@@ -110,12 +111,10 @@ class LexerTest {
         expectIdentifier(identifier)
     }
 
-    private fun randomLetter(): Char = (rng.nextInt(26) + 97).toChar()
-
-    private val rng = Random()
+    private fun randomLetter(): Char = (Random.nextInt(26) + 97).toChar()
 
     private fun randomLetterOtherThan(forbidden: Char): Char {
-        val ch = (rng.nextInt(26 - 1) + 97).toChar()
+        val ch = (Random.nextInt(26 - 1) + 97).toChar()
         // ch is a random character between a and y.
         // In case ch is the forbidden character, 'z' is available.
         // All characters will be chosen with the same probability.

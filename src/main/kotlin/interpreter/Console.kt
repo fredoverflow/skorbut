@@ -1,9 +1,13 @@
 package interpreter
 
-import semantic.types.*
+import semantic.types.DoubleType
+import semantic.types.FloatType
+import semantic.types.SignedCharType
+import semantic.types.SignedIntType
 import syntax.lexer.Token
 import text.parseInt
 import text.skipDigits
+
 import java.util.concurrent.LinkedBlockingDeque
 import java.util.concurrent.atomic.AtomicBoolean
 
