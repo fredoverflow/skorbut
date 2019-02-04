@@ -1,4 +1,4 @@
-package syntax
+package syntax.lexer
 
 import common.Diagnostic
 

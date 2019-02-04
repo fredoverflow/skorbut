@@ -1,7 +1,8 @@
 package semantic.types
 
 import semantic.Symbol
-import syntax.*
+import syntax.lexer.Token
+import syntax.lexer.missingIdentifier
 import java.util.*
 
 abstract class CompletableType : Type {

@@ -1,11 +1,12 @@
-package syntax
+package syntax.tree
 
 import interpreter.BasicBlock
 import semantic.types.StructType
 import semantic.types.StructTypeLater
+import syntax.lexer.Token
 import java.util.*
 
-class TranslationUnit(val externalDeclarations: List<ASTNode>) : ASTNode() {
+class TranslationUnit(val externalDeclarations: List<Node>) : Node() {
     val functions = externalDeclarations.filterIsInstance<FunctionDefinition>()
     val declarations: List<Declaration>
 
@@ -18,7 +19,7 @@ class TranslationUnit(val externalDeclarations: List<ASTNode>) : ASTNode() {
         }
     }
 
-    override fun forEachChild(action: (ASTNode) -> Unit) {
+    override fun forEachChild(action: (Node) -> Unit) {
         externalDeclarations.forEach(action)
     }
 
@@ -27,7 +28,7 @@ class TranslationUnit(val externalDeclarations: List<ASTNode>) : ASTNode() {
     override fun toString(): String = "translation unit"
 }
 
-class FunctionDefinition(val specifiers: DeclarationSpecifiers, val namedDeclarator: NamedDeclarator, val body: List<Statement>, val closingBrace: Token) : ASTNode() {
+class FunctionDefinition(val specifiers: DeclarationSpecifiers, val namedDeclarator: NamedDeclarator, val body: List<Statement>, val closingBrace: Token) : Node() {
     fun name(): String = namedDeclarator.name.text
 
     val parameters: List<NamedDeclarator> = (namedDeclarator.declarator as Declarator.Function).parameters.map { it.namedDeclarator }
@@ -36,7 +37,7 @@ class FunctionDefinition(val specifiers: DeclarationSpecifiers, val namedDeclara
 
     lateinit var controlFlowGraph: LinkedHashMap<String, BasicBlock>
 
-    override fun forEachChild(action: (ASTNode) -> Unit) {
+    override fun forEachChild(action: (Node) -> Unit) {
         // action(declarator)
         body.forEach(action)
     }

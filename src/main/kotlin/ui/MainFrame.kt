@@ -4,7 +4,7 @@ import common.Diagnostic
 import freditor.LineNumbers
 import interpreter.Interpreter
 import semantic.Linter
-import syntax.ASTNode
+import syntax.tree.Node
 import java.awt.*
 import java.awt.event.*
 import java.util.concurrent.ArrayBlockingQueue
@@ -121,7 +121,7 @@ class MainFrame : JFrame(Editor.filename) {
     private fun listenToSyntaxTree() {
         syntaxTree.addTreeSelectionListener {
             val node = it.newLeadSelectionPath?.lastPathComponent
-            if (node is ASTNode) {
+            if (node is Node) {
                 editor.setCursorTo(node.root().start)
             }
             editor.requestFocusInWindow()
@@ -262,14 +262,14 @@ class MainFrame : JFrame(Editor.filename) {
 
             override fun getChildCount(parent: Any): Int {
                 var count = 0
-                (parent as ASTNode).forEachChild { ++count }
+                (parent as Node).forEachChild { ++count }
                 return count
             }
 
             override fun getChild(parent: Any, index: Int): Any? {
-                var child: ASTNode? = null
+                var child: Node? = null
                 var i = 0
-                (parent as ASTNode).forEachChild {
+                (parent as Node).forEachChild {
                     if (i == index) {
                         child = it
                     }
@@ -281,7 +281,7 @@ class MainFrame : JFrame(Editor.filename) {
             override fun getIndexOfChild(parent: Any, child: Any): Int {
                 var index = -1
                 var i = 0
-                (parent as ASTNode).forEachChild {
+                (parent as Node).forEachChild {
                     if (it === child) {
                         index = i
                     }

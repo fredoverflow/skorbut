@@ -3,6 +3,7 @@ package syntax
 import java.util.Random
 import org.junit.Test
 import org.junit.Assert.*
+import syntax.lexer.*
 
 class LexerTest {
     var lexer = Lexer("")

@@ -1,6 +1,7 @@
 package syntax.parser
 
-import syntax.*
+import syntax.lexer.*
+import syntax.tree.*
 
 const val PRECEDENCE_POSTFIX = 150
 const val PRECEDENCE_PREFIX = 140

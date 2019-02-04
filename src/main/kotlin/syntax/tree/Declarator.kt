@@ -1,9 +1,10 @@
-package syntax
+package syntax.tree
 
 import semantic.types.Later
 import semantic.types.Type
+import syntax.lexer.Token
 
-class NamedDeclarator(val name: Token, val declarator: Declarator) : ASTNode() {
+class NamedDeclarator(val name: Token, val declarator: Declarator) : Node() {
     override fun root(): Token = name
 
     var type: Type = Later
@@ -40,10 +41,10 @@ sealed class Declarator {
     }
 }
 
-abstract class Initializer : ASTNode()
+abstract class Initializer : Node()
 
 class ExpressionInitializer(val expression: Expression) : Initializer() {
-    override fun forEachChild(action: (ASTNode) -> Unit) {
+    override fun forEachChild(action: (Node) -> Unit) {
         action(expression)
     }
 
@@ -51,7 +52,7 @@ class ExpressionInitializer(val expression: Expression) : Initializer() {
 }
 
 class InitializerList(val openBrace: Token, val list: List<Initializer>) : Initializer() {
-    override fun forEachChild(action: (ASTNode) -> Unit) {
+    override fun forEachChild(action: (Node) -> Unit) {
         list.forEach(action)
     }
 

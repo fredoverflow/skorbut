@@ -2,7 +2,8 @@ package syntax.parser
 
 import semantic.types.MarkerIsTypedefName
 import semantic.types.MarkerNotTypedefName
-import syntax.*
+import syntax.lexer.*
+import syntax.tree.*
 
 enum class DeclarationState {
     OPEN, PRIMITIVE, USER_DEFINED, NO_DECLARATOR_REQUIRED

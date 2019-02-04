@@ -1,7 +1,7 @@
 package semantic
 
 import semantic.types.Type
-import syntax.Token
+import syntax.lexer.Token
 
 class MutableSymbolTable {
     private var symbolTable = emptySymbolTable

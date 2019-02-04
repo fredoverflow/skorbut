@@ -1,4 +1,4 @@
-package syntax
+package syntax.lexer
 
 class Lexer(input: String) : LexerBase(input) {
     private fun identifierOrKeyword(): Token {

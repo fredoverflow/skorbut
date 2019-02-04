@@ -1,9 +1,11 @@
-package syntax
+package syntax.tree
 
-abstract class Statement : ASTNode()
+import syntax.lexer.Token
+
+abstract class Statement : Node()
 
 class Declaration(val specifiers: DeclarationSpecifiers, val namedDeclarators: List<NamedDeclarator>) : Statement() {
-    override fun forEachChild(action: (ASTNode) -> Unit) {
+    override fun forEachChild(action: (Node) -> Unit) {
         namedDeclarators.forEach(action)
     }
 
@@ -13,7 +15,7 @@ class Declaration(val specifiers: DeclarationSpecifiers, val namedDeclarators: L
 }
 
 class Block(val openBrace: Token, val statements: List<Statement>) : Statement() {
-    override fun forEachChild(action: (ASTNode) -> Unit) {
+    override fun forEachChild(action: (Node) -> Unit) {
         statements.forEach(action)
     }
 
@@ -21,7 +23,7 @@ class Block(val openBrace: Token, val statements: List<Statement>) : Statement()
 }
 
 class ExpressionStatement(val expression: Expression) : Statement() {
-    override fun forEachChild(action: (ASTNode) -> Unit) {
+    override fun forEachChild(action: (Node) -> Unit) {
         action(expression)
     }
 
@@ -31,7 +33,7 @@ class ExpressionStatement(val expression: Expression) : Statement() {
 }
 
 class IfThen(val iF: Token, val condition: Expression, val th3n: Statement) : Statement() {
-    override fun forEachChild(action: (ASTNode) -> Unit) {
+    override fun forEachChild(action: (Node) -> Unit) {
         action(condition)
         action(th3n)
     }
@@ -40,7 +42,7 @@ class IfThen(val iF: Token, val condition: Expression, val th3n: Statement) : St
 }
 
 class IfThenElse(val iF: Token, val condition: Expression, val th3n: Statement, val e1se: Statement) : Statement() {
-    override fun forEachChild(action: (ASTNode) -> Unit) {
+    override fun forEachChild(action: (Node) -> Unit) {
         action(condition)
         action(th3n)
         action(e1se)
@@ -50,7 +52,7 @@ class IfThenElse(val iF: Token, val condition: Expression, val th3n: Statement, 
 }
 
 class Switch(val switch: Token, val control: Expression, val body: Statement) : Statement() {
-    override fun forEachChild(action: (ASTNode) -> Unit) {
+    override fun forEachChild(action: (Node) -> Unit) {
         action(control)
         action(body)
     }
@@ -59,7 +61,7 @@ class Switch(val switch: Token, val control: Expression, val body: Statement) : 
 }
 
 class Case(val case: Token, val choice: Expression, val body: Statement) : Statement() {
-    override fun forEachChild(action: (ASTNode) -> Unit) {
+    override fun forEachChild(action: (Node) -> Unit) {
         action(choice)
         action(body)
     }
@@ -68,7 +70,7 @@ class Case(val case: Token, val choice: Expression, val body: Statement) : State
 }
 
 class Default(val default: Token, val body: Statement) : Statement() {
-    override fun forEachChild(action: (ASTNode) -> Unit) {
+    override fun forEachChild(action: (Node) -> Unit) {
         action(body)
     }
 
@@ -76,7 +78,7 @@ class Default(val default: Token, val body: Statement) : Statement() {
 }
 
 class While(val whi1e: Token, val condition: Expression, val body: Statement) : Statement() {
-    override fun forEachChild(action: (ASTNode) -> Unit) {
+    override fun forEachChild(action: (Node) -> Unit) {
         action(condition)
         action(body)
     }
@@ -85,7 +87,7 @@ class While(val whi1e: Token, val condition: Expression, val body: Statement) : 
 }
 
 class Do(val d0: Token, val body: Statement, val condition: Expression) : Statement() {
-    override fun forEachChild(action: (ASTNode) -> Unit) {
+    override fun forEachChild(action: (Node) -> Unit) {
         action(body)
         action(condition)
     }
@@ -94,7 +96,7 @@ class Do(val d0: Token, val body: Statement, val condition: Expression) : Statem
 }
 
 class For(val f0r: Token, val init: Expression?, val condition: Expression?, val update: Expression?, val body: Statement) : Statement() {
-    override fun forEachChild(action: (ASTNode) -> Unit) {
+    override fun forEachChild(action: (Node) -> Unit) {
         init?.run(action)
         condition?.run(action)
         update?.run(action)
@@ -113,7 +115,7 @@ class Break(val br3ak: Token) : Statement() {
 }
 
 class Return(val r3turn: Token, val result: Expression) : Statement() {
-    override fun forEachChild(action: (ASTNode) -> Unit) {
+    override fun forEachChild(action: (Node) -> Unit) {
         action(result)
     }
 
@@ -121,7 +123,7 @@ class Return(val r3turn: Token, val result: Expression) : Statement() {
 }
 
 class Assert(val ass3rt: Token, val condition: Expression) : Statement() {
-    override fun forEachChild(action: (ASTNode) -> Unit) {
+    override fun forEachChild(action: (Node) -> Unit) {
         action(condition)
     }
 
@@ -129,7 +131,7 @@ class Assert(val ass3rt: Token, val condition: Expression) : Statement() {
 }
 
 class LabeledStatement(val label: Token, val statement: Statement) : Statement() {
-    override fun forEachChild(action: (ASTNode) -> Unit) {
+    override fun forEachChild(action: (Node) -> Unit) {
         action(statement)
     }
 

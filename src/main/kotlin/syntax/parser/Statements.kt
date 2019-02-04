@@ -1,6 +1,7 @@
 package syntax.parser
 
-import syntax.*
+import syntax.lexer.*
+import syntax.tree.*
 
 fun Parser.statement(): Statement {
     return when (current) {

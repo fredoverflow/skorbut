@@ -2,7 +2,7 @@ package syntax.parser
 
 import common.Diagnostic
 import semantic.MutableSymbolTable
-import syntax.*
+import syntax.lexer.*
 import java.util.*
 
 class Parser(private val lexer: Lexer) {

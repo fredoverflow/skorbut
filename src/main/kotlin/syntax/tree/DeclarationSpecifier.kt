@@ -1,9 +1,12 @@
-package syntax
+package syntax.tree
 
 import semantic.types.Later
 import semantic.types.Type
+import syntax.lexer.ENUM
+import syntax.lexer.STRUCT
+import syntax.lexer.Token
 
-sealed class DeclarationSpecifier : ASTNode() {
+sealed class DeclarationSpecifier : Node() {
     abstract fun kind(): Byte
 
     class Primitive(val token: Token) : DeclarationSpecifier() {
@@ -17,7 +20,7 @@ sealed class DeclarationSpecifier : ASTNode() {
 
         override fun root(): Token = name
 
-        override fun forEachChild(action: (ASTNode) -> Unit) {
+        override fun forEachChild(action: (Node) -> Unit) {
             body.forEach { action(it) }
         }
 
@@ -37,7 +40,7 @@ sealed class DeclarationSpecifier : ASTNode() {
 
         override fun root(): Token = name
 
-        override fun forEachChild(action: (ASTNode) -> Unit) {
+        override fun forEachChild(action: (Node) -> Unit) {
             body.forEach { action(it) }
         }
 
@@ -53,29 +56,29 @@ sealed class DeclarationSpecifier : ASTNode() {
     }
 }
 
-class StructDeclaration(val specifiers: DeclarationSpecifiers, val declarators: List<NamedDeclarator>) : ASTNode() {
+class StructDeclaration(val specifiers: DeclarationSpecifiers, val declarators: List<NamedDeclarator>) : Node() {
     override fun root(): Token = specifiers.root()
 
-    override fun forEachChild(action: (ASTNode) -> Unit) {
+    override fun forEachChild(action: (Node) -> Unit) {
         declarators.forEach { action(it) }
     }
 
     override fun toString(): String = specifiers.toString()
 }
 
-class DeclarationSpecifiers(val list: List<DeclarationSpecifier>) : ASTNode() {
+class DeclarationSpecifiers(val list: List<DeclarationSpecifier>) : Node() {
     var storageClass: Byte = -1
     var type: Type = Later
 
     override fun root(): Token = list[0].root()
 
-    override fun forEachChild(action: (ASTNode) -> Unit) {
+    override fun forEachChild(action: (Node) -> Unit) {
         list.forEach { action(it) }
     }
 
     override fun toString(): String = list.joinToString(" ")
 }
 
-class Enumerator(val name: Token, val init: Expression?) : ASTNode() {
+class Enumerator(val name: Token, val init: Expression?) : Node() {
     override fun root(): Token = name
 }

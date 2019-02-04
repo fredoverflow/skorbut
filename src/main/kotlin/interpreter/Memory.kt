@@ -2,7 +2,9 @@ package interpreter
 
 import semantic.*
 import semantic.types.*
-import syntax.*
+import syntax.lexer.fakeIdentifier
+import syntax.lexer.missingIdentifier
+import syntax.tree.NamedDeclarator
 import java.util.*
 
 fun Iterable<String>.synthesizeStringConstantsType(): StructType {

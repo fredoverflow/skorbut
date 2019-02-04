@@ -1,11 +1,12 @@
-package syntax
+package syntax.tree
 
 import interpreter.Value
 import semantic.Symbol
 import semantic.types.Later
 import semantic.types.Type
+import syntax.lexer.Token
 
-abstract class Expression : ASTNode() {
+abstract class Expression : Node() {
     var type: Type = Later
     var value: Value? = null
 
@@ -15,7 +16,7 @@ abstract class Expression : ASTNode() {
 }
 
 abstract class Unary(val operator: Token, val operand: Expression) : Expression() {
-    override fun forEachChild(action: (ASTNode) -> Unit) {
+    override fun forEachChild(action: (Node) -> Unit) {
         action(operand)
     }
 
@@ -23,7 +24,7 @@ abstract class Unary(val operator: Token, val operand: Expression) : Expression(
 }
 
 abstract class Binary(val left: Expression, val operator: Token, val right: Expression) : Expression() {
-    override fun forEachChild(action: (ASTNode) -> Unit) {
+    override fun forEachChild(action: (Node) -> Unit) {
         action(left)
         action(right)
     }
@@ -46,7 +47,7 @@ class Identifier(val name: Token) : Expression() {
 }
 
 class PrintfCall(val printf: Token, val format: Token, val arguments: List<Expression>) : Expression() {
-    override fun forEachChild(action: (ASTNode) -> Unit) {
+    override fun forEachChild(action: (Node) -> Unit) {
         arguments.forEach(action)
     }
 
@@ -56,7 +57,7 @@ class PrintfCall(val printf: Token, val format: Token, val arguments: List<Expre
 }
 
 class ScanfCall(val scanf: Token, val format: Token, val arguments: List<Expression>) : Expression() {
-    override fun forEachChild(action: (ASTNode) -> Unit) {
+    override fun forEachChild(action: (Node) -> Unit) {
         arguments.forEach(action)
     }
 
@@ -72,7 +73,7 @@ class Subscript(x: Expression, f: Token, y: Expression) : Binary(x, f, y) {
 }
 
 class FunctionCall(val function: Expression, val arguments: List<Expression>) : Expression() {
-    override fun forEachChild(action: (ASTNode) -> Unit) {
+    override fun forEachChild(action: (Node) -> Unit) {
         action(function)
         arguments.forEach(action)
     }
@@ -83,7 +84,7 @@ class FunctionCall(val function: Expression, val arguments: List<Expression>) : 
 }
 
 class DirectMemberAccess(val left: Expression, val dot: Token, val right: Token) : Expression() {
-    override fun forEachChild(action: (ASTNode) -> Unit) {
+    override fun forEachChild(action: (Node) -> Unit) {
         action(left)
     }
 
@@ -91,7 +92,7 @@ class DirectMemberAccess(val left: Expression, val dot: Token, val right: Token)
 }
 
 class IndirectMemberAccess(val left: Expression, val arrow: Token, val right: Token) : Expression() {
-    override fun forEachChild(action: (ASTNode) -> Unit) {
+    override fun forEachChild(action: (Node) -> Unit) {
         action(left)
     }
 
@@ -135,7 +136,7 @@ class Bitwise(x: Expression, f: Token, y: Expression) : Binary(x, f, y)
 class Logical(x: Expression, f: Token, y: Expression) : Binary(x, f, y)
 
 class Conditional(val condition: Expression, val question: Token, val th3n: Expression, val colon: Token, val e1se: Expression) : Expression() {
-    override fun forEachChild(action: (ASTNode) -> Unit) {
+    override fun forEachChild(action: (Node) -> Unit) {
         action(condition)
         action(th3n)
         action(e1se)

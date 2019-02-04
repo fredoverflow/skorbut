@@ -1,13 +1,14 @@
 package syntax.parser
 
-import syntax.*
+import syntax.lexer.*
+import syntax.tree.*
 import java.util.Collections
 
 fun Parser.translationUnit(): TranslationUnit {
     return TranslationUnit(list1Until(END_OF_INPUT) { externalDeclaration() })
 }
 
-fun Parser.externalDeclaration(): ASTNode {
+fun Parser.externalDeclaration(): Node {
     val specifiers = declarationSpecifiers1()
     val isTypedef = specifiers.list.any { it.kind() == TYPEDEF }
     if (declarationState == DeclarationState.NO_DECLARATOR_REQUIRED && !isTypedef) {

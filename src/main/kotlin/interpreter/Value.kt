@@ -1,7 +1,7 @@
 package interpreter
 
 import semantic.types.*
-import syntax.*
+import syntax.lexer.Token
 
 data class Object(val segment: Segment, val offset: Int, val type: Type, val index: Int, val bound: Int) {
     init {

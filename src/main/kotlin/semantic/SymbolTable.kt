@@ -3,7 +3,7 @@ package semantic
 import common.Diagnostic
 import semantic.types.FunctionType
 import semantic.types.Type
-import syntax.*
+import syntax.lexer.Token
 
 data class Symbol(val name: Token, val type: Type, val offset: Int) {
     override fun toString(): String = "$name: $type @ $offset"

@@ -2,7 +2,8 @@ package semantic
 
 import interpreter.*
 import semantic.types.*
-import syntax.*
+import syntax.lexer.*
+import syntax.tree.*
 import text.skipDigits
 import java.util.*
 

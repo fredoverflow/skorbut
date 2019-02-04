@@ -1,7 +1,7 @@
 package interpreter
 
 import semantic.types.*
-import syntax.*
+import syntax.lexer.Token
 import text.parseInt
 import text.skipDigits
 import java.util.concurrent.LinkedBlockingDeque

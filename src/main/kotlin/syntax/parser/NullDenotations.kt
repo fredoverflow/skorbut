@@ -1,6 +1,7 @@
 package syntax.parser
 
-import syntax.*
+import syntax.lexer.*
+import syntax.tree.*
 import java.util.Collections
 
 abstract class NullDenotation {

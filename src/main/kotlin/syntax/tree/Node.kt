@@ -1,19 +1,21 @@
-package syntax
+package syntax.tree
 
-abstract class ASTNode {
-    fun walk(enter: (ASTNode) -> Unit, leave: (ASTNode) -> Unit) {
+import syntax.lexer.Token
+
+abstract class Node {
+    fun walk(enter: (Node) -> Unit, leave: (Node) -> Unit) {
         enter(this)
         walkChildren(enter, leave)
         leave(this)
     }
 
-    fun walkChildren(enter: (ASTNode) -> Unit, leave: (ASTNode) -> Unit) {
+    fun walkChildren(enter: (Node) -> Unit, leave: (Node) -> Unit) {
         forEachChild {
             it.walk(enter, leave)
         }
     }
 
-    open fun forEachChild(action: (ASTNode) -> Unit) {
+    open fun forEachChild(action: (Node) -> Unit) {
     }
 
     abstract fun root(): Token

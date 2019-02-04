@@ -1,8 +1,8 @@
 package semantic
 
 import common.Diagnostic
-import syntax.Expression
-import syntax.Token
+import syntax.tree.Expression
+import syntax.lexer.Token
 import java.util.ArrayList
 
 abstract class LinterBase {

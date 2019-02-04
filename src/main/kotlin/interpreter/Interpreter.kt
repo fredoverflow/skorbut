@@ -3,9 +3,10 @@ package interpreter
 import common.Diagnostic
 import semantic.*
 import semantic.types.*
-import syntax.*
+import syntax.lexer.*
 import syntax.parser.Parser
 import syntax.parser.translationUnit
+import syntax.tree.*
 import java.util.*
 
 fun FunctionDefinition.returnType(): Type = (namedDeclarator.type as FunctionType).returnType

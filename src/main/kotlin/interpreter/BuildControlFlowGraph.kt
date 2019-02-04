@@ -1,7 +1,7 @@
 package interpreter
 
 import semantic.types.ArithmeticType
-import syntax.*
+import syntax.tree.*
 import java.util.*
 
 val unusedEmptyHashMap = HashMap<ArithmeticValue, String>()

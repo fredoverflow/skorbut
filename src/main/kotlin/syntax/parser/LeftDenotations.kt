@@ -1,6 +1,7 @@
 package syntax.parser
 
-import syntax.*
+import syntax.lexer.*
+import syntax.tree.*
 
 abstract class LeftDenotation(val precedence: Int) {
     abstract fun Parser.parse(left: Expression, operator: Token): Expression

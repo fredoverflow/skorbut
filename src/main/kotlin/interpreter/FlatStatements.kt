@@ -1,6 +1,8 @@
 package interpreter
 
-import syntax.*
+import syntax.tree.DeclarationSpecifiers
+import syntax.tree.Expression
+import syntax.tree.NamedDeclarator
 import java.util.*
 
 abstract class FlatStatement {
