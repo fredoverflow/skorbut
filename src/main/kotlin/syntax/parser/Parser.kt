@@ -35,6 +35,16 @@ class Parser(private val lexer: Lexer) {
         return accept()
     }
 
+    fun <T> T.semicolon(): T {
+        expect(SEMICOLON)
+        return this
+    }
+
+    fun <T> T.colon(): T {
+        expect(COLON)
+        return this
+    }
+
     fun illegalStartOf(rule: String): Nothing {
         token.error("illegal start of $rule")
     }
@@ -134,10 +144,12 @@ class Parser(private val lexer: Lexer) {
     }
 
     inline fun <T> optional(indicator: Byte, parse: () -> T): T? {
-        if (current != indicator) return null
-
-        next()
-        return parse()
+        if (current != indicator) {
+            return null
+        } else {
+            next()
+            return parse()
+        }
     }
 
     val symbolTable = MutableSymbolTable()
