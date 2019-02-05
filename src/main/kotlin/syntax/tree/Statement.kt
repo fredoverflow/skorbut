@@ -86,7 +86,7 @@ class While(val whi1e: Token, val condition: Expression, val body: Statement) : 
     override fun root(): Token = whi1e
 }
 
-class Do(val d0: Token, val body: Statement, val condition: Expression) : Statement() {
+class Do(val d0: Token, val body: Statement, val whi1e: Token, val condition: Expression) : Statement() {
     override fun forEachChild(action: (Node) -> Unit) {
         action(body)
         action(condition)
