@@ -51,6 +51,10 @@ class IfThenElse(val iF: Token, val condition: Expression, val th3n: Statement, 
     override fun root(): Token = iF
 }
 
+fun ifThenOptionalElse(iF: Token, condition: Expression, th3n: Statement, e1se: Statement?): Statement {
+    return if (e1se == null) IfThen(iF, condition, th3n) else IfThenElse(iF, condition, th3n, e1se)
+}
+
 class Switch(val switch: Token, val control: Expression, val body: Statement) : Statement() {
     override fun forEachChild(action: (Node) -> Unit) {
         action(control)

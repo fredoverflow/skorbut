@@ -17,7 +17,7 @@ fun Parser.statement(): Statement {
 
     return when (current) {
         OPENING_BRACE -> block()
-        IF -> selectionStatement()
+        IF -> ifThenOptionalElse(accept(), condition(), statement(), optional(ELSE) { statement() })
         SWITCH -> Switch(accept(), condition(), statement())
         CASE -> Case(accept(), expression().colon(), statement())
         DEFAULT -> Default(accept().colon(), statement())
@@ -70,17 +70,6 @@ fun Parser.block(): Block {
     return symbolTable.scoped {
         Block(token, braced { list0Until(CLOSING_BRACE) { statement() } })
     }
-}
-
-fun Parser.selectionStatement(): Statement {
-    val iF = expect(IF)
-    val condition = condition()
-    val th3n = statement()
-    if (current != ELSE) return IfThen(iF, condition, th3n)
-
-    next()
-    val e1se = statement()
-    return IfThenElse(iF, condition, th3n, e1se)
 }
 
 fun Parser.forStatement(): Statement {

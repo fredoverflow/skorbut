@@ -133,6 +133,13 @@ class Parser(private val lexer: Lexer) {
         }
     }
 
+    inline fun <T> optional(indicator: Byte, parse: () -> T): T? {
+        if (current != indicator) return null
+
+        next()
+        return parse()
+    }
+
     val symbolTable = MutableSymbolTable()
 
     var declarationState = DeclarationState.OPEN
