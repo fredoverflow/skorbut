@@ -20,14 +20,14 @@ inline fun Parser.assignmentExpression(): Expression {
 fun Parser.subexpression(outerPrecedence: Int): Expression {
     val nullDenotation = nullDenotations[+current] ?: illegalStartOf("expression")
 
-    return subexpression(with(nullDenotation) { parse(consume(token)) }, outerPrecedence)
+    return subexpression(with(nullDenotation) { parse(accept()) }, outerPrecedence)
 }
 
 tailrec fun Parser.subexpression(left: Expression, outerPrecedence: Int): Expression {
     val leftDenotation = leftDenotations[+current] ?: return left
     if (leftDenotation.precedence <= outerPrecedence) return left
 
-    return subexpression(with(leftDenotation) { parse(left, consume(token)) }, outerPrecedence)
+    return subexpression(with(leftDenotation) { parse(left, accept()) }, outerPrecedence)
 }
 
 private val nullDenotations = arrayOfNulls<NullDenotation>(128).apply {

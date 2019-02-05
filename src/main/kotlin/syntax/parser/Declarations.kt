@@ -79,7 +79,7 @@ fun Parser.declarationSpecifier(): DeclarationSpecifier {
         ENUM -> enumSpecifier()
         STRUCT -> structSpecifier()
         UNION -> notImplementedYet("unions")
-        else -> consume(DeclarationSpecifier.Primitive(token))
+        else -> DeclarationSpecifier.Primitive(accept())
     }
 }
 
@@ -177,7 +177,7 @@ fun Parser.namedDeclaratorBackwards(): Pair<Token, Declarator> {
     }
     var temp: Pair<Token, Declarator> = when (current) {
         OPENING_PAREN -> parenthesized { namedDeclaratorBackwards() }
-        IDENTIFIER -> Pair(consume(token), Declarator.Identity)
+        IDENTIFIER -> Pair(accept(), Declarator.Identity)
         else -> illegalStartOf("declarator")
     }
     while (true) {
@@ -268,7 +268,7 @@ fun Parser.parameterDeclaratorBackwards(): Pair<Token, Declarator> {
                 parenthesized { parameterDeclaratorBackwards() }
             }
         }
-        IDENTIFIER -> Pair(consume(token), Declarator.Identity)
+        IDENTIFIER -> Pair(accept(), Declarator.Identity)
         else -> Pair(token, Declarator.Identity)
     }
     while (true) {

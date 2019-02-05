@@ -24,14 +24,15 @@ class Parser(private val lexer: Lexer) {
         return current
     }
 
-    fun <Result> consume(result: Result): Result {
+    fun accept(): Token {
+        val result = token
         next()
         return result
     }
 
     fun expect(expected: Byte): Token {
         if (current != expected) throw Diagnostic(previousEnd, "expected ${expected.show()}")
-        return consume(token)
+        return accept()
     }
 
     fun illegalStartOf(rule: String): Nothing {
@@ -104,7 +105,7 @@ class Parser(private val lexer: Lexer) {
     }
 
     inline fun collectWhile(good: (Byte) -> Boolean): List<Token> {
-        return list0While(good) { consume(token) }
+        return list0While(good) { accept() }
     }
 
     inline fun <T> parenthesized(parse: () -> T): T {
