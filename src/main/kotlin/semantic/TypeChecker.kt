@@ -308,14 +308,10 @@ class TypeChecker(translationUnit: TranslationUnit) {
             is ExpressionStatement -> {
                 expression.typeCheck()
             }
-            is IfThen -> {
-                condition.typeCheck()
-                th3n.typeCheck()
-            }
             is IfThenElse -> {
                 condition.typeCheck()
                 th3n.typeCheck()
-                e1se.typeCheck()
+                e1se?.typeCheck()
             }
             is Switch -> {
                 control.typeCheck().let {

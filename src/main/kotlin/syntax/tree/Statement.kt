@@ -32,27 +32,14 @@ class ExpressionStatement(val expression: Expression) : Statement() {
     override fun toString(): String = "${super.toString()} ;"
 }
 
-class IfThen(val iF: Token, val condition: Expression, val th3n: Statement) : Statement() {
+class IfThenElse(val iF: Token, val condition: Expression, val th3n: Statement, val e1se: Statement?) : Statement() {
     override fun forEachChild(action: (Node) -> Unit) {
         action(condition)
         action(th3n)
+        e1se?.let { action(it) }
     }
 
     override fun root(): Token = iF
-}
-
-class IfThenElse(val iF: Token, val condition: Expression, val th3n: Statement, val e1se: Statement) : Statement() {
-    override fun forEachChild(action: (Node) -> Unit) {
-        action(condition)
-        action(th3n)
-        action(e1se)
-    }
-
-    override fun root(): Token = iF
-}
-
-fun ifThenOptionalElse(iF: Token, condition: Expression, th3n: Statement, e1se: Statement?): Statement {
-    return if (e1se == null) IfThen(iF, condition, th3n) else IfThenElse(iF, condition, th3n, e1se)
 }
 
 class Switch(val switch: Token, val control: Expression, val body: Statement) : Statement() {

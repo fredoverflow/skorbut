@@ -28,9 +28,6 @@ class Linter(val translationUnit: TranslationUnit) : LinterBase() {
                         it.expression.detectOperatorWithoutEffect()
                     }
                 }
-                is IfThen -> {
-                    it.condition.detectSuspiciousCondition()
-                }
                 is IfThenElse -> {
                     it.condition.detectSuspiciousCondition()
                 }
@@ -145,7 +142,7 @@ class Linter(val translationUnit: TranslationUnit) : LinterBase() {
     private fun Statement.hasDefiniteReturn(): Boolean {
         return when (this) {
             is Return -> true
-            is IfThenElse -> th3n.hasDefiniteReturn() && e1se.hasDefiniteReturn()
+            is IfThenElse -> e1se != null && th3n.hasDefiniteReturn() && e1se.hasDefiniteReturn()
             is Block -> statements.hasDefiniteReturn()
             else -> false
         }

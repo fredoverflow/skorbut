@@ -91,32 +91,33 @@ class BuildControlFlowGraph(function: FunctionDefinition) {
             is Goto -> {
                 add(Jump(label.text))
             }
-            is IfThen -> {
-                val execute = generateLabel()
-                val done = generateLabel()
-
-                add(JumpIf(condition, execute, done))
-
-                insertLabel(execute)
-                th3n.flatten(state)
-
-                insertLabel(done)
-            }
             is IfThenElse -> {
-                val executeThen = generateLabel()
-                val executeElse = generateLabel()
-                val done = generateLabel()
+                if (e1se == null) {
+                    val execute = generateLabel()
+                    val done = generateLabel()
 
-                add(JumpIf(condition, executeThen, executeElse))
+                    add(JumpIf(condition, execute, done))
 
-                insertLabel(executeThen)
-                th3n.flatten(state)
-                jumpIfOpen(done)
+                    insertLabel(execute)
+                    th3n.flatten(state)
 
-                insertLabel(executeElse)
-                e1se.flatten(state)
+                    insertLabel(done)
+                } else {
+                    val executeThen = generateLabel()
+                    val executeElse = generateLabel()
+                    val done = generateLabel()
 
-                insertLabel(done)
+                    add(JumpIf(condition, executeThen, executeElse))
+
+                    insertLabel(executeThen)
+                    th3n.flatten(state)
+                    jumpIfOpen(done)
+
+                    insertLabel(executeElse)
+                    e1se.flatten(state)
+
+                    insertLabel(done)
+                }
             }
             is Switch -> {
                 val done = generateLabel()

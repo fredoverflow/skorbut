@@ -17,7 +17,7 @@ fun Parser.statement(): Statement {
 
     return when (current) {
         OPENING_BRACE -> block()
-        IF -> ifThenOptionalElse(accept(), condition(), statement(), optional(ELSE) { statement() })
+        IF -> IfThenElse(accept(), condition(), statement(), optional(ELSE) { statement() })
         SWITCH -> Switch(accept(), condition(), statement())
         CASE -> Case(accept(), expression().colon(), statement())
         DEFAULT -> Default(accept().colon(), statement())
