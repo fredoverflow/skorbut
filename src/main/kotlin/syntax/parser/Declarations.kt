@@ -195,7 +195,7 @@ fun Parser.typeQualifierList(): List<Token> {
 
 fun Parser.declaratorArray(): Expression? {
     expect(OPENING_BRACKET)
-    return unless(CLOSING_BRACKET) { expression() }
+    return ::expression optionalBefore CLOSING_BRACKET
 }
 
 fun Parser.declaratorFunction(): List<FunctionParameter> {

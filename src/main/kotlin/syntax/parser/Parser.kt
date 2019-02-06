@@ -132,12 +132,12 @@ class Parser(private val lexer: Lexer) {
         return result
     }
 
-    inline fun <T> unless(terminator: Byte, parse: () -> T): T? {
+    infix fun <T> (() -> T).optionalBefore(terminator: Byte): T? {
         if (current == terminator) {
             next()
             return null
         } else {
-            val result = parse()
+            val result = this()
             expect(terminator)
             return result
         }

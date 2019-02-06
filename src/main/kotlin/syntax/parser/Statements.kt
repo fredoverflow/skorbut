@@ -12,7 +12,11 @@ fun Parser.statement(): Statement {
 
         WHILE -> While(accept(), condition(), statement())
         DO -> Do(accept(), statement() before WHILE, condition()).semicolon()
-        FOR -> forStatement()
+        FOR -> For(expect(FOR) before OPENING_PAREN,
+                ::expression optionalBefore SEMICOLON,
+                ::expression optionalBefore SEMICOLON,
+                ::expression optionalBefore CLOSING_PAREN,
+                statement())
 
         GOTO -> Goto(accept(), expect(IDENTIFIER)).semicolon()
         CONTINUE -> Continue(accept()).semicolon()
@@ -39,17 +43,4 @@ fun Parser.statement(): Statement {
 
         else -> ExpressionStatement(expression()).semicolon()
     }
-}
-
-fun Parser.forStatement(): Statement {
-    val f0r = expect(FOR)
-    expect(OPENING_PAREN)
-    if (!declarationSpecifiers0().isEmpty()) {
-        token.error("loop variables must be declared above the loop")
-    }
-    val init = unless(SEMICOLON, ::expression)
-    val check = unless(SEMICOLON, ::expression)
-    val update = unless(CLOSING_PAREN, ::expression)
-    val body = statement()
-    return For(f0r, init, check, update, body)
 }
