@@ -7,11 +7,11 @@ fun Parser.statement(): Statement {
     return when (current) {
         IF -> IfThenElse(accept(), condition(), statement(), optional(ELSE, ::statement))
         SWITCH -> Switch(accept(), condition(), statement())
-        CASE -> Case(accept(), expression().colon(), statement())
-        DEFAULT -> Default(accept().colon(), statement())
+        CASE -> Case(accept(), expression() before COLON, statement())
+        DEFAULT -> Default(accept() before COLON, statement())
 
         WHILE -> While(accept(), condition(), statement())
-        DO -> Do(accept(), statement(), expect(WHILE), condition()).semicolon()
+        DO -> Do(accept(), statement() before WHILE, condition()).semicolon()
         FOR -> forStatement()
 
         GOTO -> Goto(accept(), expect(IDENTIFIER)).semicolon()
@@ -32,7 +32,7 @@ fun Parser.statement(): Statement {
         }
 
         IDENTIFIER -> when {
-            lookahead.kind == COLON -> LabeledStatement(accept().colon(), statement())
+            lookahead.kind == COLON -> LabeledStatement(accept() before COLON, statement())
             isTypedefName(token) -> declaration()
             else -> ExpressionStatement(expression()).semicolon()
         }

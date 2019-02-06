@@ -40,8 +40,8 @@ class Parser(private val lexer: Lexer) {
         return this
     }
 
-    fun <T> T.colon(): T {
-        expect(COLON)
+    infix fun <T> T.before(expected: Byte): T {
+        expect(expected)
         return this
     }
 
