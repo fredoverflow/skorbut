@@ -11,17 +11,22 @@ data class Symbol(val name: Token, val type: Type, val offset: Int) {
 }
 
 class SymbolTable {
-    private val allScopes = mutableListOf(ChampMap.empty<String, Symbol>())
+    private val scopes = Array(128) { ChampMap.empty<String, Symbol>() }
+    private var current = 0
 
-    fun atGlobalScope(): Boolean = allScopes.size == 1
+    fun atGlobalScope(): Boolean = current == 0
 
     fun openScope() {
-        allScopes.add(ChampMap.empty<String, Symbol>())
+        scopes[++current] = ChampMap.empty()
     }
 
     fun closeScope() {
         assert(!atGlobalScope()) { "Attempt to close the global scope" }
-        allScopes.removeAt(allScopes.lastIndex)
+        --current
+    }
+
+    fun reopenScope() {
+        ++current
     }
 
     inline fun <T> scoped(action: () -> T): T {
@@ -33,25 +38,34 @@ class SymbolTable {
         }
     }
 
+    inline fun <T> rescoped(action: () -> T): T {
+        reopenScope()
+        try {
+            return action()
+        } finally {
+            closeScope()
+        }
+    }
+
     fun lookup(name: Token): Symbol? {
         val text = name.text
-        allScopes.asReversed().forEach { scope ->
-            scope.get(text)?.let { symbol -> return symbol }
+        for (i in current downTo 0) {
+            scopes[i].get(text)?.let { symbol -> return symbol }
         }
         return null
     }
 
     fun declare(name: Token, type: Type, offset: Int): Symbol {
-        return declareAt(allScopes.size - 1, name, type, offset)
+        return declareAt(current, name, type, offset)
     }
 
     fun declareOutside(name: Token, type: Type, offset: Int): Symbol {
-        return declareAt(allScopes.size - 2, name, type, offset)
+        return declareAt(current - 1, name, type, offset)
     }
 
-    private fun declareAt(scopeIndex: Int, name: Token, type: Type, offset: Int): Symbol {
+    private fun declareAt(index: Int, name: Token, type: Type, offset: Int): Symbol {
         val text = name.text
-        val previous = allScopes[scopeIndex].get(text)
+        val previous = scopes[index].get(text)
         if (previous != null) {
             if (previous.type is FunctionType && !previous.type.defined && type is FunctionType && type.defined) {
                 if (previous.type == type) {
@@ -65,7 +79,7 @@ class SymbolTable {
             }
         } else {
             val symbol = Symbol(name, type, offset)
-            allScopes[scopeIndex] = allScopes[scopeIndex].put(text, symbol)
+            scopes[index] = scopes[index].put(text, symbol)
             return symbol
         }
     }

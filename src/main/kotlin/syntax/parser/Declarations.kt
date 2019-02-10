@@ -199,25 +199,21 @@ fun Parser.declaratorArray(): Expression? {
 }
 
 fun Parser.declaratorFunction(): List<FunctionParameter> {
-    symbolTable.openScope()
-    val parameterList = parenthesized {
-        if (current == VOID && lookahead.kind == CLOSING_PAREN) {
-            next()
-        }
-        commaSeparatedList0(CLOSING_PAREN) {
-            val specifiers = declarationSpecifiers1()
-            val declarator = parameterDeclarator()
-            if (declarator.name.wasProvided()) {
-                declare(declarator.name, isTypedefName = false)
+    return symbolTable.scoped {
+        parenthesized {
+            if (current == VOID && lookahead.kind == CLOSING_PAREN) {
+                next()
             }
-            FunctionParameter(specifiers, declarator)
+            commaSeparatedList0(CLOSING_PAREN) {
+                val specifiers = declarationSpecifiers1()
+                val declarator = parameterDeclarator()
+                if (declarator.name.wasProvided()) {
+                    declare(declarator.name, isTypedefName = false)
+                }
+                FunctionParameter(specifiers, declarator)
+            }
         }
     }
-    // close the scope unless it's a function definition
-    if (current != OPENING_BRACE) {
-        symbolTable.closeScope()
-    }
-    return parameterList
 }
 
 private inline fun Pair<Token, Declarator>.map(f: (Declarator) -> Declarator): Pair<Token, Declarator> {
