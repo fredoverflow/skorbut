@@ -7,7 +7,7 @@ import syntax.tree.*
 import text.skipDigits
 
 class TypeChecker(translationUnit: TranslationUnit) {
-    private val symbolTable = MutableSymbolTable()
+    private val symbolTable = SymbolTable()
     private val stringLiterals = LinkedHashSet<String>()
     fun getStringLiterals(): Set<String> = stringLiterals
 
@@ -35,27 +35,28 @@ class TypeChecker(translationUnit: TranslationUnit) {
 
     private var currentDeclarationIsStatic = false
 
-    private fun declare(name: Token, type: Type) {
+    private fun declare(name: Token, type: Type): Symbol {
         if (symbolTable.atGlobalScope()) {
-            declareStatic(name, type)
+            return declareStatic(name, type)
         } else {
-            declareAutomatic(name, type)
+            return declareAutomatic(name, type)
         }
     }
 
-    private fun declareStatic(name: Token, type: Type) {
+    private fun declareStatic(name: Token, type: Type): Symbol {
         currentDeclarationIsStatic = true
-        symbolTable.declare(name, type, staticOffset)
+        val symbol = symbolTable.declare(name, type, staticOffset)
         staticOffset += type.count()
+        return symbol
     }
 
-    private fun declareAutomatic(name: Token, type: Type) {
+    private fun declareAutomatic(name: Token, type: Type): Symbol {
         currentDeclarationIsStatic = false
-        symbolTable.declare(name, type, currentStackFrameSymbols.nextOffset())
-        val symbol = symbolTable.lastSymbol()
+        val symbol = symbolTable.declare(name, type, currentStackFrameSymbols.nextOffset())
         if (symbol.type.requiresStorage()) {
             currentStackFrameSymbols.add(symbol)
         }
+        return symbol
     }
 
     private fun ArrayList<Symbol>.nextOffset(): Int {
@@ -136,13 +137,13 @@ class TypeChecker(translationUnit: TranslationUnit) {
             0x20000000,
             0x20020000 -> UnsignedIntType
 
-        // fake SignedLongType with SignedIntType
+            // fake SignedLongType with SignedIntType
             0x00040000,
             0x00060000,
             0x00440000,
             0x00460000 -> SignedIntType
 
-        // fake UnsignedLongType with UnsignedIntType
+            // fake UnsignedLongType with UnsignedIntType
             0x20040000,
             0x20060000 -> UnsignedIntType
 
@@ -280,8 +281,8 @@ class TypeChecker(translationUnit: TranslationUnit) {
                 with(parameter) {
                     if (!name.wasProvided()) name.error("missing name for parameter in function definition")
                     validateType(name, type)
-                    declare(name, type)
-                    offset = symbolTable.lastSymbol().offset
+                    val symbol = declare(name, type)
+                    offset = symbol.offset
                 }
             }
             declareOutside(namedDeclarator.name, functionType)
@@ -380,7 +381,7 @@ class TypeChecker(translationUnit: TranslationUnit) {
                 STATIC -> declareStatic(name, type)
                 else -> declare(name, type)
             }
-            namedDeclarator.offset = symbolTable.lastSymbol().offset
+            namedDeclarator.offset = symbolTable.lookup(namedDeclarator.name)!!.offset
             val declarator = namedDeclarator.declarator
             if (declarator !is Declarator.Initialized) {
                 if (type is ArrayType && type.length == 0) {

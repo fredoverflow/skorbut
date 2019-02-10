@@ -1,7 +1,7 @@
 package syntax.parser
 
 import common.Diagnostic
-import semantic.MutableSymbolTable
+import semantic.SymbolTable
 import syntax.lexer.*
 
 class Parser(private val lexer: Lexer) {
@@ -152,7 +152,7 @@ class Parser(private val lexer: Lexer) {
         }
     }
 
-    val symbolTable = MutableSymbolTable()
+    val symbolTable = SymbolTable()
 
     var declarationState = DeclarationState.OPEN
 }
