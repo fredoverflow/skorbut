@@ -23,34 +23,33 @@ fun Parser.isDeclarationSpecifier(token: Token): Boolean {
 }
 
 fun Parser.isAcceptableDeclarationSpecifier(token: Token): Boolean = when (token.kind) {
-    TYPEDEF, EXTERN, STATIC, AUTO, REGISTER -> true
+    TYPEDEF, EXTERN, STATIC, AUTO, REGISTER,
+    CONST, VOLATILE -> true
 
     VOID, CHAR, SHORT, INT, LONG, FLOAT, DOUBLE, SIGNED, UNSIGNED ->
         enterOrRemainInDeclarationState(DeclarationState.PRIMITIVE)
 
     STRUCT, UNION, ENUM -> enterDeclarationState(DeclarationState.USER_DEFINED)
 
-    IDENTIFIER -> if (isTypedefName(token)) enterDeclarationState(DeclarationState.USER_DEFINED) else false
-
-    CONST, VOLATILE -> true
+    IDENTIFIER -> isTypedefName(token) && enterDeclarationState(DeclarationState.USER_DEFINED)
 
     else -> false
 }
 
 private fun Parser.enterOrRemainInDeclarationState(desiredState: DeclarationState): Boolean {
-    if (declarationState == DeclarationState.OPEN) {
-        declarationState = desiredState
-        return true
+    if (declarationState != DeclarationState.OPEN) {
+        return declarationState == desiredState
     }
-    return declarationState == desiredState
+    declarationState = desiredState
+    return true
 }
 
 private fun Parser.enterDeclarationState(desiredState: DeclarationState): Boolean {
-    if (declarationState == DeclarationState.OPEN) {
-        declarationState = desiredState
-        return true
+    if (declarationState != DeclarationState.OPEN) {
+        return false
     }
-    return false
+    declarationState = desiredState
+    return true
 }
 
 fun Parser.declaration(): Statement {
@@ -59,8 +58,7 @@ fun Parser.declaration(): Statement {
     val declarators = commaSeparatedList0(SEMICOLON) {
         initDeclarator().apply { declare(name, isTypedef) }
     }
-    expect(SEMICOLON)
-    return Declaration(specifiers, declarators)
+    return Declaration(specifiers, declarators).semicolon()
 }
 
 fun Parser.declarationSpecifiers1(): DeclarationSpecifiers {
@@ -71,73 +69,63 @@ fun Parser.declarationSpecifiers1(): DeclarationSpecifiers {
 
 fun Parser.declarationSpecifiers0(): List<DeclarationSpecifier> {
     declarationState = DeclarationState.OPEN
-    return list0While({ isAcceptableDeclarationSpecifier(token) }) { declarationSpecifier() }
+    return list0While({ isAcceptableDeclarationSpecifier(token) }, ::declarationSpecifier)
 }
 
-fun Parser.declarationSpecifier(): DeclarationSpecifier {
-    return when (current) {
-        ENUM -> enumSpecifier()
-        STRUCT -> structSpecifier()
-        UNION -> notImplementedYet("unions")
-        else -> DeclarationSpecifier.Primitive(accept())
-    }
+fun Parser.declarationSpecifier(): DeclarationSpecifier = when (current) {
+    ENUM -> enumSpecifier()
+    STRUCT -> structSpecifier()
+    UNION -> notImplementedYet("unions")
+    else -> DeclarationSpecifier.Primitive(accept())
 }
 
 fun Parser.enumSpecifier(): DeclarationSpecifier {
     declarationState = DeclarationState.NO_DECLARATOR_REQUIRED
-    if (next() == OPENING_BRACE) {
+    return if (next() == OPENING_BRACE) {
         // anonymous enum
-        return DeclarationSpecifier.EnumDef(token, enumBody())
+        DeclarationSpecifier.EnumDef(token, enumBody())
     } else {
         val name = expect(IDENTIFIER).tagged()
         if (current == OPENING_BRACE) {
             // named enum
-            return DeclarationSpecifier.EnumDef(name, enumBody())
+            DeclarationSpecifier.EnumDef(name, enumBody())
         } else {
-            return DeclarationSpecifier.EnumRef(name)
+            DeclarationSpecifier.EnumRef(name)
         }
     }
 }
 
 fun Parser.enumBody(): List<Enumerator> {
-    return braced { commaSeparatedList1 { enumerator() } }
-}
-
-fun Parser.enumerator(): Enumerator {
-    val name = expect(IDENTIFIER)
-    val init = if (current == EQUAL) {
-        next()
-        assignmentExpression()
-    } else null
-    return Enumerator(name, init)
+    return braced {
+        commaSeparatedList1 {
+            Enumerator(expect(IDENTIFIER), optional(EQUAL, ::assignmentExpression))
+        }
+    }
 }
 
 fun Parser.structSpecifier(): DeclarationSpecifier {
-    if (next() == OPENING_BRACE) {
+    return if (next() == OPENING_BRACE) {
         // anonymous struct
-        return DeclarationSpecifier.StructDef(token, structBody())
+        DeclarationSpecifier.StructDef(token, structBody())
     } else {
         val name = expect(IDENTIFIER).tagged()
         if (current == OPENING_BRACE) {
             // named struct
-            val result = DeclarationSpecifier.StructDef(name, structBody())
-            declarationState = DeclarationState.NO_DECLARATOR_REQUIRED
-            return result
+            DeclarationSpecifier.StructDef(name, structBody()).also {
+                declarationState = DeclarationState.NO_DECLARATOR_REQUIRED
+            }
         } else {
-            return DeclarationSpecifier.StructRef(name)
+            DeclarationSpecifier.StructRef(name)
         }
     }
 }
 
 fun Parser.structBody(): List<StructDeclaration> {
-    return braced { list1Until(CLOSING_BRACE) { structDeclaration() } }
-}
-
-fun Parser.structDeclaration(): StructDeclaration {
-    val specifiers = declarationSpecifiers1()
-    val declarators = commaSeparatedList1 { namedDeclarator() }
-    expect(SEMICOLON)
-    return StructDeclaration(specifiers, declarators)
+    return braced {
+        list1Until(CLOSING_BRACE) {
+            StructDeclaration(declarationSpecifiers1(), commaSeparatedList1(::namedDeclarator)).semicolon()
+        }
+    }
 }
 
 fun Parser.initDeclarator(): NamedDeclarator {
@@ -145,27 +133,27 @@ fun Parser.initDeclarator(): NamedDeclarator {
 }
 
 fun Parser.initDeclarator(namedDeclarator: NamedDeclarator): NamedDeclarator {
-    if (current == EQUAL) {
+    return if (current == EQUAL) {
         next()
         with(namedDeclarator) {
-            return NamedDeclarator(name, Declarator.Initialized(declarator, initializer()))
+            NamedDeclarator(name, Declarator.Initialized(declarator, initializer()))
         }
     } else {
-        return namedDeclarator
+        namedDeclarator
     }
 }
 
 fun Parser.initializer(): Initializer {
     return if (current == OPENING_BRACE) {
-        InitializerList(token, braced { trailingCommaSeparatedList1(CLOSING_BRACE) { initializer() } })
+        InitializerList(token, braced { trailingCommaSeparatedList1(CLOSING_BRACE, ::initializer) })
     } else {
         ExpressionInitializer(assignmentExpression())
     }
 }
 
 fun Parser.namedDeclarator(): NamedDeclarator {
-    with(namedDeclaratorBackwards()) {
-        return NamedDeclarator(first, second.reverse())
+    return with(namedDeclaratorBackwards()) {
+        NamedDeclarator(first, second.reverse())
     }
 }
 
@@ -176,14 +164,14 @@ fun Parser.namedDeclaratorBackwards(): Pair<Token, Declarator> {
         return namedDeclaratorBackwards().map { Declarator.Pointer(it, qualifiers) }
     }
     var temp: Pair<Token, Declarator> = when (current) {
-        OPENING_PAREN -> parenthesized { namedDeclaratorBackwards() }
+        OPENING_PAREN -> parenthesized(::namedDeclaratorBackwards)
         IDENTIFIER -> Pair(accept(), Declarator.Identity)
         else -> illegalStartOf("declarator")
     }
     while (true) {
-        when (current) {
-            OPENING_BRACKET -> temp = temp.map { Declarator.Array(it, declaratorArray()) }
-            OPENING_PAREN -> temp = temp.map { Declarator.Function(it, declaratorFunction()) }
+        temp = when (current) {
+            OPENING_BRACKET -> temp.map { Declarator.Array(it, declaratorArray()) }
+            OPENING_PAREN -> temp.map { Declarator.Function(it, declaratorFunction()) }
             else -> return temp
         }
     }
@@ -231,22 +219,22 @@ fun Parser.abstractDeclaratorBackwards(): Declarator {
         return Declarator.Pointer(abstractDeclaratorBackwards(), qualifiers)
     }
     var temp: Declarator = when (current) {
-        OPENING_PAREN -> parenthesized { abstractDeclaratorBackwards() }
+        OPENING_PAREN -> parenthesized(::abstractDeclaratorBackwards)
         IDENTIFIER -> token.error("identifier in abstract declarator")
         else -> Declarator.Identity
     }
     while (true) {
-        when (current) {
-            OPENING_BRACKET -> temp = Declarator.Array(temp, declaratorArray())
-            OPENING_PAREN -> temp = Declarator.Function(temp, declaratorFunction())
+        temp = when (current) {
+            OPENING_BRACKET -> Declarator.Array(temp, declaratorArray())
+            OPENING_PAREN -> Declarator.Function(temp, declaratorFunction())
             else -> return temp
         }
     }
 }
 
 fun Parser.parameterDeclarator(): NamedDeclarator {
-    with(parameterDeclaratorBackwards()) {
-        return NamedDeclarator(first, second.reverse())
+    return with(parameterDeclaratorBackwards()) {
+        NamedDeclarator(first, second.reverse())
     }
 }
 
@@ -261,16 +249,16 @@ fun Parser.parameterDeclaratorBackwards(): Pair<Token, Declarator> {
             if (isDeclarationSpecifier(lookahead)) {
                 Pair(token, Declarator.Function(Declarator.Identity, declaratorFunction()))
             } else {
-                parenthesized { parameterDeclaratorBackwards() }
+                parenthesized(::parameterDeclaratorBackwards)
             }
         }
         IDENTIFIER -> Pair(accept(), Declarator.Identity)
         else -> Pair(token, Declarator.Identity)
     }
     while (true) {
-        when (current) {
-            OPENING_BRACKET -> temp = temp.map { Declarator.Array(it, declaratorArray()) }
-            OPENING_PAREN -> temp = temp.map { Declarator.Function(it, declaratorFunction()) }
+        temp = when (current) {
+            OPENING_BRACKET -> temp.map { Declarator.Array(it, declaratorArray()) }
+            OPENING_PAREN -> temp.map { Declarator.Function(it, declaratorFunction()) }
             else -> return temp
         }
     }
