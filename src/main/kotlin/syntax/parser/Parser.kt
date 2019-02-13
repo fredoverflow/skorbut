@@ -86,36 +86,36 @@ class Parser(private val lexer: Lexer) {
         return list
     }
 
-    inline fun <T> list1While(good: (Byte) -> Boolean, parse: () -> T): List<T> {
+    inline fun <T> list1While(proceed: () -> Boolean, parse: () -> T): List<T> {
         val first = parse()
-        if (!good(current)) return listOf(first)
+        if (!proceed()) return listOf(first)
 
         val list = ArrayList<T>()
         list.add(first)
         do {
             list.add(parse())
-        } while (good(current))
+        } while (proceed())
         return list
     }
 
-    inline fun <T> list0While(good: (Byte) -> Boolean, parse: () -> T): List<T> {
-        if (!good(current)) {
+    inline fun <T> list0While(proceed: () -> Boolean, parse: () -> T): List<T> {
+        if (!proceed()) {
             return emptyList()
         } else {
-            return list1While(good, parse)
+            return list1While(proceed, parse)
         }
     }
 
     inline fun <T> list1Until(terminator: Byte, parse: () -> T): List<T> {
-        return list1While({ it != terminator }, parse)
+        return list1While({ current != terminator }, parse)
     }
 
     inline fun <T> list0Until(terminator: Byte, parse: () -> T): List<T> {
-        return list0While({ it != terminator }, parse)
+        return list0While({ current != terminator }, parse)
     }
 
-    inline fun collectWhile(good: (Byte) -> Boolean): List<Token> {
-        return list0While(good) { accept() }
+    inline fun collectWhile(proceed: () -> Boolean): List<Token> {
+        return list0While(proceed, ::accept)
     }
 
     inline fun <T> parenthesized(parse: () -> T): T {

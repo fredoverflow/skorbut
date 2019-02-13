@@ -36,7 +36,7 @@ fun Parser.declarationSpecifiers1(): DeclarationSpecifiers {
 fun Parser.declarationSpecifiers0(): List<DeclarationSpecifier> {
     acceptableSpecifiers = ALL_SPECIFIERS
     declaratorOptional = false
-    return list0While({ isAcceptableDeclarationSpecifier() }, ::declarationSpecifier)
+    return list0While(::isAcceptableDeclarationSpecifier, ::declarationSpecifier)
 }
 
 fun Parser.isAcceptableDeclarationSpecifier(): Boolean = when (current) {
@@ -166,7 +166,7 @@ fun Parser.namedDeclaratorBackwards(): Pair<Token, Declarator> {
 }
 
 fun Parser.typeQualifierList(): List<Token> {
-    return collectWhile { it == CONST }
+    return collectWhile { current == CONST }
 }
 
 fun Parser.declaratorArray(): Expression? {
