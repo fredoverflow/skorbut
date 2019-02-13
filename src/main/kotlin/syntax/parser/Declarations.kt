@@ -13,9 +13,14 @@ fun Parser.isTypedefName(token: Token): Boolean {
     return symbolTable.lookup(token)?.type === MarkerIsTypedefName
 }
 
-fun Parser.isDeclarationSpecifier(token: Token): Boolean {
-    val kind = token.kind
-    return kind <= VOLATILE && ALL_SPECIFIERS and (1 shl +kind) != 0 || kind == IDENTIFIER && isTypedefName(token)
+fun Parser.isDeclarationSpecifier(token: Token): Boolean = when (token.kind) {
+    TYPEDEF, EXTERN, STATIC, AUTO, REGISTER, CONST, VOLATILE,
+    VOID, CHAR, SHORT, INT, LONG, FLOAT, DOUBLE, SIGNED, UNSIGNED,
+    STRUCT, UNION, ENUM -> true
+
+    IDENTIFIER -> isTypedefName(token)
+
+    else -> false
 }
 
 fun Parser.declaration(): Statement {
