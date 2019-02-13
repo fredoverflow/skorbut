@@ -5,10 +5,6 @@ import semantic.types.MarkerNotTypedefName
 import syntax.lexer.*
 import syntax.tree.*
 
-enum class DeclarationState {
-    OPEN, PRIMITIVE, USER_DEFINED, NO_DECLARATOR_REQUIRED
-}
-
 fun Parser.declare(name: Token, isTypedefName: Boolean) {
     symbolTable.declare(name, if (isTypedefName) MarkerIsTypedefName else MarkerNotTypedefName, 0)
 }
@@ -18,38 +14,8 @@ fun Parser.isTypedefName(token: Token): Boolean {
 }
 
 fun Parser.isDeclarationSpecifier(token: Token): Boolean {
-    declarationState = DeclarationState.OPEN
-    return isAcceptableDeclarationSpecifier(token)
-}
-
-fun Parser.isAcceptableDeclarationSpecifier(token: Token): Boolean = when (token.kind) {
-    TYPEDEF, EXTERN, STATIC, AUTO, REGISTER,
-    CONST, VOLATILE -> true
-
-    VOID, CHAR, SHORT, INT, LONG, FLOAT, DOUBLE, SIGNED, UNSIGNED ->
-        enterOrRemainInDeclarationState(DeclarationState.PRIMITIVE)
-
-    STRUCT, UNION, ENUM -> enterDeclarationState(DeclarationState.USER_DEFINED)
-
-    IDENTIFIER -> isTypedefName(token) && enterDeclarationState(DeclarationState.USER_DEFINED)
-
-    else -> false
-}
-
-private fun Parser.enterOrRemainInDeclarationState(desiredState: DeclarationState): Boolean {
-    if (declarationState != DeclarationState.OPEN) {
-        return declarationState == desiredState
-    }
-    declarationState = desiredState
-    return true
-}
-
-private fun Parser.enterDeclarationState(desiredState: DeclarationState): Boolean {
-    if (declarationState != DeclarationState.OPEN) {
-        return false
-    }
-    declarationState = desiredState
-    return true
+    val kind = token.kind
+    return kind <= VOLATILE && ALL_SPECIFIERS and (1 shl +kind) != 0 || kind == IDENTIFIER && isTypedefName(token)
 }
 
 fun Parser.declaration(): Statement {
@@ -68,8 +34,30 @@ fun Parser.declarationSpecifiers1(): DeclarationSpecifiers {
 }
 
 fun Parser.declarationSpecifiers0(): List<DeclarationSpecifier> {
-    declarationState = DeclarationState.OPEN
-    return list0While({ isAcceptableDeclarationSpecifier(token) }, ::declarationSpecifier)
+    acceptableSpecifiers = ALL_SPECIFIERS
+    declaratorOptional = false
+    return list0While({ isAcceptableDeclarationSpecifier() }, ::declarationSpecifier)
+}
+
+fun Parser.isAcceptableDeclarationSpecifier(): Boolean = when (current) {
+    TYPEDEF, EXTERN, STATIC, AUTO, REGISTER,
+    CONST, VOLATILE -> isAcceptableThenNarrowTo(ALL_SPECIFIERS)
+
+    CHAR, SHORT, INT, LONG, FLOAT, DOUBLE, SIGNED, UNSIGNED,
+    VOID -> isAcceptableThenNarrowTo(PRIMITIVE or STORAGE_CLASS or CV_QUALIFIER)
+
+    STRUCT, UNION, ENUM -> isAcceptableThenNarrowTo(STORAGE_CLASS or CV_QUALIFIER)
+
+    IDENTIFIER -> isTypedefName(token) && isAcceptableThenNarrowTo(STORAGE_CLASS or CV_QUALIFIER)
+
+    else -> false
+}
+
+fun Parser.isAcceptableThenNarrowTo(narrowed: Int): Boolean {
+    val bitmask = 1 shl +current
+    val isolated = acceptableSpecifiers and bitmask
+    acceptableSpecifiers = acceptableSpecifiers and narrowed
+    return isolated != 0
 }
 
 fun Parser.declarationSpecifier(): DeclarationSpecifier = when (current) {
@@ -80,7 +68,7 @@ fun Parser.declarationSpecifier(): DeclarationSpecifier = when (current) {
 }
 
 fun Parser.enumSpecifier(): DeclarationSpecifier {
-    declarationState = DeclarationState.NO_DECLARATOR_REQUIRED
+    declaratorOptional = true
     return if (next() == OPENING_BRACE) {
         // anonymous enum
         DeclarationSpecifier.EnumDef(token, enumBody())
@@ -112,7 +100,7 @@ fun Parser.structSpecifier(): DeclarationSpecifier {
         if (current == OPENING_BRACE) {
             // named struct
             DeclarationSpecifier.StructDef(name, structBody()).also {
-                declarationState = DeclarationState.NO_DECLARATOR_REQUIRED
+                declaratorOptional = true
             }
         } else {
             DeclarationSpecifier.StructRef(name)

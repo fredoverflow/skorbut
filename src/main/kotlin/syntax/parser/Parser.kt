@@ -154,5 +154,6 @@ class Parser(private val lexer: Lexer) {
 
     val symbolTable = SymbolTable()
 
-    var declarationState = DeclarationState.OPEN
+    var acceptableSpecifiers = 0
+    var declaratorOptional = false
 }

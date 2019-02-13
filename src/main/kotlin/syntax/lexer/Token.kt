@@ -61,6 +61,14 @@ const val VOID: Byte = 30
 const val VOLATILE: Byte = 31
 const val WHILE: Byte = 32
 
+const val ALL_SPECIFIERS = 0xfb7e3a32.toInt()
+const val STORAGE_CLASS = 0x09081002
+const val PRIMITIVE = 0x60662210
+const val TYPE_SPECIFIERS = 0x72762a10
+const val CONST_QUALIFIER = 0x00000020
+const val VOLATILE_QUALIFIER = 0x80000000.toInt()
+const val CV_QUALIFIER = CONST_QUALIFIER or VOLATILE_QUALIFIER
+
 const val OPENING_BRACKET: Byte = 33
 const val CLOSING_BRACKET: Byte = 34
 const val OPENING_PAREN: Byte = 35

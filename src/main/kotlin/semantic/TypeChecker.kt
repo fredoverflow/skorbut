@@ -88,20 +88,20 @@ class TypeChecker(translationUnit: TranslationUnit) {
     private fun DeclarationSpecifiers.computeBitset(): Int {
         var bitset = 0
         for (specifier in list) {
-            val bitmask = 1.shl(specifier.kind().toInt())
-            if (bitset.and(bitmask) != 0) {
+            val bitmask = 1 shl +specifier.kind()
+            if (bitset and bitmask != 0) {
                 specifier.root().error("duplicate declaration specifier")
             }
-            if (bitmask.and(STORAGE_CLASS_BITMASK) != 0 && bitset.and(STORAGE_CLASS_BITMASK) != 0) {
+            if (bitmask and STORAGE_CLASS != 0 && bitset and STORAGE_CLASS != 0) {
                 specifier.root().error("multiple storage class specifiers")
             }
-            bitset = bitset.or(bitmask)
+            bitset = bitset or bitmask
         }
         return bitset
     }
 
     private fun DeclarationSpecifiers.determineStorageClass(bitset: Int) {
-        storageClass = when (bitset.and(STORAGE_CLASS_BITMASK)) {
+        storageClass = when (bitset and STORAGE_CLASS) {
             0x00000000 -> VOID
             0x00000002 -> AUTO
             0x00001000 -> EXTERN
@@ -114,7 +114,7 @@ class TypeChecker(translationUnit: TranslationUnit) {
     }
 
     private fun DeclarationSpecifiers.determineType(bitset: Int) {
-        type = when (bitset.and(TYPE_SPECIFIER_BITMASK)) {
+        type = when (bitset and TYPE_SPECIFIERS) {
             0x40000000 -> VoidType
 
             0x00000010,
@@ -169,7 +169,7 @@ class TypeChecker(translationUnit: TranslationUnit) {
     }
 
     private fun DeclarationSpecifiers.applyQualifiers(bitset: Int) {
-        if (bitset.and(CONST_QUALIFIER_BITMASK) != 0) {
+        if (bitset and CONST_QUALIFIER != 0) {
             type = type.addConst()
         }
     }
@@ -867,7 +867,3 @@ class TypeChecker(translationUnit: TranslationUnit) {
         }
     }
 }
-
-const val STORAGE_CLASS_BITMASK = 0x09081002
-const val TYPE_SPECIFIER_BITMASK = 0x72762a10
-const val CONST_QUALIFIER_BITMASK = 0x00000020

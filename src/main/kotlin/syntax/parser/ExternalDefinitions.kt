@@ -10,7 +10,7 @@ fun Parser.translationUnit(): TranslationUnit {
 fun Parser.externalDeclaration(): Node {
     val specifiers = declarationSpecifiers1()
     val isTypedef = specifiers.list.any { it.kind() == TYPEDEF }
-    if (declarationState == DeclarationState.NO_DECLARATOR_REQUIRED && !isTypedef) {
+    if (declaratorOptional && !isTypedef) {
         if (current == SEMICOLON) {
             return Declaration(specifiers, emptyList()).semicolon()
         }
