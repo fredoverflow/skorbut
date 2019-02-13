@@ -40,15 +40,17 @@ fun Parser.declarationSpecifiers0(): List<DeclarationSpecifier> {
 }
 
 fun Parser.isAcceptableDeclarationSpecifier(): Boolean = when (current) {
-    TYPEDEF, EXTERN, STATIC, AUTO, REGISTER,
-    CONST, VOLATILE -> isAcceptableThenNarrowTo(ALL_SPECIFIERS)
+    TYPEDEF, EXTERN, STATIC, AUTO, REGISTER, CONST, VOLATILE ->
+        isAcceptableThenNarrowTo(ALL_SPECIFIERS)
 
-    CHAR, SHORT, INT, LONG, FLOAT, DOUBLE, SIGNED, UNSIGNED,
-    VOID -> isAcceptableThenNarrowTo(PRIMITIVE or STORAGE_CLASS or CV_QUALIFIER)
+    VOID, CHAR, SHORT, INT, LONG, FLOAT, DOUBLE, SIGNED, UNSIGNED ->
+        isAcceptableThenNarrowTo(PRIMITIVE or STORAGE_CLASS or CV_QUALIFIER)
 
-    STRUCT, UNION, ENUM -> isAcceptableThenNarrowTo(STORAGE_CLASS or CV_QUALIFIER)
+    STRUCT, UNION, ENUM ->
+        isAcceptableThenNarrowTo(STORAGE_CLASS or CV_QUALIFIER)
 
-    IDENTIFIER -> isTypedefName(token) && isAcceptableThenNarrowTo(STORAGE_CLASS or CV_QUALIFIER)
+    IDENTIFIER ->
+        isTypedefName(token) && isAcceptableThenNarrowTo(STORAGE_CLASS or CV_QUALIFIER)
 
     else -> false
 }

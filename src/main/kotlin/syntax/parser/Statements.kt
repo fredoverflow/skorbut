@@ -3,44 +3,44 @@ package syntax.parser
 import syntax.lexer.*
 import syntax.tree.*
 
-fun Parser.statement(): Statement {
-    return when (current) {
-        IF -> IfThenElse(accept(), condition(), statement(), optional(ELSE, ::statement))
-        SWITCH -> Switch(accept(), condition(), statement())
-        CASE -> Case(accept(), expression() before COLON, statement())
-        DEFAULT -> Default(accept() before COLON, statement())
+fun Parser.statement(): Statement = when (current) {
 
-        WHILE -> While(accept(), condition(), statement())
-        DO -> Do(accept(), statement() before WHILE, condition()).semicolon()
-        FOR -> For(expect(FOR) before OPENING_PAREN,
-                ::expression optionalBefore SEMICOLON,
-                ::expression optionalBefore SEMICOLON,
-                ::expression optionalBefore CLOSING_PAREN,
-                statement())
+    IF -> IfThenElse(accept(), condition(), statement(), optional(ELSE, ::statement))
+    SWITCH -> Switch(accept(), condition(), statement())
+    CASE -> Case(accept(), expression() before COLON, statement())
+    DEFAULT -> Default(accept() before COLON, statement())
 
-        GOTO -> Goto(accept(), expect(IDENTIFIER)).semicolon()
-        CONTINUE -> Continue(accept()).semicolon()
-        BREAK -> Break(accept()).semicolon()
-        RETURN -> Return(accept(), expression()).semicolon()
-        ASSERT -> Assert(accept(), expression()).semicolon()
+    WHILE -> While(accept(), condition(), statement())
+    DO -> Do(accept(), statement() before WHILE, condition()).semicolon()
+    FOR -> For(accept() before OPENING_PAREN,
+            ::expression optionalBefore SEMICOLON,
+            ::expression optionalBefore SEMICOLON,
+            ::expression optionalBefore CLOSING_PAREN,
+            statement())
 
-        TYPEDEF, EXTERN, STATIC, AUTO, REGISTER,
-        VOID,
-        CHAR, SHORT, INT, LONG, FLOAT, DOUBLE,
-        SIGNED, UNSIGNED,
-        STRUCT, UNION, ENUM,
-        CONST, VOLATILE -> declaration()
+    GOTO -> Goto(accept(), expect(IDENTIFIER)).semicolon()
+    CONTINUE -> Continue(accept()).semicolon()
+    BREAK -> Break(accept()).semicolon()
+    RETURN -> Return(accept(), expression()).semicolon()
+    ASSERT -> Assert(accept(), expression()).semicolon()
 
-        OPENING_BRACE -> symbolTable.scoped {
-            Block(token, braced { list0Until(CLOSING_BRACE, ::statement) })
-        }
+    TYPEDEF, EXTERN, STATIC, AUTO, REGISTER, CONST, VOLATILE,
+    VOID, CHAR, SHORT, INT, LONG, FLOAT, DOUBLE, SIGNED, UNSIGNED,
+    STRUCT, UNION, ENUM -> declaration()
 
-        IDENTIFIER -> when {
-            lookahead.kind == COLON -> LabeledStatement(accept() before COLON, statement())
-            isTypedefName(token) -> declaration()
-            else -> ExpressionStatement(expression()).semicolon()
-        }
+    OPENING_BRACE -> symbolTable.scoped {
+        Block(token, braced {
+            list0Until(CLOSING_BRACE, ::statement)
+        })
+    }
+
+    IDENTIFIER -> when {
+        lookahead.kind == COLON -> LabeledStatement(accept() before COLON, statement())
+
+        isTypedefName(token) -> declaration()
 
         else -> ExpressionStatement(expression()).semicolon()
     }
+
+    else -> ExpressionStatement(expression()).semicolon()
 }
