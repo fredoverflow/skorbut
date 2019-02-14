@@ -3,7 +3,8 @@ package syntax.lexer
 import common.Diagnostic
 
 class Token(val kind: Byte, val start: Int, val source: String, val text: String) {
-    fun end(): Int = start + source.length
+    val end: Int
+        get() = start + source.length
 
     fun withTokenKind(replacement: Byte): Token = Token(replacement, start, source, text)
 

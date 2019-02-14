@@ -17,7 +17,7 @@ class Parser(private val lexer: Lexer) {
         private set
 
     fun next(): Byte {
-        previousEnd = token.end()
+        previousEnd = token.end
         token = lookahead
         current = token.kind
         lookahead = lexer.nextToken()
@@ -54,14 +54,11 @@ class Parser(private val lexer: Lexer) {
     }
 
     inline fun <T> commaSeparatedList1(first: T, parse: () -> T): List<T> {
-        if (current != COMMA) return listOf(first)
-
-        val list = ArrayList<T>()
-        list.add(first)
-        do {
+        val list = mutableListOf(first)
+        while (current == COMMA) {
             next()
             list.add(parse())
-        } while (current == COMMA)
+        }
         return list
     }
 
@@ -70,16 +67,15 @@ class Parser(private val lexer: Lexer) {
     }
 
     inline fun <T> commaSeparatedList0(terminator: Byte, parse: () -> T): List<T> {
-        if (current == terminator) {
-            return emptyList()
+        return if (current == terminator) {
+            emptyList()
         } else {
-            return commaSeparatedList1(parse)
+            commaSeparatedList1(parse)
         }
     }
 
     inline fun <T> trailingCommaSeparatedList1(terminator: Byte, parse: () -> T): List<T> {
-        val list = ArrayList<T>()
-        list.add(parse())
+        val list = mutableListOf(parse())
         while (current == COMMA && next() != terminator) {
             list.add(parse())
         }
@@ -87,22 +83,18 @@ class Parser(private val lexer: Lexer) {
     }
 
     inline fun <T> list1While(proceed: () -> Boolean, parse: () -> T): List<T> {
-        val first = parse()
-        if (!proceed()) return listOf(first)
-
-        val list = ArrayList<T>()
-        list.add(first)
-        do {
+        val list = mutableListOf(parse())
+        while (proceed()) {
             list.add(parse())
-        } while (proceed())
+        }
         return list
     }
 
     inline fun <T> list0While(proceed: () -> Boolean, parse: () -> T): List<T> {
-        if (!proceed()) {
-            return emptyList()
+        return if (!proceed()) {
+            emptyList()
         } else {
-            return list1While(proceed, parse)
+            list1While(proceed, parse)
         }
     }
 
@@ -133,22 +125,20 @@ class Parser(private val lexer: Lexer) {
     }
 
     infix fun <T> (() -> T).optionalBefore(terminator: Byte): T? {
-        if (current == terminator) {
+        return if (current == terminator) {
             next()
-            return null
+            null
         } else {
-            val result = this()
-            expect(terminator)
-            return result
+            this() before terminator
         }
     }
 
     inline fun <T> optional(indicator: Byte, parse: () -> T): T? {
-        if (current != indicator) {
-            return null
+        return if (current != indicator) {
+            null
         } else {
             next()
-            return parse()
+            parse()
         }
     }
 
