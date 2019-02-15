@@ -1,13 +1,153 @@
 package syntax.lexer
 
 class Lexer(input: String) : LexerBase(input) {
+    tailrec fun nextToken(): Token {
+        start = index
+        return when (current) {
+            ' ', '\u0009', '\u000a', '\u000b', '\u000c', '\u000d' -> {
+                ignoreWhitespace()
+                nextToken()
+            }
+
+            'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z',
+            'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z',
+            '_' -> identifierOrKeyword()
+
+            '1', '2', '3', '4', '5', '6', '7', '8', '9' -> constant()
+            '0' -> zero()
+
+            '\'' -> characterConstant()
+
+            '\"' -> stringLiteral()
+
+            '(' -> nextPooled(OPENING_PAREN)
+            ')' -> nextPooled(CLOSING_PAREN)
+            ',' -> nextPooled(COMMA)
+            '.' -> nextPooled(DOT)
+            ':' -> nextPooled(COLON)
+            ';' -> nextPooled(SEMICOLON)
+            '?' -> nextPooled(QUESTION)
+            '[' -> nextPooled(OPENING_BRACKET)
+            ']' -> nextPooled(CLOSING_BRACKET)
+            '{' -> nextPooled(OPENING_BRACE)
+            '}' -> nextPooled(CLOSING_BRACE)
+            '~' -> nextPooled(TILDE)
+
+            '!' -> when (next()) {
+                '=' -> nextPooled(BANG_EQUAL)
+                else -> pooled(BANG)
+            }
+
+            '%' -> when (next()) {
+                '=' -> nextPooled(PERCENT_EQUAL)
+                else -> pooled(PERCENT)
+            }
+
+            '&' -> when (next()) {
+                '=' -> nextPooled(AMPERSAND_EQUAL)
+                '&' -> nextPooled(AMPERSAND_AMPERSAND)
+                else -> pooled(AMPERSAND)
+            }
+
+            '*' -> when (next()) {
+                '=' -> nextPooled(ASTERISK_EQUAL)
+                else -> pooled(ASTERISK)
+            }
+
+            '+' -> when (next()) {
+                '=' -> nextPooled(PLUS_EQUAL)
+                '+' -> nextPooled(PLUS_PLUS)
+                else -> pooled(PLUS)
+            }
+
+            '-' -> when (next()) {
+                '=' -> nextPooled(HYPHEN_EQUAL)
+                '-' -> nextPooled(HYPHEN_HYPHEN)
+                '>' -> nextPooled(HYPHEN_MORE)
+                else -> pooled(HYPHEN)
+            }
+
+            '/' -> when (next()) {
+                '/' -> {
+                    ignoreSingleLineComment()
+                    nextToken()
+                }
+                '*' -> {
+                    ignoreMultiLineComment()
+                    nextToken()
+                }
+                '=' -> nextPooled(SLASH_EQUAL)
+                else -> pooled(SLASH)
+            }
+
+            '<' -> when (next()) {
+                '=' -> nextPooled(LESS_EQUAL)
+                '<' -> when (next()) {
+                    '=' -> nextPooled(LESS_LESS_EQUAL)
+                    else -> pooled(LESS_LESS)
+                }
+                else -> pooled(LESS)
+            }
+
+            '=' -> when (next()) {
+                '=' -> nextPooled(EQUAL_EQUAL)
+                else -> pooled(EQUAL)
+            }
+
+            '>' -> when (next()) {
+                '=' -> nextPooled(MORE_EQUAL)
+                '>' -> when (next()) {
+                    '=' -> nextPooled(MORE_MORE_EQUAL)
+                    else -> pooled(MORE_MORE)
+                }
+                else -> pooled(MORE)
+            }
+
+            '^' -> when (next()) {
+                '=' -> nextPooled(CARET_EQUAL)
+                else -> pooled(CARET)
+            }
+
+            '|' -> when (next()) {
+                '=' -> nextPooled(BAR_EQUAL)
+                '|' -> nextPooled(BAR_BAR)
+                else -> pooled(BAR)
+            }
+
+            '\u007f' -> pooled(END_OF_INPUT)
+
+            else -> error("illegal input character")
+        }
+    }
+
+    private tailrec fun ignoreWhitespace() {
+        when (next()) {
+            ' ', '\u0009', '\u000a', '\u000b', '\u000c', '\u000d' -> ignoreWhitespace()
+
+            else -> {
+            }
+        }
+    }
+
+    private fun ignoreSingleLineComment() {
+        while (nextOr('\n') != '\n');
+    }
+
+    private fun ignoreMultiLineComment() {
+        do {
+            while (nextOr('*') != '*');
+            while (nextOr('/') == '*');
+        } while (current != '/')
+        next()
+    }
+
     private fun identifierOrKeyword(): Token {
         while (true) {
-            when (ch) {
+            when (current) {
                 '0', '1', '2', '3', '4', '5', '6', '7', '8', '9',
                 'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z',
                 'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z',
-                '_' -> eat()
+                '_' -> next()
 
                 else -> {
                     val text = lexeme().intern()
@@ -22,15 +162,15 @@ class Lexer(input: String) : LexerBase(input) {
     private fun constant(): Token {
         var seenDecimalPoint = false
         while (true) {
-            when (ch) {
-                '0', '1', '2', '3', '4', '5', '6', '7', '8', '9' -> eat()
+            when (current) {
+                '0', '1', '2', '3', '4', '5', '6', '7', '8', '9' -> next()
                 'f', 'F' -> {
-                    eat()
+                    next()
                     return token(FLOAT_CONSTANT)
                 }
                 '.' -> {
                     if (seenDecimalPoint) return token(DOUBLE_CONSTANT)
-                    eat()
+                    next()
                     seenDecimalPoint = true
                 }
                 else -> return token(if (seenDecimalPoint) DOUBLE_CONSTANT else INTEGER_CONSTANT)
@@ -39,23 +179,23 @@ class Lexer(input: String) : LexerBase(input) {
     }
 
     private fun zero(): Token {
-        if (eat() == 'x' || ch == 'X') return hexadecimal()
+        if (next() == 'x' || current == 'X') return hexadecimal()
         var seen8or9 = false
         var seenDecimalPoint = false
         while (true) {
-            when (ch) {
-                '0', '1', '2', '3', '4', '5', '6', '7' -> eat()
+            when (current) {
+                '0', '1', '2', '3', '4', '5', '6', '7' -> next()
                 '8', '9' -> {
                     seen8or9 = true
-                    eat()
+                    next()
                 }
                 'f', 'F' -> {
-                    eat()
+                    next()
                     return token(FLOAT_CONSTANT)
                 }
                 '.' -> {
                     if (seenDecimalPoint) return token(DOUBLE_CONSTANT)
-                    eat()
+                    next()
                     seenDecimalPoint = true
                 }
                 else -> {
@@ -69,18 +209,18 @@ class Lexer(input: String) : LexerBase(input) {
     }
 
     private fun hexadecimal(): Token {
-        when (eat()) {
+        when (next()) {
             '0', '1', '2', '3', '4', '5', '6', '7', '8', '9',
             'A', 'B', 'C', 'D', 'E', 'F',
-            'a', 'b', 'c', 'd', 'e', 'f' -> eat()
+            'a', 'b', 'c', 'd', 'e', 'f' -> next()
 
             else -> error("hexadecimal literal indicated by leading 0x must contain at least one digit")
         }
         while (true) {
-            when (ch) {
+            when (current) {
                 '0', '1', '2', '3', '4', '5', '6', '7', '8', '9',
                 'A', 'B', 'C', 'D', 'E', 'F',
-                'a', 'b', 'c', 'd', 'e', 'f' -> eat()
+                'a', 'b', 'c', 'd', 'e', 'f' -> next()
 
                 else -> return token(INTEGER_CONSTANT)
             }
@@ -88,28 +228,28 @@ class Lexer(input: String) : LexerBase(input) {
     }
 
     private fun characterConstant(): Token {
-        val executionChar = when (eat()) {
+        val executionChar = when (next()) {
             ' ', '!', '#', '$', '%', '&', '\"', '(', ')', '*', '+', ',', '-', '.', '/',
             '0', '1', '2', '3', '4', '5', '6', '7', '8', '9',
             ':', ';', '<', '=', '>', '?', '@',
             'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z',
             '[', ']', '^', '_', '`',
             'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z',
-            '{', '|', '}', '~' -> ch
+            '{', '|', '}', '~' -> current
 
             '\\' -> escapeSequence()
 
             else -> error("illegal character inside character constant")
         }
-        if (eat() != '\'') error("character constant must be closed by '")
+        if (next() != '\'') error("character constant must be closed by '")
 
-        eat()
+        next()
         return token(CHARACTER_CONSTANT, lexeme(), executionChar.toString())
     }
 
     private fun escapeSequence(): Char {
-        return when (eat()) {
-            '\'', '\"', '?', '\\' -> ch
+        return when (next()) {
+            '\'', '\"', '?', '\\' -> current
 
             'a' -> '\u0007'
             'b' -> '\u0008'
@@ -128,19 +268,19 @@ class Lexer(input: String) : LexerBase(input) {
     private fun stringLiteral(): Token {
         val sb = StringBuilder()
         while (true) {
-            val executionChar = when (eat()) {
+            val executionChar = when (next()) {
                 ' ', '!', '#', '$', '%', '&', '\'', '(', ')', '*', '+', ',', '-', '.', '/',
                 '0', '1', '2', '3', '4', '5', '6', '7', '8', '9',
                 ':', ';', '<', '=', '>', '?', '@',
                 'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z',
                 '[', ']', '^', '_', '`',
                 'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z',
-                '{', '|', '}', '~' -> ch
+                '{', '|', '}', '~' -> current
 
                 '\\' -> escapeSequence()
 
                 '\"' -> {
-                    eat()
+                    next()
                     return token(STRING_LITERAL, lexeme(), sb.toString().intern())
                 }
 
@@ -148,137 +288,5 @@ class Lexer(input: String) : LexerBase(input) {
             }
             sb.append(executionChar)
         }
-    }
-
-    fun nextToken(): Token {
-        eatCommentsAndWhitespace()
-        return when (ch) {
-            'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z',
-            'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z',
-            '_' -> identifierOrKeyword()
-
-            '1', '2', '3', '4', '5', '6', '7', '8', '9' -> constant()
-            '0' -> zero()
-
-            '\'' -> characterConstant()
-
-            '\"' -> stringLiteral()
-
-            '(' -> consume(OPENING_PAREN)
-            ')' -> consume(CLOSING_PAREN)
-            ',' -> consume(COMMA)
-            '.' -> consume(DOT)
-            ':' -> consume(COLON)
-            ';' -> consume(SEMICOLON)
-            '?' -> consume(QUESTION)
-            '[' -> consume(OPENING_BRACKET)
-            ']' -> consume(CLOSING_BRACKET)
-            '{' -> consume(OPENING_BRACE)
-            '}' -> consume(CLOSING_BRACE)
-            '~' -> consume(TILDE)
-
-            '!' -> {
-                if (eat() == '=') {
-                    consume(BANG_EQUAL)
-                } else pack(BANG)
-            }
-
-            '%' -> {
-                if (eat() == '=') {
-                    consume(PERCENT_EQUAL)
-                } else pack(PERCENT)
-            }
-
-            '&' -> {
-                if (eat() == '=') {
-                    consume(AMPERSAND_EQUAL)
-                } else if (ch == '&') {
-                    consume(AMPERSAND_AMPERSAND)
-                } else pack(AMPERSAND)
-            }
-
-            '*' -> {
-                if (eat() == '=') {
-                    consume(ASTERISK_EQUAL)
-                } else pack(ASTERISK)
-            }
-
-            '+' -> {
-                if (eat() == '=') {
-                    consume(PLUS_EQUAL)
-                } else if (ch == '+') {
-                    consume(PLUS_PLUS)
-                } else pack(PLUS)
-            }
-
-            '-' -> {
-                if (eat() == '=') {
-                    consume(HYPHEN_EQUAL)
-                } else if (ch == '-') {
-                    consume(HYPHEN_HYPHEN)
-                } else if (ch == '>') {
-                    consume(HYPHEN_MORE)
-                } else pack(HYPHEN)
-            }
-
-            '/' -> {
-                if (eat() == '=') {
-                    consume(SLASH_EQUAL)
-                } else pack(SLASH)
-            }
-
-            '<' -> {
-                if (eat() == '=') {
-                    consume(LESS_EQUAL)
-                } else if (ch == '<') {
-                    if (eat() == '=') {
-                        consume(LESS_LESS_EQUAL)
-                    } else pack(LESS_LESS)
-                } else pack(LESS)
-            }
-
-            '=' -> {
-                if (eat() == '=') {
-                    consume(EQUAL_EQUAL)
-                } else pack(EQUAL)
-            }
-
-            '>' -> {
-                if (eat() == '=') {
-                    consume(MORE_EQUAL)
-                } else if (ch == '>') {
-                    if (eat() == '=') {
-                        consume(MORE_MORE_EQUAL)
-                    } else pack(MORE_MORE)
-                } else pack(MORE)
-            }
-
-            '^' -> {
-                if (eat() == '=') {
-                    consume(CARET_EQUAL)
-                } else pack(CARET)
-            }
-
-            '|' -> {
-                if (eat() == '=') {
-                    consume(BAR_EQUAL)
-                } else if (ch == '|') {
-                    consume(BAR_BAR)
-                } else pack(BAR)
-            }
-
-            '\u007f' -> pack(END_OF_INPUT)
-
-            else -> error("illegal input character")
-        }
-    }
-
-    private fun consume(kind: Byte): Token {
-        eat()
-        return pack(kind)
-    }
-
-    private fun pack(kind: Byte): Token {
-        return token(kind, kind.show())
     }
 }
