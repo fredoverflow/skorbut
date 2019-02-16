@@ -17,16 +17,19 @@ class Token(val kind: Byte, val start: Int, val source: String, val text: String
     override fun toString(): String = source
 }
 
-val TOKENS = arrayOf("assert", "auto", "break", "case", "char", "const", "continue", "default", "do",
+val lexemePool = arrayOf("assert", "auto", "break", "case", "char", "const", "continue", "default", "do",
         "double", "else", "enum", "extern", "float", "for", "goto", "if", "int", "long", "register", "return", "short",
         "signed", "sizeof", "static", "struct", "switch", "typedef", "union", "unsigned", "void", "volatile", "while",
+        // keywords come first and must be sorted for binary search
         "[", "]", "(", ")", ".", "->", "++", "--", "&", "*", "+", "-", "~", "!", "/", "%", "<<", ">>",
         "<", ">", "<=", ">=", "==", "!=", "^", "|", "&&", "||", "?", ":",
         "=", "*=", "/=", "%=", "+=", "-=", "<<=", ">>=", "&=", "^=", "|=", ",", "{", "}", ";",
         "double constant", "float constant", "integer constant", "character constant",
         "string literal", "printf", "identifier", "scanf", "end of input", "\$anon")
 
-fun Byte.show(): String = TOKENS[this.toInt()]
+const val NUM_KEYWORDS = 33
+
+fun Byte.show(): String = lexemePool[+this]
 
 const val ASSERT: Byte = 0
 const val AUTO: Byte = 1

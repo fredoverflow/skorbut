@@ -1,15 +1,16 @@
-package syntax
+package syntax.lexer
 
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertSame
 import org.junit.Test
-import syntax.lexer.*
 
 import kotlin.random.Random
 
 class LexerTest {
-    var lexer = Lexer("")
+    private var lexer = Lexer("")
 
-    @Test fun identifiers() {
+    @Test
+    fun identifiers() {
         lexer = Lexer("a z a0 z9 a_z foo _bar the_quick_brown_fox_jumped_over_the_lazy_dog THE_QUICK_BROWN_FOX_JUMPED_OVER_THE_LAZY_DOG")
 
         expectIdentifier("a")
@@ -23,7 +24,8 @@ class LexerTest {
         expectIdentifier("THE_QUICK_BROWN_FOX_JUMPED_OVER_THE_LAZY_DOG")
     }
 
-    @Test fun stringLiterals() {
+    @Test
+    fun stringLiterals() {
         lexer = Lexer("""
         "hello"
         "hi there"
@@ -39,7 +41,8 @@ class LexerTest {
         expectStringLiteral("""use \n for a new line""")
     }
 
-    @Test fun singleLineComments() {
+    @Test
+    fun singleLineComments() {
         lexer = Lexer("""// comment #1
         a
         // comment #2
@@ -56,7 +59,8 @@ class LexerTest {
         expectIdentifier("e")
     }
 
-    @Test fun multiLineComments() {
+    @Test
+    fun multiLineComments() {
         lexer = Lexer("""/*
         comment #1
         */
@@ -75,14 +79,16 @@ class LexerTest {
         expectIdentifier("f")
     }
 
-    @Test fun keywords() {
-        for (tok in 0..32) {
+    @Test
+    fun keywords() {
+        for (tok in 0 until NUM_KEYWORDS) {
             tokenRoundTrip(tok)
         }
     }
 
-    @Test fun otherTokens() {
-        for (tok in 33..SEMICOLON) {
+    @Test
+    fun otherTokens() {
+        for (tok in NUM_KEYWORDS..SEMICOLON) {
             tokenRoundTrip(tok)
         }
     }
@@ -92,11 +98,12 @@ class LexerTest {
         lexer = Lexer(tokenIn)
         val tokOut = lexer.nextToken().kind
         val tokenOut = tokOut.show()
-        assertEquals(tokenIn, tokenOut)
+        assertSame(tokenIn, tokenOut)
     }
 
-    @Test fun nearKeywords() {
-        for (tok in 0..32) {
+    @Test
+    fun nearKeywords() {
+        for (tok in 0 until NUM_KEYWORDS) {
             val keyword = tok.toByte().show()
             val init = keyword.substring(0, keyword.length - 1)
             val last = keyword.last()
