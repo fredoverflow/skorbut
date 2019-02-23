@@ -8,9 +8,9 @@ tailrec fun Lexer.identifierOrKeyword(): Token = when (next()) {
 
     else -> {
         val lexeme = lexeme()
-        val keyword = lexemePool.binarySearch(lexeme, 0, NUM_KEYWORDS)
+        val keyword: Byte? = keywords[lexeme]
         when {
-            keyword >= 0 -> pooled(keyword.toByte())
+            keyword != null -> pooled(keyword)
             else -> token(IDENTIFIER, lexeme.intern())
         }
     }

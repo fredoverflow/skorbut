@@ -1,6 +1,7 @@
 package syntax.lexer
 
 import common.Diagnostic
+import freditor.persistent.ChampMap
 
 class Token(val kind: Byte, val start: Int, val source: String, val text: String) {
     val end: Int
@@ -20,7 +21,7 @@ class Token(val kind: Byte, val start: Int, val source: String, val text: String
 val lexemePool = arrayOf("assert", "auto", "break", "case", "char", "const", "continue", "default", "do",
         "double", "else", "enum", "extern", "float", "for", "goto", "if", "int", "long", "register", "return", "short",
         "signed", "sizeof", "static", "struct", "switch", "typedef", "union", "unsigned", "void", "volatile", "while",
-        // keywords come first and must be sorted for binary search
+        // keywords come first
         "[", "]", "(", ")", ".", "->", "++", "--", "&", "*", "+", "-", "~", "!", "/", "%", "<<", ">>",
         "<", ">", "<=", ">=", "==", "!=", "^", "|", "&&", "||", "?", ":",
         "=", "*=", "/=", "%=", "+=", "-=", "<<=", ">>=", "&=", "^=", "|=", ",", "{", "}", ";",
@@ -28,6 +29,10 @@ val lexemePool = arrayOf("assert", "auto", "break", "case", "char", "const", "co
         "string literal", "printf", "identifier", "scanf", "end of input", "\$anon")
 
 const val NUM_KEYWORDS = 33
+
+val keywords: ChampMap<String, Byte> = lexemePool.take(NUM_KEYWORDS).foldIndexed(ChampMap.empty()) { index, map, keyword ->
+    map.put(keyword, index.toByte())
+}
 
 fun Byte.show(): String = lexemePool[+this]
 
