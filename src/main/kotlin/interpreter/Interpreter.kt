@@ -46,7 +46,7 @@ class Interpreter(program: String) {
     var after: Function0<Unit>? = null
 
     fun run() {
-        val main = translationUnit.functions.firstOrNull { it.name() === "main" }
+        val main = translationUnit.functions.firstOrNull { it.name() == "main" }
         if (main == null) throw Diagnostic(0, "no main function found")
         if (!main.parameters.isEmpty()) main.root().error("main cannot have parameters")
         if (main.returnType() !== SignedIntType) main.root().error("main must return int")

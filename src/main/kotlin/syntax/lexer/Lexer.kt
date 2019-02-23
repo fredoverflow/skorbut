@@ -1,6 +1,7 @@
 package syntax.lexer
 
 import common.Diagnostic
+import freditor.persistent.ChampMap
 
 const val EOF = '\u0000'
 
@@ -81,4 +82,7 @@ class Lexer(private val input: String) {
     fun error(description: String): Nothing {
         throw Diagnostic(index, description)
     }
+
+    @Suppress("UNCHECKED_CAST")
+    var identifiersOrKeywords = keywords as ChampMap<String, Any>
 }
