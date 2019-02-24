@@ -1,7 +1,7 @@
 package syntax.lexer
 
 import common.Diagnostic
-import freditor.persistent.ChampMap
+import freditor.persistent.StringedValueMap
 
 class Token(val kind: Byte, val start: Int, val source: String, val text: String) {
     val end: Int
@@ -30,8 +30,12 @@ val lexemePool = arrayOf("assert", "auto", "break", "case", "char", "const", "co
 
 const val NUM_KEYWORDS = 33
 
-val keywords: ChampMap<String, Byte> = lexemePool.take(NUM_KEYWORDS).foldIndexed(ChampMap.empty()) { index, map, keyword ->
-    map.put(keyword, index.toByte())
+class Keyword(val kind: Byte, val lexeme: String) {
+    override fun toString(): String = lexeme
+}
+
+val keywords: StringedValueMap<Keyword> = lexemePool.take(NUM_KEYWORDS).foldIndexed(StringedValueMap.empty()) { index, map, lexeme ->
+    map.put(Keyword(index.toByte(), lexeme))
 }
 
 fun Byte.show(): String = lexemePool[+this]

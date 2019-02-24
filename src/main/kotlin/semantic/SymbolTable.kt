@@ -1,23 +1,23 @@
 package semantic
 
 import common.Diagnostic
-import freditor.persistent.ChampMap
+import freditor.persistent.StringedValueMap
 import semantic.types.FunctionType
 import semantic.types.Type
 import syntax.lexer.Token
 
 data class Symbol(val name: Token, val type: Type, val offset: Int) {
-    override fun toString(): String = "$name: $type @ $offset"
+    override fun toString(): String = name.text
 }
 
 class SymbolTable {
-    private val scopes = Array(128) { ChampMap.empty<String, Symbol>() }
+    private val scopes = Array(128) { StringedValueMap.empty<Symbol>() }
     private var current = 0
 
     fun atGlobalScope(): Boolean = current == 0
 
     fun openScope() {
-        scopes[++current] = ChampMap.empty()
+        scopes[++current] = StringedValueMap.empty()
     }
 
     fun closeScope() {
@@ -79,7 +79,7 @@ class SymbolTable {
             }
         } else {
             val symbol = Symbol(name, type, offset)
-            scopes[index] = scopes[index].put(text, symbol)
+            scopes[index] = scopes[index].put(symbol)
             return symbol
         }
     }
