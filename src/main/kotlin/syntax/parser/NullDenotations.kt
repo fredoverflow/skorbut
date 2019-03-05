@@ -9,11 +9,11 @@ abstract class NullDenotation {
 }
 
 object IdentifierDenotation : NullDenotation() {
-    override fun Parser.parse(name: Token): Expression {
-        return when (name.text) {
-            "printf" -> parenthesized { printfCall(name.withTokenKind(PRINTF)) }
-            "scanf" -> parenthesized { scanfCall(name.withTokenKind(SCANF)) }
-            else -> Identifier(name)
+    override fun Parser.parse(token: Token): Expression {
+        return when (token.text) {
+            "printf" -> parenthesized { printfCall(token.withTokenKind(PRINTF)) }
+            "scanf" -> parenthesized { scanfCall(token.withTokenKind(SCANF)) }
+            else -> Identifier(token)
         }
     }
 
@@ -21,7 +21,7 @@ object IdentifierDenotation : NullDenotation() {
         val format = expect(STRING_LITERAL)
         val arguments = if (current == COMMA) {
             next()
-            commaSeparatedList1 { assignmentExpression() }
+            commaSeparatedList1(::assignmentExpression)
         } else {
             emptyList()
         }
@@ -32,7 +32,7 @@ object IdentifierDenotation : NullDenotation() {
         val format = expect(STRING_LITERAL)
         val arguments = if (current == COMMA) {
             next()
-            commaSeparatedList1 { assignmentExpression() }
+            commaSeparatedList1(::assignmentExpression)
         } else {
             emptyList()
         }
@@ -41,62 +41,51 @@ object IdentifierDenotation : NullDenotation() {
 }
 
 object ConstantDenotation : NullDenotation() {
-    override fun Parser.parse(constant: Token): Expression {
-        return Constant(constant)
+    override fun Parser.parse(token: Token): Expression {
+        return Constant(token)
     }
 }
 
 object StringLiteralDenotation : NullDenotation() {
-    override fun Parser.parse(literal: Token): Expression {
-        return StringLiteral(literal)
+    override fun Parser.parse(token: Token): Expression {
+        return StringLiteral(token)
     }
 }
 
 object PossibleCastDenotation : NullDenotation() {
-    override fun Parser.parse(openParen: Token): Expression {
+    override fun Parser.parse(token: Token): Expression {
         val specifiers = declarationSpecifiers0()
         if (!specifiers.list.isEmpty()) {
             notImplementedYet("casting")
         } else {
-            return expression().also { expect(CLOSING_PAREN) }
+            return expression() before CLOSING_PAREN
         }
     }
 }
 
 object PrefixDenotation : NullDenotation() {
-    override fun Parser.parse(operator: Token): Expression {
+    override fun Parser.parse(token: Token): Expression {
         val operand = subexpression(PRECEDENCE_PREFIX)
-        return when (operator.kind) {
+        return when (token.kind) {
             PLUS_PLUS,
-            HYPHEN_HYPHEN -> Prefix(operator, operand)
-            AMPERSAND -> Reference(operator, operand)
-            ASTERISK -> Dereference(operator, operand)
-            PLUS -> UnaryPlus(operator, operand)
-            HYPHEN -> UnaryMinus(operator, operand)
-            TILDE -> BitwiseNot(operator, operand)
-            BANG -> LogicalNot(operator, operand)
-            else -> error("no parse for $operator")
+            HYPHEN_HYPHEN -> Prefix(token, operand)
+            AMPERSAND -> Reference(token, operand)
+            ASTERISK -> Dereference(token, operand)
+            PLUS -> UnaryPlus(token, operand)
+            HYPHEN -> UnaryMinus(token, operand)
+            TILDE -> BitwiseNot(token, operand)
+            BANG -> LogicalNot(token, operand)
+            else -> error("no parse for $token")
         }
     }
 }
 
 object SizeofDenotation : NullDenotation() {
-    override fun Parser.parse(operator: Token): Expression {
-        if (current == OPENING_PAREN) {
-            next()
-            val specifiers = declarationSpecifiers0()
-            if (!specifiers.list.isEmpty()) {
-                val result = SizeofType(operator, specifiers, abstractDeclarator())
-                expect(CLOSING_PAREN)
-                return result
-            } else {
-                val primary = expression()
-                expect(CLOSING_PAREN)
-                val unary = subexpression(primary, PRECEDENCE_PREFIX)
-                return SizeofExpression(operator, unary)
-            }
+    override fun Parser.parse(token: Token): Expression {
+        return if (current == OPENING_PAREN && isDeclarationSpecifier(lookahead)) {
+            parenthesized { SizeofType(token, declarationSpecifiers0(), abstractDeclarator()) }
         } else {
-            return SizeofExpression(operator, subexpression(PRECEDENCE_PREFIX))
+            SizeofExpression(token, subexpression(PRECEDENCE_PREFIX))
         }
     }
 }

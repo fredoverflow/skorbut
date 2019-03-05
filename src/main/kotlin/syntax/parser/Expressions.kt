@@ -9,7 +9,7 @@ const val PRECEDENCE_PREFIX = 140
 const val PRECEDENCE_COMMA = 10
 
 fun Parser.condition(): Expression {
-    return parenthesized { expression() }
+    return parenthesized(::expression)
 }
 
 @Suppress("NOTHING_TO_INLINE")
