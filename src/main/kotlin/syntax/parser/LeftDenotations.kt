@@ -1,6 +1,7 @@
 package syntax.parser
 
-import syntax.lexer.*
+import syntax.lexer.Token
+import syntax.lexer.TokenKind.*
 import syntax.tree.*
 
 abstract class LeftDenotation(val precedence: Int) {

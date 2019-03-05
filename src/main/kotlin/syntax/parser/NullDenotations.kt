@@ -1,6 +1,7 @@
 package syntax.parser
 
-import syntax.lexer.*
+import syntax.lexer.Token
+import syntax.lexer.TokenKind.*
 import syntax.tree.*
 
 abstract class NullDenotation {
@@ -54,7 +55,7 @@ object StringLiteralDenotation : NullDenotation() {
 object PossibleCastDenotation : NullDenotation() {
     override fun Parser.parse(openParen: Token): Expression {
         val specifiers = declarationSpecifiers0()
-        if (!specifiers.isEmpty()) {
+        if (!specifiers.list.isEmpty()) {
             notImplementedYet("casting")
         } else {
             return expression().also { expect(CLOSING_PAREN) }
@@ -84,8 +85,8 @@ object SizeofDenotation : NullDenotation() {
         if (current == OPENING_PAREN) {
             next()
             val specifiers = declarationSpecifiers0()
-            if (!specifiers.isEmpty()) {
-                val result = SizeofType(operator, DeclarationSpecifiers(specifiers), abstractDeclarator())
+            if (!specifiers.list.isEmpty()) {
+                val result = SizeofType(operator, specifiers, abstractDeclarator())
                 expect(CLOSING_PAREN)
                 return result
             } else {

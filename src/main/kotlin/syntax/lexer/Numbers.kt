@@ -1,5 +1,7 @@
 package syntax.lexer
 
+import syntax.lexer.TokenKind.*
+
 fun Lexer.constant(): Token {
     var seenDecimalPoint = false
     while (true) {

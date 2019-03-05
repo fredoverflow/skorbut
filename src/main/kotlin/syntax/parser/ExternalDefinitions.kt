@@ -1,6 +1,6 @@
 package syntax.parser
 
-import syntax.lexer.*
+import syntax.lexer.TokenKind.*
 import syntax.tree.*
 
 fun Parser.translationUnit(): TranslationUnit {
@@ -9,7 +9,7 @@ fun Parser.translationUnit(): TranslationUnit {
 
 fun Parser.externalDeclaration(): Node {
     val specifiers = declarationSpecifiers1()
-    val isTypedef = specifiers.list.any { it.kind() == TYPEDEF }
+    val isTypedef = specifiers.storageClass == TYPEDEF
     if (declaratorOptional && !isTypedef) {
         if (current == SEMICOLON) {
             return Declaration(specifiers, emptyList()).semicolon()

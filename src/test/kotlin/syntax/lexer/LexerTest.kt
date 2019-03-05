@@ -3,6 +3,8 @@ package syntax.lexer
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertSame
 import org.junit.Test
+import syntax.lexer.TokenKind.IDENTIFIER
+import syntax.lexer.TokenKind.STRING_LITERAL
 
 import kotlin.random.Random
 
@@ -81,30 +83,30 @@ class LexerTest {
 
     @Test
     fun keywords() {
-        for (tok in 0 until NUM_KEYWORDS) {
-            tokenRoundTrip(tok)
+        for (kind in TokenKind.KEYWORDS) {
+            lexemeRoundTrip(kind)
         }
     }
 
     @Test
-    fun otherTokens() {
-        for (tok in NUM_KEYWORDS..SEMICOLON) {
-            tokenRoundTrip(tok)
+    fun operatorsSeparators() {
+        for (kind in TokenKind.OPERATORS_SEPARATORS) {
+            lexemeRoundTrip(kind)
         }
     }
 
-    private fun tokenRoundTrip(tokIn: Int) {
-        val tokenIn = tokIn.toByte().show()
-        lexer = Lexer(tokenIn)
-        val tokOut = lexer.nextToken().kind
-        val tokenOut = tokOut.show()
-        assertSame(tokenIn, tokenOut)
+    private fun lexemeRoundTrip(kindIn: TokenKind) {
+        val lexemeIn = kindIn.lexeme
+        lexer = Lexer(lexemeIn)
+        val kindOut = lexer.nextToken().kind
+        val lexemeOut = kindOut.lexeme
+        assertSame(lexemeIn, lexemeOut)
     }
 
     @Test
     fun nearKeywords() {
-        for (tok in 0 until NUM_KEYWORDS) {
-            val keyword = tok.toByte().show()
+        for (kind in TokenKind.KEYWORDS) {
+            val keyword = kind.lexeme
             val init = keyword.substring(0, keyword.length - 1)
             val last = keyword.last()
             identifierRoundTrip(init)
@@ -130,13 +132,13 @@ class LexerTest {
 
     private fun expectIdentifier(identifier: String) {
         val token = lexer.nextToken()
-        assertEquals(IDENTIFIER.show(), token.kind.show())
+        assertEquals(IDENTIFIER, token.kind)
         assertEquals(identifier, token.text)
     }
 
     private fun expectStringLiteral(stringLiteral: String) {
         val token = lexer.nextToken()
-        assertEquals(STRING_LITERAL.show(), token.kind.show())
+        assertEquals(STRING_LITERAL, token.kind)
         assertEquals(stringLiteral, token.text)
     }
 }

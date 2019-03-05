@@ -2,9 +2,13 @@ package semantic
 
 import interpreter.*
 import semantic.types.*
-import syntax.lexer.*
+import syntax.lexer.Token
+import syntax.lexer.TokenKind.*
+import syntax.lexer.fakeIdentifier
+import syntax.lexer.missingIdentifier
 import syntax.tree.*
 import text.skipDigits
+import java.util.*
 
 class TypeChecker(translationUnit: TranslationUnit) {
     private val symbolTable = SymbolTable()
@@ -78,98 +82,35 @@ class TypeChecker(translationUnit: TranslationUnit) {
     }
 
     private fun DeclarationSpecifiers.typeCheck(): Type {
-        val bitset = computeBitset()
-        determineStorageClass(bitset)
-        determineType(bitset)
-        applyQualifiers(bitset)
+        determineType()
+        applyQualifiers()
         return type
     }
 
-    private fun DeclarationSpecifiers.computeBitset(): Int {
-        var bitset = 0
-        for (specifier in list) {
-            val bitmask = 1 shl +specifier.kind()
-            if (bitset and bitmask != 0) {
-                specifier.root().error("duplicate declaration specifier")
-            }
-            if (bitmask and STORAGE_CLASS != 0 && bitset and STORAGE_CLASS != 0) {
-                specifier.root().error("multiple storage class specifiers")
-            }
-            bitset = bitset or bitmask
-        }
-        return bitset
-    }
+    private fun DeclarationSpecifiers.determineType() {
+        type = typeSpecifiers.get(typeTokens)
+        if (type == Later) {
+            type = when (typeTokens.first()) {
+                ENUM -> list.mapNotNull { it.enumType() }.first()
 
-    private fun DeclarationSpecifiers.determineStorageClass(bitset: Int) {
-        storageClass = when (bitset and STORAGE_CLASS) {
-            0x00000000 -> VOID
-            0x00000002 -> AUTO
-            0x00001000 -> EXTERN
-            0x00080000 -> REGISTER
-            0x01000000 -> STATIC
-            0x08000000 -> TYPEDEF
+                STRUCT -> list.mapNotNull { it.structType() }.first()
 
-            else -> error("non-exhaustive switch")
+                IDENTIFIER -> {
+                    val specifier = list.find { it.kind() == IDENTIFIER }
+                    val primitive = specifier as DeclarationSpecifier.Primitive
+                    val identifier = primitive.token
+                    val symbol = symbolTable.lookup(identifier)!!
+                    val alias = symbol.type as Typedef
+                    alias.aliased
+                }
+
+                else -> root().error("no determineType for ${typeTokens.first()}")
+            }
         }
     }
 
-    private fun DeclarationSpecifiers.determineType(bitset: Int) {
-        type = when (bitset and TYPE_SPECIFIERS) {
-            0x40000000 -> VoidType
-
-            0x00000010,
-            0x00400010 -> SignedCharType
-
-            0x20000010 -> UnsignedCharType
-
-            0x00200000,
-            0x00220000,
-            0x00600000,
-            0x00620000 -> SignedShortType
-
-            0x20200000,
-            0x20220000 -> UnsignedShortType
-
-            0x00020000,
-            0x00400000,
-            0x00420000 -> SignedIntType
-
-            0x20000000,
-            0x20020000 -> UnsignedIntType
-
-            // fake SignedLongType with SignedIntType
-            0x00040000,
-            0x00060000,
-            0x00440000,
-            0x00460000 -> SignedIntType
-
-            // fake UnsignedLongType with UnsignedIntType
-            0x20040000,
-            0x20060000 -> UnsignedIntType
-
-            0x00002000 -> FloatType
-
-            0x00000200 -> DoubleType
-
-            0x00000800 -> list.mapNotNull { it.enumType() }.first()
-
-            0x02000000 -> list.mapNotNull { it.structType() }.first()
-
-            0x00100000 -> {
-                val specifier = list.find { it.kind() == IDENTIFIER }
-                val primitive = specifier as DeclarationSpecifier.Primitive
-                val identifier = primitive.token
-                val symbol = symbolTable.lookup(identifier)!!
-                val alias = symbol.type as Typedef
-                alias.aliased
-            }
-
-            else -> root().error("illegal combination of declaration specifiers")
-        }
-    }
-
-    private fun DeclarationSpecifiers.applyQualifiers(bitset: Int) {
-        if (bitset and CONST_QUALIFIER != 0) {
+    private fun DeclarationSpecifiers.applyQualifiers() {
+        if (qualifiers.contains(CONST)) {
             type = type.addConst()
         }
     }

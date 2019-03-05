@@ -1,5 +1,8 @@
 package syntax.lexer
 
+import syntax.lexer.TokenKind.CHARACTER_CONSTANT
+import syntax.lexer.TokenKind.STRING_LITERAL
+
 fun Lexer.characterConstant(): Token {
     val executionChar = when (next()) {
         ' ', '!', '#', '$', '%', '&', '\"', '(', ')', '*', '+', ',', '-', '.', '/',

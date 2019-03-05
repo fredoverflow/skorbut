@@ -1,6 +1,7 @@
 package syntax.parser
 
-import syntax.lexer.*
+import syntax.lexer.TokenKind
+import syntax.lexer.TokenKind.*
 import syntax.tree.*
 
 const val PRECEDENCE_POSTFIX = 150
@@ -22,13 +23,13 @@ inline fun Parser.assignmentExpression(): Expression {
 }
 
 fun Parser.subexpression(outerPrecedence: Int): Expression {
-    val nullDenotation = nullDenotations[+current] ?: illegalStartOf("expression")
+    val nullDenotation = nullDenotations[current.ordinal] ?: illegalStartOf("expression")
 
     return subexpression(with(nullDenotation) { parse(accept()) }, outerPrecedence)
 }
 
 tailrec fun Parser.subexpression(left: Expression, outerPrecedence: Int): Expression {
-    val leftDenotation = leftDenotations[+current] ?: return left
+    val leftDenotation = leftDenotations[current.ordinal] ?: return left
     if (leftDenotation.precedence <= outerPrecedence) return left
 
     return subexpression(with(leftDenotation) { parse(left, accept()) }, outerPrecedence)
@@ -69,12 +70,12 @@ private val leftDenotations = arrayOfNulls<LeftDenotation>(128).apply {
     this[COMMA] = RightAssociativeDenotation(PRECEDENCE_COMMA, ::Comma)
 }
 
-private operator fun <V> Array<V>.set(index: Byte, value: V) {
-    this[+index] = value
+private operator fun <V> Array<V>.set(index: TokenKind, value: V) {
+    this[index.ordinal] = value
 }
 
-private operator fun <V> Array<V>.set(vararg indexes: Byte, value: V) {
+private operator fun <V> Array<V>.set(vararg indexes: TokenKind, value: V) {
     for (index in indexes) {
-        this[+index] = value
+        this[index.ordinal] = value
     }
 }

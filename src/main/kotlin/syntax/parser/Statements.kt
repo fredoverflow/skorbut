@@ -1,6 +1,6 @@
 package syntax.parser
 
-import syntax.lexer.*
+import syntax.lexer.TokenKind.*
 import syntax.tree.*
 
 fun Parser.statement(): Statement = when (current) {

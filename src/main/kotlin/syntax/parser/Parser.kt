@@ -2,7 +2,11 @@ package syntax.parser
 
 import common.Diagnostic
 import semantic.SymbolTable
-import syntax.lexer.*
+import syntax.lexer.Lexer
+import syntax.lexer.Token
+import syntax.lexer.TokenKind
+import syntax.lexer.TokenKind.*
+import syntax.lexer.nextToken
 
 class Parser(private val lexer: Lexer) {
     private var previousEnd: Int = 0
@@ -10,13 +14,13 @@ class Parser(private val lexer: Lexer) {
     var token: Token = lexer.nextToken()
         private set
 
-    var current: Byte = token.kind
+    var current: TokenKind = token.kind
         private set
 
     var lookahead: Token = lexer.nextToken()
         private set
 
-    fun next(): Byte {
+    fun next(): TokenKind {
         previousEnd = token.end
         token = lookahead
         current = token.kind
@@ -30,8 +34,8 @@ class Parser(private val lexer: Lexer) {
         return result
     }
 
-    fun expect(expected: Byte): Token {
-        if (current != expected) throw Diagnostic(previousEnd, "expected ${expected.show()}")
+    fun expect(expected: TokenKind): Token {
+        if (current != expected) throw Diagnostic(previousEnd, "expected $expected")
         return accept()
     }
 
@@ -40,7 +44,7 @@ class Parser(private val lexer: Lexer) {
         return this
     }
 
-    infix fun <T> T.before(expected: Byte): T {
+    infix fun <T> T.before(expected: TokenKind): T {
         expect(expected)
         return this
     }
@@ -66,7 +70,7 @@ class Parser(private val lexer: Lexer) {
         return commaSeparatedList1(parse(), parse)
     }
 
-    inline fun <T> commaSeparatedList0(terminator: Byte, parse: () -> T): List<T> {
+    inline fun <T> commaSeparatedList0(terminator: TokenKind, parse: () -> T): List<T> {
         return if (current == terminator) {
             emptyList()
         } else {
@@ -74,7 +78,7 @@ class Parser(private val lexer: Lexer) {
         }
     }
 
-    inline fun <T> trailingCommaSeparatedList1(terminator: Byte, parse: () -> T): List<T> {
+    inline fun <T> trailingCommaSeparatedList1(terminator: TokenKind, parse: () -> T): List<T> {
         val list = mutableListOf(parse())
         while (current == COMMA && next() != terminator) {
             list.add(parse())
@@ -98,11 +102,11 @@ class Parser(private val lexer: Lexer) {
         }
     }
 
-    inline fun <T> list1Until(terminator: Byte, parse: () -> T): List<T> {
+    inline fun <T> list1Until(terminator: TokenKind, parse: () -> T): List<T> {
         return list1While({ current != terminator }, parse)
     }
 
-    inline fun <T> list0Until(terminator: Byte, parse: () -> T): List<T> {
+    inline fun <T> list0Until(terminator: TokenKind, parse: () -> T): List<T> {
         return list0While({ current != terminator }, parse)
     }
 
@@ -124,7 +128,7 @@ class Parser(private val lexer: Lexer) {
         return result
     }
 
-    infix fun <T> (() -> T).optionalBefore(terminator: Byte): T? {
+    infix fun <T> (() -> T).optionalBefore(terminator: TokenKind): T? {
         return if (current == terminator) {
             next()
             null
@@ -133,7 +137,7 @@ class Parser(private val lexer: Lexer) {
         }
     }
 
-    inline fun <T> optional(indicator: Byte, parse: () -> T): T? {
+    inline fun <T> optional(indicator: TokenKind, parse: () -> T): T? {
         return if (current != indicator) {
             null
         } else {
@@ -144,6 +148,5 @@ class Parser(private val lexer: Lexer) {
 
     val symbolTable = SymbolTable()
 
-    var acceptableSpecifiers = 0
     var declaratorOptional = false
 }

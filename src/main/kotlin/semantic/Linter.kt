@@ -3,7 +3,8 @@ package semantic
 import interpreter.ArithmeticValue
 import interpreter.returnType
 import semantic.types.VoidType
-import syntax.lexer.*
+import syntax.lexer.Token
+import syntax.lexer.TokenKind.*
 import syntax.tree.*
 
 class Linter(val translationUnit: TranslationUnit) : LinterBase() {
@@ -60,6 +61,8 @@ class Linter(val translationUnit: TranslationUnit) : LinterBase() {
             DOUBLE_CONSTANT, FLOAT_CONSTANT, INTEGER_CONSTANT,
             CHARACTER_CONSTANT, STRING_LITERAL,
             IDENTIFIER -> root.warn("$root has no effect")
+            else -> {
+            }
         }
     }
 

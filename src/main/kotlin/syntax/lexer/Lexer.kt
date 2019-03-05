@@ -33,25 +33,25 @@ class Lexer(private val input: String) {
         return input.substring(start, index)
     }
 
-    fun token(kind: Byte): Token {
+    fun token(kind: TokenKind): Token {
         return token(kind, lexeme())
     }
 
-    fun token(kind: Byte, text: String): Token {
+    fun token(kind: TokenKind, text: String): Token {
         return token(kind, text, text)
     }
 
-    fun token(kind: Byte, sourceText: String, executionText: String): Token {
-        return Token(kind, start, sourceText, executionText)
+    fun token(kind: TokenKind, source: String, text: String): Token {
+        return Token(kind, start, source, text)
     }
 
-    fun pooled(kind: Byte): Token {
-        return token(kind, kind.show())
+    fun verbatim(kind: TokenKind): Token {
+        return token(kind, kind.lexeme)
     }
 
-    fun nextPooled(kind: Byte): Token {
+    fun nextVerbatim(kind: TokenKind): Token {
         next()
-        return pooled(kind)
+        return verbatim(kind)
     }
 
     fun error(description: String): Nothing {

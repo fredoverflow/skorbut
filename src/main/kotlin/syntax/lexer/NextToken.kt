@@ -1,5 +1,7 @@
 package syntax.lexer
 
+import syntax.lexer.TokenKind.*
+
 tailrec fun Lexer.nextToken(): Token {
     startAtIndex()
     return when (current) {
@@ -19,57 +21,57 @@ tailrec fun Lexer.nextToken(): Token {
 
         '\"' -> stringLiteral()
 
-        '(' -> nextPooled(OPENING_PAREN)
-        ')' -> nextPooled(CLOSING_PAREN)
-        ',' -> nextPooled(COMMA)
-        '.' -> nextPooled(DOT)
-        ':' -> nextPooled(COLON)
-        ';' -> nextPooled(SEMICOLON)
-        '?' -> nextPooled(QUESTION)
-        '[' -> nextPooled(OPENING_BRACKET)
-        ']' -> nextPooled(CLOSING_BRACKET)
-        '{' -> nextPooled(OPENING_BRACE)
-        '}' -> nextPooled(CLOSING_BRACE)
-        '~' -> nextPooled(TILDE)
+        '(' -> nextVerbatim(OPENING_PAREN)
+        ')' -> nextVerbatim(CLOSING_PAREN)
+        ',' -> nextVerbatim(COMMA)
+        '.' -> nextVerbatim(DOT)
+        ':' -> nextVerbatim(COLON)
+        ';' -> nextVerbatim(SEMICOLON)
+        '?' -> nextVerbatim(QUESTION)
+        '[' -> nextVerbatim(OPENING_BRACKET)
+        ']' -> nextVerbatim(CLOSING_BRACKET)
+        '{' -> nextVerbatim(OPENING_BRACE)
+        '}' -> nextVerbatim(CLOSING_BRACE)
+        '~' -> nextVerbatim(TILDE)
 
         '!' -> when (next()) {
-            '=' -> nextPooled(BANG_EQUAL)
-            else -> pooled(BANG)
+            '=' -> nextVerbatim(BANG_EQUAL)
+            else -> verbatim(BANG)
         }
 
         '%' -> when (next()) {
-            '=' -> nextPooled(PERCENT_EQUAL)
-            else -> pooled(PERCENT)
+            '=' -> nextVerbatim(PERCENT_EQUAL)
+            else -> verbatim(PERCENT)
         }
 
         '&' -> when (next()) {
-            '=' -> nextPooled(AMPERSAND_EQUAL)
-            '&' -> nextPooled(AMPERSAND_AMPERSAND)
-            else -> pooled(AMPERSAND)
+            '=' -> nextVerbatim(AMPERSAND_EQUAL)
+            '&' -> nextVerbatim(AMPERSAND_AMPERSAND)
+            else -> verbatim(AMPERSAND)
         }
 
         '*' -> when (next()) {
-            '=' -> nextPooled(ASTERISK_EQUAL)
-            else -> pooled(ASTERISK)
+            '=' -> nextVerbatim(ASTERISK_EQUAL)
+            else -> verbatim(ASTERISK)
         }
 
         '+' -> when (next()) {
-            '=' -> nextPooled(PLUS_EQUAL)
-            '+' -> nextPooled(PLUS_PLUS)
-            else -> pooled(PLUS)
+            '=' -> nextVerbatim(PLUS_EQUAL)
+            '+' -> nextVerbatim(PLUS_PLUS)
+            else -> verbatim(PLUS)
         }
 
         '-' -> when (next()) {
-            '=' -> nextPooled(HYPHEN_EQUAL)
-            '-' -> nextPooled(HYPHEN_HYPHEN)
-            '>' -> nextPooled(HYPHEN_MORE)
-            else -> pooled(HYPHEN)
+            '=' -> nextVerbatim(HYPHEN_EQUAL)
+            '-' -> nextVerbatim(HYPHEN_HYPHEN)
+            '>' -> nextVerbatim(HYPHEN_MORE)
+            else -> verbatim(HYPHEN)
         }
 
         '/' -> when (next()) {
             '/' -> {
                 while (next() != '\n') {
-                    if (current == EOF) return pooled(END_OF_INPUT)
+                    if (current == EOF) return verbatim(END_OF_INPUT)
                 }
                 next() // skip '\n'
                 nextToken()
@@ -77,50 +79,50 @@ tailrec fun Lexer.nextToken(): Token {
             '*' -> {
                 next() // skip '*'
                 do {
-                    if (current == EOF) return pooled(END_OF_INPUT)
+                    if (current == EOF) return verbatim(END_OF_INPUT)
                 } while ((current != '*') or (next() != '/'))
                 next() // skip '/'
                 nextToken()
             }
-            '=' -> nextPooled(SLASH_EQUAL)
-            else -> pooled(SLASH)
+            '=' -> nextVerbatim(SLASH_EQUAL)
+            else -> verbatim(SLASH)
         }
 
         '<' -> when (next()) {
-            '=' -> nextPooled(LESS_EQUAL)
+            '=' -> nextVerbatim(LESS_EQUAL)
             '<' -> when (next()) {
-                '=' -> nextPooled(LESS_LESS_EQUAL)
-                else -> pooled(LESS_LESS)
+                '=' -> nextVerbatim(LESS_LESS_EQUAL)
+                else -> verbatim(LESS_LESS)
             }
-            else -> pooled(LESS)
+            else -> verbatim(LESS)
         }
 
         '=' -> when (next()) {
-            '=' -> nextPooled(EQUAL_EQUAL)
-            else -> pooled(EQUAL)
+            '=' -> nextVerbatim(EQUAL_EQUAL)
+            else -> verbatim(EQUAL)
         }
 
         '>' -> when (next()) {
-            '=' -> nextPooled(MORE_EQUAL)
+            '=' -> nextVerbatim(MORE_EQUAL)
             '>' -> when (next()) {
-                '=' -> nextPooled(MORE_MORE_EQUAL)
-                else -> pooled(MORE_MORE)
+                '=' -> nextVerbatim(MORE_MORE_EQUAL)
+                else -> verbatim(MORE_MORE)
             }
-            else -> pooled(MORE)
+            else -> verbatim(MORE)
         }
 
         '^' -> when (next()) {
-            '=' -> nextPooled(CARET_EQUAL)
-            else -> pooled(CARET)
+            '=' -> nextVerbatim(CARET_EQUAL)
+            else -> verbatim(CARET)
         }
 
         '|' -> when (next()) {
-            '=' -> nextPooled(BAR_EQUAL)
-            '|' -> nextPooled(BAR_BAR)
-            else -> pooled(BAR)
+            '=' -> nextVerbatim(BAR_EQUAL)
+            '|' -> nextVerbatim(BAR_BAR)
+            else -> verbatim(BAR)
         }
 
-        EOF -> pooled(END_OF_INPUT)
+        EOF -> verbatim(END_OF_INPUT)
 
         else -> error("illegal input character")
     }

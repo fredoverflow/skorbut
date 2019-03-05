@@ -1,5 +1,7 @@
 package syntax.lexer
 
+import syntax.lexer.TokenKind.IDENTIFIER
+
 tailrec fun Lexer.identifierOrKeyword(): Token = when (next()) {
     '0', '1', '2', '3', '4', '5', '6', '7', '8', '9',
     'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z',
@@ -9,7 +11,7 @@ tailrec fun Lexer.identifierOrKeyword(): Token = when (next()) {
     else -> {
         val lexeme = lexeme()
         when (val value: Any? = identifiersOrKeywords[lexeme]) {
-            is Keyword -> token(value.kind, value.lexeme)
+            is TokenKind -> verbatim(value)
             is String -> token(IDENTIFIER, value)
             else -> {
                 identifiersOrKeywords = identifiersOrKeywords.put(lexeme)

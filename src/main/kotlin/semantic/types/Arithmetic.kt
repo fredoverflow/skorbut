@@ -33,7 +33,7 @@ object SignedCharType : ArithmeticType() {
 
     override fun show(value: Double): String = value.toChar().quote()
 
-    override val defaultValue: ArithmeticValue by lazy { Value.signedChar(0) }
+    override val defaultValue: ArithmeticValue = Value.signedChar(0)
 
     override fun rank(): Int = 0
 
@@ -97,7 +97,7 @@ object SignedIntType : ArithmeticType() {
 
     override fun show(value: Double): String = value.toInt().toString()
 
-    override val defaultValue: ArithmeticValue = Value.signedInt(0)
+    override val defaultValue: ArithmeticValue by lazy { Value.signedInt(0) }
 
     override fun rank(): Int = 4
 

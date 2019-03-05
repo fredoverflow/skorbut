@@ -2,21 +2,23 @@ package syntax.tree
 
 import semantic.types.Later
 import semantic.types.Type
-import syntax.lexer.ENUM
-import syntax.lexer.STRUCT
 import syntax.lexer.Token
+import syntax.lexer.TokenKind
+import syntax.lexer.TokenKind.ENUM
+import syntax.lexer.TokenKind.STRUCT
+import syntax.lexer.TokenKindSet
 
 sealed class DeclarationSpecifier : Node() {
-    abstract fun kind(): Byte
+    abstract fun kind(): TokenKind
 
     class Primitive(val token: Token) : DeclarationSpecifier() {
-        override fun kind(): Byte = token.kind
+        override fun kind(): TokenKind = token.kind
 
         override fun root(): Token = token
     }
 
     class StructDef(val name: Token, val body: List<StructDeclaration>) : DeclarationSpecifier() {
-        override fun kind(): Byte = STRUCT
+        override fun kind(): TokenKind = STRUCT
 
         override fun root(): Token = name
 
@@ -28,7 +30,7 @@ sealed class DeclarationSpecifier : Node() {
     }
 
     class StructRef(val name: Token) : DeclarationSpecifier() {
-        override fun kind(): Byte = STRUCT
+        override fun kind(): TokenKind = STRUCT
 
         override fun root(): Token = name
 
@@ -36,7 +38,7 @@ sealed class DeclarationSpecifier : Node() {
     }
 
     class EnumDef(val name: Token, val body: List<Enumerator>) : DeclarationSpecifier() {
-        override fun kind(): Byte = ENUM
+        override fun kind(): TokenKind = ENUM
 
         override fun root(): Token = name
 
@@ -48,7 +50,7 @@ sealed class DeclarationSpecifier : Node() {
     }
 
     class EnumRef(val name: Token) : DeclarationSpecifier() {
-        override fun kind(): Byte = ENUM
+        override fun kind(): TokenKind = ENUM
 
         override fun root(): Token = name
 
@@ -66,8 +68,10 @@ class StructDeclaration(val specifiers: DeclarationSpecifiers, val declarators: 
     override fun toString(): String = specifiers.toString()
 }
 
-class DeclarationSpecifiers(val list: List<DeclarationSpecifier>) : Node() {
-    var storageClass: Byte = -1
+class DeclarationSpecifiers(val list: List<DeclarationSpecifier>,
+                            val storageClass: TokenKind,
+                            val qualifiers: TokenKindSet,
+                            val typeTokens: TokenKindSet) : Node() {
     var type: Type = Later
 
     override fun root(): Token = list[0].root()

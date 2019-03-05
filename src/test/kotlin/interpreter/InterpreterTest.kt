@@ -989,26 +989,6 @@ int main()
 """)
     }
 
-    @Test fun alternativeSpecifierSyntax() {
-        run("""
-int main()
-{
-    signed char a = 'a';
-    char signed b = 'b';
-
-    signed c = -2;
-    signed int d = -3;
-    int signed e = -4;
-
-    unsigned f = -5;
-    unsigned int g = -6;
-    int unsigned h = -7;
-
-    return 0;
-}
-""")
-    }
-
     @Test fun typedefScopes() {
         run("""
 typedef int X;
@@ -1094,13 +1074,34 @@ int main()
 """)
     }
 
-    @Test fun unsignedCharDeclaration() {
+    @Test fun signedCharDeclarations() {
         run("""
 int main()
 {
-    unsigned char x = -1;
-    assert x > 0;
-    assert sizeof(x) == 1;
+    signed char a = -1;
+    assert a < 0;
+    assert sizeof(a) == 1;
+
+    char signed b = -1;
+    assert b < 0;
+    assert sizeof(b) == 1;
+
+    return 0;
+}
+""")
+    }
+
+    @Test fun unsignedCharDeclarations() {
+        run("""
+int main()
+{
+    unsigned char a = -1;
+    assert a > 0;
+    assert sizeof(a) == 1;
+
+    char unsigned b = -1;
+    assert b > 0;
+    assert sizeof(b) == 1;
 
     return 0;
 }
@@ -1115,17 +1116,48 @@ int main()
     assert a < 0;
     assert sizeof(a) == 2;
 
+
     short int b = -1;
     assert b < 0;
     assert sizeof(b) == 2;
 
-    signed short c = -1;
+    int short c = -1;
     assert c < 0;
     assert sizeof(c) == 2;
 
-    signed short int d = -1;
+
+    signed short d = -1;
     assert d < 0;
     assert sizeof(d) == 2;
+
+    short signed e = -1;
+    assert e < 0;
+    assert sizeof(e) == 2;
+
+
+    signed short int f = -1;
+    assert f < 0;
+    assert sizeof(f) == 2;
+
+    signed int short g = -1;
+    assert g < 0;
+    assert sizeof(g) == 2;
+
+    short signed int h = -1;
+    assert h < 0;
+    assert sizeof(h) == 2;
+
+    short int signed i = -1;
+    assert i < 0;
+    assert sizeof(i) == 2;
+
+    int signed short j = -1;
+    assert j < 0;
+    assert sizeof(j) == 2;
+
+    int short signed k = -1;
+    assert k < 0;
+    assert sizeof(k) == 2;
 
     return 0;
 }
@@ -1136,13 +1168,86 @@ int main()
         run("""
 int main()
 {
-    unsigned short a = -1;
-    assert a > 0;
-    assert sizeof(a) == 2;
+    unsigned short d = -1;
+    assert d > 0;
+    assert sizeof(d) == 2;
 
-    unsigned short int b = -1;
+    short unsigned e = -1;
+    assert e > 0;
+    assert sizeof(e) == 2;
+
+
+    unsigned short int f = -1;
+    assert f > 0;
+    assert sizeof(f) == 2;
+
+    unsigned int short g = -1;
+    assert g > 0;
+    assert sizeof(g) == 2;
+
+    short unsigned int h = -1;
+    assert h > 0;
+    assert sizeof(h) == 2;
+
+    short int unsigned i = -1;
+    assert i > 0;
+    assert sizeof(i) == 2;
+
+    int unsigned short j = -1;
+    assert j > 0;
+    assert sizeof(j) == 2;
+
+    int short unsigned k = -1;
+    assert k > 0;
+    assert sizeof(k) == 2;
+
+    return 0;
+}
+""")
+    }
+
+    @Test fun signedIntDeclarations() {
+        run("""
+int main()
+{
+    int a = -1;
+    assert a < 0;
+    assert sizeof(a) == 4;
+
+    signed b = -1;
+    assert b < 0;
+    assert sizeof(b) == 4;
+
+
+    signed int d = -1;
+    assert d < 0;
+    assert sizeof(d) == 4;
+
+    int signed e = -1;
+    assert e < 0;
+    assert sizeof(e) == 4;
+
+    return 0;
+}
+""")
+    }
+
+    @Test fun unsignedIntDeclarations() {
+        run("""
+int main()
+{
+    unsigned b = -1;
     assert b > 0;
-    assert sizeof(b) == 2;
+    assert sizeof(b) == 4;
+
+
+    unsigned int d = -1;
+    assert d > 0;
+    assert sizeof(d) == 4;
+
+    int unsigned e = -1;
+    assert e > 0;
+    assert sizeof(e) == 4;
 
     return 0;
 }
@@ -1306,17 +1411,48 @@ int main()
     assert a < 0;
     assert sizeof(a) == 4;
 
+
     long int b = -1;
     assert b < 0;
     assert sizeof(b) == 4;
 
-    signed long c = -1;
+    int long c = -1;
     assert c < 0;
     assert sizeof(c) == 4;
 
-    signed long int d = -1;
+
+    signed long d = -1;
     assert d < 0;
     assert sizeof(d) == 4;
+
+    long signed e = -1;
+    assert e < 0;
+    assert sizeof(e) == 4;
+
+
+    signed long int f = -1;
+    assert f < 0;
+    assert sizeof(f) == 4;
+
+    signed int long g = -1;
+    assert g < 0;
+    assert sizeof(g) == 4;
+
+    long signed int h = -1;
+    assert h < 0;
+    assert sizeof(h) == 4;
+
+    long int signed i = -1;
+    assert i < 0;
+    assert sizeof(i) == 4;
+
+    int signed long j = -1;
+    assert j < 0;
+    assert sizeof(j) == 4;
+
+    int long signed k = -1;
+    assert k < 0;
+    assert sizeof(k) == 4;
 
     return 0;
 }
@@ -1327,13 +1463,38 @@ int main()
         run("""
 int main()
 {
-    unsigned long a = -1;
-    assert a > 0;
-    assert sizeof(a) == 4;
+    unsigned long d = -1;
+    assert d > 0;
+    assert sizeof(d) == 4;
 
-    unsigned long int b = -1;
-    assert b > 0;
-    assert sizeof(b) == 4;
+    long unsigned e = -1;
+    assert e > 0;
+    assert sizeof(e) == 4;
+
+
+    unsigned long int f = -1;
+    assert f > 0;
+    assert sizeof(f) == 4;
+
+    unsigned int long g = -1;
+    assert g > 0;
+    assert sizeof(g) == 4;
+
+    long unsigned int h = -1;
+    assert h > 0;
+    assert sizeof(h) == 4;
+
+    long int unsigned i = -1;
+    assert i > 0;
+    assert sizeof(i) == 4;
+
+    int unsigned long j = -1;
+    assert j > 0;
+    assert sizeof(j) == 4;
+
+    int long unsigned k = -1;
+    assert k > 0;
+    assert sizeof(k) == 4;
 
     return 0;
 }

@@ -1,0 +1,106 @@
+package syntax.lexer
+
+import freditor.persistent.StringedValueMap
+
+enum class TokenKind(val lexeme: String) {
+    ASSERT("assert"),
+    AUTO("auto"),
+    BREAK("break"),
+    CASE("case"),
+    CHAR("char"),
+    CONST("const"),
+    CONTINUE("continue"),
+    DEFAULT("default"),
+    DO("do"),
+    DOUBLE("double"),
+    ELSE("else"),
+    ENUM("enum"),
+    EXTERN("extern"),
+    FLOAT("float"),
+    FOR("for"),
+    GOTO("goto"),
+    IF("if"),
+    INT("int"),
+    LONG("long"),
+    REGISTER("register"),
+    RETURN("return"),
+    SHORT("short"),
+    SIGNED("signed"),
+    SIZEOF("sizeof"),
+    STATIC("static"),
+    STRUCT("struct"),
+    SWITCH("switch"),
+    TYPEDEF("typedef"),
+    UNION("union"),
+    UNSIGNED("unsigned"),
+    VOID("void"),
+    VOLATILE("volatile"),
+    WHILE("while"),
+
+    FLOAT_CONSTANT("FLOAT CONSTANT"),
+    DOUBLE_CONSTANT("DOUBLE CONSTANT"),
+    INTEGER_CONSTANT("INTEGER CONSTANT"),
+    CHARACTER_CONSTANT("CHARACTER CONSTANT"),
+    STRING_LITERAL("STRING LITERAL"),
+    IDENTIFIER("IDENTIFIER"),
+    PRINTF("PRINTF"),
+    SCANF("SCANF"),
+    END_OF_INPUT("END OF INPUT"),
+
+    OPENING_BRACKET("["),
+    CLOSING_BRACKET("]"),
+    OPENING_PAREN("("),
+    CLOSING_PAREN(")"),
+    DOT("."),
+    HYPHEN_MORE("->"),
+    PLUS_PLUS("++"),
+    HYPHEN_HYPHEN("--"),
+    AMPERSAND("&"),
+    ASTERISK("*"),
+    PLUS("+"),
+    HYPHEN("-"),
+    TILDE("~"),
+    BANG("!"),
+    SLASH("/"),
+    PERCENT("%"),
+    LESS_LESS("<<"),
+    MORE_MORE(">>"),
+    LESS("<"),
+    MORE(">"),
+    LESS_EQUAL("<="),
+    MORE_EQUAL(">="),
+    EQUAL_EQUAL("=="),
+    BANG_EQUAL("!="),
+    CARET("^"),
+    BAR("|"),
+    AMPERSAND_AMPERSAND("&&"),
+    BAR_BAR("||"),
+    QUESTION("?"),
+    COLON(":"),
+    EQUAL("="),
+    ASTERISK_EQUAL("*="),
+    SLASH_EQUAL("/="),
+    PERCENT_EQUAL("%="),
+    PLUS_EQUAL("+="),
+    HYPHEN_EQUAL("-="),
+    LESS_LESS_EQUAL("<<="),
+    MORE_MORE_EQUAL(">>="),
+    AMPERSAND_EQUAL("&="),
+    CARET_EQUAL("^="),
+    BAR_EQUAL("|="),
+    COMMA(","),
+    OPENING_BRACE("{"),
+    CLOSING_BRACE("}"),
+    SEMICOLON(";");
+
+    override fun toString(): String = lexeme
+
+    companion object {
+        val ALL = values().asList()
+        val KEYWORDS = ALL.subList(ASSERT.ordinal, WHILE.ordinal + 1)
+        val OPERATORS_SEPARATORS = ALL.subList(OPENING_BRACKET.ordinal, SEMICOLON.ordinal + 1)
+    }
+}
+
+val keywords: StringedValueMap<TokenKind> = TokenKind.KEYWORDS
+        .fold(StringedValueMap.empty(), StringedValueMap<TokenKind>::put)

@@ -3,7 +3,9 @@ package interpreter
 import common.Diagnostic
 import semantic.TypeChecker
 import semantic.types.*
-import syntax.lexer.*
+import syntax.lexer.Lexer
+import syntax.lexer.Token
+import syntax.lexer.TokenKind.*
 import syntax.parser.Parser
 import syntax.parser.translationUnit
 import syntax.tree.*

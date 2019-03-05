@@ -1,8 +1,13 @@
 package syntax.parser
 
+import semantic.typeSpecifierIdentifier
+import semantic.typeSpecifiers
 import semantic.types.MarkerIsTypedefName
 import semantic.types.MarkerNotTypedefName
-import syntax.lexer.*
+import syntax.lexer.Token
+import syntax.lexer.TokenKind
+import syntax.lexer.TokenKind.*
+import syntax.lexer.TokenKindSet
 import syntax.tree.*
 
 fun Parser.declare(name: Token, isTypedefName: Boolean) {
@@ -14,9 +19,10 @@ fun Parser.isTypedefName(token: Token): Boolean {
 }
 
 fun Parser.isDeclarationSpecifier(token: Token): Boolean = when (token.kind) {
-    TYPEDEF, EXTERN, STATIC, AUTO, REGISTER, CONST, VOLATILE,
-    VOID, CHAR, SHORT, INT, LONG, FLOAT, DOUBLE, SIGNED, UNSIGNED,
-    STRUCT, UNION, ENUM -> true
+    TYPEDEF, EXTERN, STATIC, AUTO, REGISTER,
+    CONST, VOLATILE,
+    VOID, CHAR, SHORT, INT, LONG, SIGNED, UNSIGNED, FLOAT, DOUBLE,
+    ENUM, STRUCT, UNION -> true
 
     IDENTIFIER -> isTypedefName(token)
 
@@ -25,7 +31,7 @@ fun Parser.isDeclarationSpecifier(token: Token): Boolean = when (token.kind) {
 
 fun Parser.declaration(): Statement {
     val specifiers = declarationSpecifiers1()
-    val isTypedef = specifiers.list.any { it.kind() == TYPEDEF }
+    val isTypedef = specifiers.storageClass == TYPEDEF
     val declarators = commaSeparatedList0(SEMICOLON) {
         initDeclarator().apply { declare(name, isTypedef) }
     }
@@ -34,37 +40,59 @@ fun Parser.declaration(): Statement {
 
 fun Parser.declarationSpecifiers1(): DeclarationSpecifiers {
     val specifiers = declarationSpecifiers0()
-    if (specifiers.isEmpty()) illegalStartOf("declaration")
-    return DeclarationSpecifiers(specifiers)
+    if (specifiers.list.isEmpty()) illegalStartOf("declaration")
+    return specifiers
 }
 
-fun Parser.declarationSpecifiers0(): List<DeclarationSpecifier> {
-    acceptableSpecifiers = ALL_SPECIFIERS
+fun Parser.declarationSpecifiers0(): DeclarationSpecifiers {
+    var storageClass: TokenKind = VOID
+    var qualifiers = TokenKindSet.EMPTY
+    var typeTokens = TokenKindSet.EMPTY
+    val list = ArrayList<DeclarationSpecifier>()
     declaratorOptional = false
-    return list0While(::isAcceptableDeclarationSpecifier, ::declarationSpecifier)
-}
 
-fun Parser.isAcceptableDeclarationSpecifier(): Boolean = when (current) {
-    TYPEDEF, EXTERN, STATIC, AUTO, REGISTER, CONST, VOLATILE ->
-        isAcceptableThenNarrowTo(ALL_SPECIFIERS)
+    loop@ while (true) {
+        when (current) {
+            TYPEDEF, EXTERN, STATIC, AUTO, REGISTER ->
+                if (storageClass == VOID) {
+                    storageClass = current
+                } else {
+                    token.error("multiple storage class specifiers")
+                }
 
-    VOID, CHAR, SHORT, INT, LONG, FLOAT, DOUBLE, SIGNED, UNSIGNED ->
-        isAcceptableThenNarrowTo(PRIMITIVE or STORAGE_CLASS or CV_QUALIFIER)
+            CONST, VOLATILE ->
+                if (qualifiers.contains(current)) {
+                    token.error("duplicate qualifier")
+                } else {
+                    qualifiers += current
+                }
 
-    STRUCT, UNION, ENUM ->
-        isAcceptableThenNarrowTo(STORAGE_CLASS or CV_QUALIFIER)
+            IDENTIFIER ->
+                if (typeTokens.isEmpty() && isTypedefName(token)) {
+                    typeTokens = typeSpecifierIdentifier
+                } else {
+                    break@loop
+                }
 
-    IDENTIFIER ->
-        isTypedefName(token) && isAcceptableThenNarrowTo(STORAGE_CLASS or CV_QUALIFIER)
+            VOID, CHAR, SHORT, INT, LONG, SIGNED, UNSIGNED, FLOAT, DOUBLE,
+            ENUM, STRUCT, UNION ->
+                if (typeTokens.contains(current)) {
+                    token.error("duplicate type specifier")
+                } else {
+                    var next = typeTokens + current
+                    next = typeSpecifiers.getKey(next)
+                    if (next != null) {
+                        typeTokens = next
+                    } else {
+                        token.error("illegal combination of type specifiers")
+                    }
+                }
 
-    else -> false
-}
-
-fun Parser.isAcceptableThenNarrowTo(narrowed: Int): Boolean {
-    val bitmask = 1 shl +current
-    val isolated = acceptableSpecifiers and bitmask
-    acceptableSpecifiers = acceptableSpecifiers and narrowed
-    return isolated != 0
+            else -> break@loop
+        }
+        list.add(declarationSpecifier())
+    }
+    return DeclarationSpecifiers(list, storageClass, qualifiers, typeTokens)
 }
 
 fun Parser.declarationSpecifier(): DeclarationSpecifier = when (current) {
