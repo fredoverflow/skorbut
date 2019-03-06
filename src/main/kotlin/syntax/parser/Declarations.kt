@@ -49,7 +49,6 @@ fun Parser.declarationSpecifiers0(): DeclarationSpecifiers {
     var qualifiers = TokenKindSet.EMPTY
     var typeTokens = TokenKindSet.EMPTY
     val list = ArrayList<DeclarationSpecifier>()
-    declaratorOptional = false
 
     loop@ while (true) {
         when (current) {
@@ -103,7 +102,6 @@ fun Parser.declarationSpecifier(): DeclarationSpecifier = when (current) {
 }
 
 fun Parser.enumSpecifier(): DeclarationSpecifier {
-    declaratorOptional = true
     return if (next() == OPENING_BRACE) {
         // anonymous enum
         DeclarationSpecifier.EnumDef(token, enumBody())
@@ -134,9 +132,7 @@ fun Parser.structSpecifier(): DeclarationSpecifier {
         val name = expect(IDENTIFIER).tagged()
         if (current == OPENING_BRACE) {
             // named struct
-            DeclarationSpecifier.StructDef(name, structBody()).also {
-                declaratorOptional = true
-            }
+            DeclarationSpecifier.StructDef(name, structBody())
         } else {
             DeclarationSpecifier.StructRef(name)
         }

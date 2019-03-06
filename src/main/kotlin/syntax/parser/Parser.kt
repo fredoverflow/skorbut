@@ -147,6 +147,4 @@ class Parser(private val lexer: Lexer) {
     }
 
     val symbolTable = SymbolTable()
-
-    var declaratorOptional = false
 }

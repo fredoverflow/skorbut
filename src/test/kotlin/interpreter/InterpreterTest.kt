@@ -2277,4 +2277,16 @@ int main()
 }
 """)
     }
+
+    @Test fun initEnumeratorWithSizeof() {
+        run("""
+enum { N = sizeof(int) };
+
+int main()
+{
+    assert N == 4;
+    return 0;
+}
+""")
+    }
 }

@@ -9,8 +9,7 @@ fun Parser.translationUnit(): TranslationUnit {
 
 fun Parser.externalDeclaration(): Node {
     val specifiers = declarationSpecifiers1()
-    val isTypedef = specifiers.storageClass == TYPEDEF
-    if (declaratorOptional && !isTypedef) {
+    if (specifiers.isDeclaratorOptional()) {
         if (current == SEMICOLON) {
             return Declaration(specifiers, emptyList()).semicolon()
         }
@@ -24,10 +23,19 @@ fun Parser.externalDeclaration(): Node {
             }
         }
     } else {
-        declare(firstNamedDeclarator.name, isTypedef)
+        val isTypedefName = specifiers.storageClass == TYPEDEF
+        declare(firstNamedDeclarator.name, isTypedefName)
         val declarators = commaSeparatedList1(initDeclarator(firstNamedDeclarator)) {
-            initDeclarator().apply { declare(name, isTypedef) }
+            initDeclarator().apply { declare(name, isTypedefName) }
         }
         Declaration(specifiers, declarators).semicolon()
+    }
+}
+
+fun DeclarationSpecifiers.isDeclaratorOptional(): Boolean {
+    return (storageClass != TYPEDEF) && when (typeTokens.first()) {
+        ENUM -> true
+        STRUCT -> list.any { it is DeclarationSpecifier.StructDef && it.name.wasProvided() }
+        else -> false
     }
 }
