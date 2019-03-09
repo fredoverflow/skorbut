@@ -78,13 +78,9 @@ fun Parser.declarationSpecifiers0(): DeclarationSpecifiers {
                 if (typeTokens.contains(current)) {
                     token.error("duplicate type specifier")
                 } else {
-                    var next = typeTokens + current
-                    next = typeSpecifiers.getKey(next)
-                    if (next != null) {
-                        typeTokens = next
-                    } else {
-                        token.error("illegal combination of type specifiers")
-                    }
+                    val combination = typeTokens + current
+                    val intern = typeSpecifiers.getKey(combination)
+                    typeTokens = intern ?: token.error("illegal combination of type specifiers: $combination")
                 }
 
             else -> break@loop

@@ -9,11 +9,8 @@ fun Parser.translationUnit(): TranslationUnit {
 
 fun Parser.externalDeclaration(): Node {
     val specifiers = declarationSpecifiers1()
-    if (specifiers.isDeclaratorOptional()) {
-        if (current == SEMICOLON) {
-            return Declaration(specifiers, emptyList()).semicolon()
-        }
-        if (isDeclarationSpecifier(token)) token.error("Did you forget to terminate the above type with a semicolon?")
+    if (current == SEMICOLON && specifiers.isDeclaratorOptional()) {
+        return Declaration(specifiers, emptyList()).semicolon()
     }
     val firstNamedDeclarator = namedDeclarator()
     return if (firstNamedDeclarator.declarator is Declarator.Function && current == OPENING_BRACE) {
