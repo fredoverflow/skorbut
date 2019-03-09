@@ -1,5 +1,7 @@
 package syntax.parser
 
+import semantic.enumStructUnion
+import semantic.storageClasses
 import semantic.typeSpecifierIdentifier
 import semantic.typeSpecifiers
 import semantic.types.MarkerIsTypedefName
@@ -56,12 +58,14 @@ fun Parser.declarationSpecifiers0(): DeclarationSpecifiers {
                 if (storageClass == VOID) {
                     storageClass = current
                 } else {
-                    token.error("multiple storage class specifiers")
+                    val previous = list.first { storageClasses.contains(it.kind()) }
+                    token.error("multiple storage class specifiers", previous.root())
                 }
 
             CONST, VOLATILE ->
                 if (qualifiers.contains(current)) {
-                    token.error("duplicate qualifier")
+                    val previous = list.first { it.kind() == current }
+                    token.error("duplicate type qualifier", previous.root())
                 } else {
                     qualifiers += current
                 }
@@ -75,8 +79,12 @@ fun Parser.declarationSpecifiers0(): DeclarationSpecifiers {
 
             VOID, CHAR, SHORT, INT, LONG, SIGNED, UNSIGNED, FLOAT, DOUBLE,
             ENUM, STRUCT, UNION ->
-                if (typeTokens.contains(current)) {
-                    token.error("duplicate type specifier")
+                if (!typeTokens.isEmpty() && enumStructUnion.contains(typeTokens.first())) {
+                    val previous = list.first { enumStructUnion.contains(it.kind()) }
+                    token.error("Did you forget to terminate the previous ${previous.kind()} with a semicolon?", previous.root())
+                } else if (typeTokens.contains(current)) {
+                    val previous = list.first { it.kind() == current }
+                    token.error("duplicate type specifier", previous.root())
                 } else {
                     val combination = typeTokens + current
                     val intern = typeSpecifiers.getKey(combination)

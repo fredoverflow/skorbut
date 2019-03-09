@@ -13,7 +13,13 @@ class Token(val kind: TokenKind, val start: Int, val source: String, val text: S
 
     fun wasProvided(): Boolean = kind == IDENTIFIER
 
-    fun error(description: String): Nothing = throw Diagnostic(start, description)
+    fun error(description: String): Nothing {
+        throw Diagnostic(start, description)
+    }
+
+    fun error(description: String, previous: Token): Nothing {
+        throw Diagnostic(start, "$description (click here to alternate)", previous.start)
+    }
 
     override fun toString(): String = source
 }

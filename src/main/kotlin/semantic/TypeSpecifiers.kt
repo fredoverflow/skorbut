@@ -5,6 +5,9 @@ import semantic.types.*
 import syntax.lexer.TokenKind.*
 import syntax.lexer.TokenKindSet
 
+val enumStructUnion = TokenKindSet.of(ENUM, STRUCT, UNION)
+val storageClasses = TokenKindSet.of(TYPEDEF, EXTERN, STATIC, AUTO, REGISTER)
+
 val typeSpecifierIdentifier = TokenKindSet.of(IDENTIFIER)
 
 val typeSpecifiers = ChampMap.empty<TokenKindSet, Type>()

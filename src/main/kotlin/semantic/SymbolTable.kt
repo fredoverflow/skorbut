@@ -75,7 +75,7 @@ class SymbolTable {
                     name.error("function definition signature does not agree with function declaration signature")
                 }
             } else {
-                throw Diagnostic(name.start, "$name was already declared elsewhere (click to alternate)", previous.name.start)
+                name.error("$name was already declared elsewhere", previous.name)
             }
         } else {
             val symbol = Symbol(name, type, offset)

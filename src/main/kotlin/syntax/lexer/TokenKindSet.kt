@@ -27,6 +27,14 @@ class TokenKindSet(private val bits: Long) {
             return TokenKindSet(kind1.bitmask or kind2.bitmask or kind3.bitmask)
         }
 
+        fun of(kind1: TokenKind, kind2: TokenKind, kind3: TokenKind, kind4: TokenKind): TokenKindSet {
+            return TokenKindSet(kind1.bitmask or kind2.bitmask or kind3.bitmask or kind4.bitmask)
+        }
+
+        fun of(kind1: TokenKind, kind2: TokenKind, kind3: TokenKind, kind4: TokenKind, kind5: TokenKind): TokenKindSet {
+            return TokenKindSet(kind1.bitmask or kind2.bitmask or kind3.bitmask or kind4.bitmask or kind5.bitmask)
+        }
+
         private val tokenKindValues = TokenKind.values()
     }
 
