@@ -70,18 +70,11 @@ tailrec fun Lexer.nextToken(): Token {
 
         '/' -> when (next()) {
             '/' -> {
-                while (next() != '\n') {
-                    if (current == EOF) return verbatim(END_OF_INPUT)
-                }
-                next() // skip '\n'
+                skipSingleLineComment()
                 nextToken()
             }
             '*' -> {
-                next() // skip '*'
-                do {
-                    if (current == EOF) return verbatim(END_OF_INPUT)
-                } while ((current != '*') or (next() != '/'))
-                next() // skip '/'
+                skipMultiLineComment()
                 nextToken()
             }
             '=' -> nextVerbatim(SLASH_EQUAL)
