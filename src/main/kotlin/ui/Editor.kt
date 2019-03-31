@@ -7,7 +7,7 @@ import java.io.File
 import java.io.IOException
 import java.security.MessageDigest
 
-class Editor : FreditorUI(Flexer.instance, JavaIndenter.instance, 0, 25) {
+class Editor : FreditorUI(Flexer, JavaIndenter.instance, 0, 25) {
     companion object {
         val directory = "${System.getProperty("user.home")}/skorbut"
         val filenamePrefix = "$directory/skorbut"
