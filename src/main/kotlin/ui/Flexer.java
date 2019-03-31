@@ -77,12 +77,12 @@ public class Flexer extends freditor.Flexer {
             .put(SLASH_SLASH, SLASH_ASTERISK, SLASH_ASTERISK___ASTERISK, SLASH_ASTERISK___ASTERISK_SLASH, 0x008000)
             .put(CHAR_CONSTANT_END, STRING_LITERAL_END, 0xdc009c)
             .put(NUMBER_HEAD, NUMBER_TAIL, 0x6400c8)
-            .tup(0x0000ff, START::read, "assert", "auto", "break", "case", "const", "continue", "default", "do", "else",
+            .put(START.read("assert", "auto", "break", "case", "const", "continue", "default", "do", "else",
                     "enum", "extern", "for", "goto", "if", "register", "return", "sizeof", "static", "struct", "switch",
-                    "typedef", "union", "volatile", "while")
-            .tup(0x008080, START::read, "char", "double", "float", "int", "long", "short", "signed", "unsigned", "void")
-            .tup(0xff0000, START::read, "(", ")", "[", "]", "{", "}")
-            .tup(0x804040, START::read, "!", "!=", "%", "%=", "&", "&&", "&=", "*", "*=", "+", "++", "+=", "-", "--",
+                    "typedef", "union", "volatile", "while"), 0x0000ff)
+            .put(START.read("char", "double", "float", "int", "long", "short", "signed", "unsigned", "void"), 0x008080)
+            .put(START.read("(", ")", "[", "]", "{", "}"), 0xff0000)
+            .put(START.read("!", "!=", "%", "%=", "&", "&&", "&=", "*", "*=", "+", "++", "+=", "-", "--",
                     "-=", "->", ".", "/", "/=", ":", "<", "<<", "<<=", "<=", "=", "==", ">", ">=", ">>", ">>=", "?",
-                    "^", "^=", "|", "|=", "||", "~");
+                    "^", "^=", "|", "|=", "||", "~"), 0x804040);
 }
