@@ -29,14 +29,14 @@ data class Object(val segment: Segment, val offset: Int, val type: Type, val ind
     }
 
     fun evaluate(): Value {
-        if (type is ArrayType) {
+        return if (type is ArrayType) {
             // array-to-pointer decay
-            return PointerValue(copy(type = type.elementType, index = 0, bound = type.length))
+            PointerValue(copy(type = type.elementType, index = 0, bound = type.length))
         } else {
             preventSentinelAccess()
             val result = segment[offset]
             if (result == IndeterminateValue) throw AssertionError("read from uninitialized variable")
-            return result
+            result
         }
     }
 

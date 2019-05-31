@@ -1,6 +1,5 @@
 package semantic
 
-import common.Diagnostic
 import freditor.persistent.StringedValueMap
 import semantic.types.FunctionType
 import semantic.types.Type

@@ -52,7 +52,7 @@ class Console {
                 k = fmt.skipDigits(i)
                 val width = fmt.parseInt(i, k)
                 val str = formatValue(args.next(), fmt[k])
-                str.length.until(width).forEach { sb.append(fill) }
+                repeat(width - str.length) { sb.append(fill) }
                 sb.append(str)
             }
             i = k + 1
@@ -104,23 +104,20 @@ class Console {
                         'd' -> {
                             if (type !== SignedIntType) format.error("%d expects ${SignedIntType.pointer()}, not ${type.pointer()}")
                             skipWhitespace()
-                            val x = scanInt()
-                            if (x == null) return a - 1
+                            val x = scanInt() ?: return a - 1
                             arg.referenced.assign(Value.signedInt(x))
                         }
                         'f' -> {
                             if (type !== FloatType) format.error("%f expects ${FloatType.pointer()}, not ${type.pointer()}")
                             skipWhitespace()
-                            val x = scanDouble()
-                            if (x == null) return a - 1
+                            val x = scanDouble() ?: return a - 1
                             arg.referenced.assign(Value.float(x.toFloat()))
                         }
                         'l' -> {
                             if (fmt[i++] != 'f') format.error("l must be followed by f")
                             if (type !== DoubleType) format.error("%f expects ${DoubleType.pointer()}, not ${type.pointer()}")
                             skipWhitespace()
-                            val x = scanDouble()
-                            if (x == null) return a - 1
+                            val x = scanDouble() ?: return a - 1
                             arg.referenced.assign(Value.double(x))
                         }
                         'c' -> {

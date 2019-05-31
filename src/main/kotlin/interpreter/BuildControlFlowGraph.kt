@@ -8,8 +8,7 @@ val unusedEmptyHashMap = HashMap<ArithmeticValue, String>()
 class State(val continueTarget: String, val breakTarget: String,
             val switchControlType: ArithmeticType?,
             val cases: HashMap<ArithmeticValue, String>, var default: String?) {
-    constructor() : this("", "", null, unusedEmptyHashMap, null) {
-    }
+    constructor() : this("", "", null, unusedEmptyHashMap, null)
 
     fun openLoop(continueTarget: String, breakTarget: String): State {
         return State(continueTarget, breakTarget, switchControlType, cases, default)
@@ -122,6 +121,7 @@ class BuildControlFlowGraph(function: FunctionDefinition) {
             is Switch -> {
                 val done = generateLabel()
 
+                @Suppress("NAME_SHADOWING")
                 val state = state.openSwitch(control.type as ArithmeticType, breakTarget = done)
 
                 add(SwitchPlaceholder)
@@ -160,6 +160,7 @@ class BuildControlFlowGraph(function: FunctionDefinition) {
                 val checkCondition = generateLabel()
                 val done = generateLabel()
 
+                @Suppress("NAME_SHADOWING")
                 val state = state.openLoop(continueTarget = checkCondition, breakTarget = done)
 
                 insertLabel(bodyStart)
@@ -175,6 +176,7 @@ class BuildControlFlowGraph(function: FunctionDefinition) {
                 val bodyStart = generateLabel()
                 val done = generateLabel()
 
+                @Suppress("NAME_SHADOWING")
                 val state = state.openLoop(continueTarget = checkCondition, breakTarget = done)
 
                 insertLabel(checkCondition)
@@ -196,6 +198,7 @@ class BuildControlFlowGraph(function: FunctionDefinition) {
                 val updateCounter = generateLabel()
                 val done = generateLabel()
 
+                @Suppress("NAME_SHADOWING")
                 val state = state.openLoop(continueTarget = updateCounter, breakTarget = done)
 
                 if (condition != null) {

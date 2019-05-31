@@ -5,7 +5,7 @@ class Counter {
 
     fun count(x: Any): Int {
         val soFar = counter.getOrElse(x) { 0 }
-        counter.put(x, soFar + 1)
+        counter[x] = soFar + 1
         return soFar
     }
 }

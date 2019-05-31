@@ -32,7 +32,7 @@ class MainFrame : JFrame(Editor.filename) {
 
     private val editor = Editor()
     private val slider = JSlider(0, 11, 0)
-    private val timer = Timer(1000, { queue.offer("step") })
+    private val timer = Timer(1000) { queue.offer("step") }
 
     private val start = JButton("start")
     private val step = JButton("step")
@@ -59,7 +59,7 @@ class MainFrame : JFrame(Editor.filename) {
 
         visualizer.addTab("memory", scrolledMemory)
         visualizer.addTab("syntax tree", scrolledSyntaxTree)
-        visualizer.addChangeListener { _ ->
+        visualizer.addChangeListener {
             if (visualizer.selectedComponent === scrolledSyntaxTree) {
                 tryCompile(andRun = false)
             }

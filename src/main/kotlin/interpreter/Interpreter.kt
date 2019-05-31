@@ -81,11 +81,7 @@ class Interpreter(program: String) {
                                 pc = 0
                             }
                             is JumpIf -> {
-                                if (condition.delayedCondition()) {
-                                    basicBlock = controlFlowGraph[th3n]!!.getStatements()
-                                } else {
-                                    basicBlock = controlFlowGraph[e1se]!!.getStatements()
-                                }
+                                basicBlock = controlFlowGraph[if (condition.delayedCondition()) th3n else e1se]!!.getStatements()
                                 pc = 0
                             }
                             is HashSwitch -> {
@@ -136,7 +132,7 @@ class Interpreter(program: String) {
         val type = qualified.unqualified()
         when (init) {
             is ExpressionInitializer -> {
-                if (init.expression is StringLiteral && type is ArrayType && type.elementType == SignedCharType) {
+                return if (init.expression is StringLiteral && type is ArrayType && type.elementType == SignedCharType) {
                     val str = init.expression.literal.text
                     for ((i, c) in str.withIndex()) {
                         segment[start + i] = Value.signedChar(c.toInt())
@@ -144,23 +140,20 @@ class Interpreter(program: String) {
                     for (i in str.length until type.length) {
                         segment[start + i] = Value.NUL
                     }
-                    return start + type.length
+                    start + type.length
                 } else {
                     targetType = type
                     val value = type.cast(init.expression.evaluate())
                     segment[start] = value
-                    return start + 1
+                    start + 1
                 }
             }
             is InitializerList -> {
-                if (type is ArrayType) {
-                    return init.list.fold(start) {
-                        offset, initializer ->
+                when (type) {
+                    is ArrayType -> return init.list.fold(start) { offset, initializer ->
                         initialize(type.elementType, initializer, segment, offset)
                     }
-                } else if (type is StructType) {
-                    return type.members.zip(init.list).fold(start) {
-                        offset, memberInitializer ->
+                    is StructType -> return type.members.zip(init.list).fold(start) { offset, memberInitializer ->
                         initialize(memberInitializer.first.type, memberInitializer.second, segment, offset)
                     }
                 }
@@ -176,7 +169,7 @@ class Interpreter(program: String) {
                 segment[start] = type.defaultValue
             }
             is ArrayType -> {
-                (0..type.length - 1).fold(start) { offset, _ ->
+                (0 until type.length).fold(start) { offset, _ ->
                     defaultInitialize(type.elementType, segment, offset)
                 }
             }
@@ -462,12 +455,10 @@ class Interpreter(program: String) {
                 val target = left.locate()
                 val left = target.evaluate()
                 val right = right.evaluate() as ArithmeticValue
-                val value = if (left is ArithmeticValue) {
-                    target.type.cast(left + right)
-                } else if (left is PointerValue) {
-                    left + right.value.toInt()
-                } else {
-                    error("no evaluate for $this")
+                val value = when (left) {
+                    is ArithmeticValue -> target.type.cast(left + right)
+                    is PointerValue -> left + right.value.toInt()
+                    else -> error("no evaluate for $this")
                 }
                 target.assign(value)
                 value
@@ -476,12 +467,10 @@ class Interpreter(program: String) {
                 val target = left.locate()
                 val left = target.evaluate()
                 val right = right.evaluate() as ArithmeticValue
-                val value = if (left is ArithmeticValue) {
-                    target.type.cast(left - right)
-                } else if (left is PointerValue) {
-                    left - right.value.toInt()
-                } else {
-                    error("no evaluate for $this")
+                val value = when (left) {
+                    is ArithmeticValue -> target.type.cast(left - right)
+                    is PointerValue -> left - right.value.toInt()
+                    else -> error("no evaluate for $this")
                 }
                 target.assign(value)
                 value
@@ -516,12 +505,10 @@ class Interpreter(program: String) {
         while (left < right) {
             val middle = (left + right).ushr(1)
             val comparison = (comp.execute(listOf(key, base + middle)) as ArithmeticValue).value
-            if (comparison < 0) {
-                right = middle
-            } else if (comparison > 0) {
-                left = middle + 1
-            } else {
-                return base + middle
+            when {
+                comparison < 0 -> right = middle
+                comparison > 0 -> left = middle + 1
+                else -> return base + middle
             }
         }
         return base + count
@@ -538,10 +525,9 @@ class Interpreter(program: String) {
         if (arrayLength * elementSize != requestedBytes) {
             size.root().error("$requestedBytes is not a multiple of $elementSize. Did you forget to multiply by sizeof(element type)?")
         }
-        if (arrayLength == 1) {
-            return one(elementType)
-        } else {
-            return many(ArrayType(arrayLength, elementType))
+        return when (arrayLength) {
+            1 -> one(elementType)
+            else -> many(ArrayType(arrayLength, elementType))
         }
     }
 }
@@ -592,12 +578,10 @@ fun minus(x: Value, y: Value): Value {
 fun shift(x: Value, operator: Token, y: Value): Value {
     val a = (x as ArithmeticValue).integralPromotions()
     val b = (y as ArithmeticValue).integralPromotions()
-    val bits = if (operator.kind == LESS_LESS) {
-        a.value.toLong().toInt().shl(b.value.toLong().toInt())
-    } else if (a.type === SignedIntType) {
-        a.value.toInt().shr(b.value.toLong().toInt())
-    } else {
-        a.value.toLong().toInt().ushr(b.value.toLong().toInt())
+    val bits = when {
+        operator.kind == LESS_LESS -> a.value.toLong().toInt().shl(b.value.toLong().toInt())
+        a.type === SignedIntType -> a.value.toInt().shr(b.value.toLong().toInt())
+        else -> a.value.toLong().toInt().ushr(b.value.toLong().toInt())
     }
     return a.type.cast(Value.signedInt(bits))
 }

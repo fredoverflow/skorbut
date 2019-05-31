@@ -50,7 +50,7 @@ class MemoryUI(var memory: Memory) : JPanel() {
         val cells = JPanel()
         val axis = if (type.dimensions().and(1) == 1) BoxLayout.X_AXIS else BoxLayout.Y_AXIS
         cells.layout = BoxLayout(cells, axis)
-        for (i in 0..type.length - 1) {
+        for (i in 0 until type.length) {
             cells.add(objectComponent(i.toString(), type.elementType))
         }
         return cells
@@ -71,7 +71,7 @@ class MemoryUI(var memory: Memory) : JPanel() {
         val scalar = JLabel(" %3s ".format(value.show()))
         scalar.font = globalFont
         if (value is PointerValue && value.referenced.isReferable()) {
-            pointers.put(scalar, value)
+            pointers[scalar] = value
         }
         return scalar
     }

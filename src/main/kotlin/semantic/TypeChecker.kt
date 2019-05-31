@@ -40,10 +40,10 @@ class TypeChecker(translationUnit: TranslationUnit) {
     private var currentDeclarationIsStatic = false
 
     private fun declare(name: Token, type: Type): Symbol {
-        if (symbolTable.atGlobalScope()) {
-            return declareStatic(name, type)
+        return if (symbolTable.atGlobalScope()) {
+            declareStatic(name, type)
         } else {
-            return declareAutomatic(name, type)
+            declareAutomatic(name, type)
         }
     }
 
@@ -127,8 +127,7 @@ class TypeChecker(translationUnit: TranslationUnit) {
                             if (type !is ArithmeticType || !type.isIntegral()) {
                                 init.root().error("enumeration constant must be an integral number")
                             }
-                            val value = init.value
-                            if (value == null) init.root().error("enumeration constant must be a compile-time constant")
+                            val value = init.value ?: init.root().error("enumeration constant must be a compile-time constant")
 
                             counter = (value as ArithmeticValue).value.toInt()
                         }
@@ -165,8 +164,7 @@ class TypeChecker(translationUnit: TranslationUnit) {
             }
 
             is DeclarationSpecifier.StructRef -> {
-                val temp = symbolTable.lookup(name)
-                if (temp == null) name.error("undefined struct $name")
+                val temp = symbolTable.lookup(name) ?: name.error("undefined struct $name")
                 (temp.type as StructTag).structType
             }
 
@@ -203,8 +201,7 @@ class TypeChecker(translationUnit: TranslationUnit) {
         val type = length.typeCheck()
         if (type !is ArithmeticType || !type.isIntegral()) length.root().error("array length must be an integral number")
 
-        val value = length.value
-        if (value == null) length.root().error("array length must be a compile-time constant")
+        val value = length.value ?: length.root().error("array length must be a compile-time constant")
 
         val len = (value as ArithmeticValue).value.toInt()
         if (len < 1) length.root().error("non-positive array length $len")
@@ -216,7 +213,7 @@ class TypeChecker(translationUnit: TranslationUnit) {
         val functionType = namedDeclarator.typeCheck(specifiers.typeCheckNoStorageClass()) as FunctionType
         functionType.defined = true
         currentReturnType = functionType.returnType
-        currentStackFrameSymbols = ArrayList<Symbol>()
+        currentStackFrameSymbols = ArrayList()
         symbolTable.scoped {
             for (parameter in parameters) {
                 with(parameter) {
@@ -268,10 +265,7 @@ class TypeChecker(translationUnit: TranslationUnit) {
                     if (it !is ArithmeticType || !it.isIntegral()) {
                         case.error("case label must be an integral constant")
                     }
-                    val value = choice.value
-                    if (value == null) {
-                        case.error("case label must be a compile-time constant")
-                    }
+                    choice.value ?: case.error("case label must be a compile-time constant")
                 }
                 body.typeCheck()
             }
@@ -364,22 +358,22 @@ class TypeChecker(translationUnit: TranslationUnit) {
                     checkAssignmentCompatible(type, init.expression.root(), init.expression.type)
                 }
             }
-            is InitializerList -> {
-                if (type is ArrayType) {
+            is InitializerList -> when (type) {
+                is ArrayType -> {
                     val length = type.length
                     if (length < init.list.size) init.list[length].root().error("too many initializers for $type")
                     if (length > init.list.size) init.list.last().root().error("not enough initializers for $type")
                     init.list.forEach { typeCheck(type.elementType, it) }
-                } else if (type is StructType) {
+                }
+                is StructType -> {
                     val length = type.members.size
                     if (length < init.list.size) init.list[length].root().error("too many initializers for $type")
                     if (length > init.list.size) init.list.last().root().error("not enough initializers for $type")
                     for ((member, initializer) in type.members.zip(init.list)) {
                         typeCheck(member.type, initializer)
                     }
-                } else {
-                    init.openBrace.error("cannot initialize $type with braces")
                 }
+                else -> init.openBrace.error("cannot initialize $type with braces")
             }
         }
     }
@@ -445,8 +439,7 @@ class TypeChecker(translationUnit: TranslationUnit) {
                 ArrayType(literal.text.length + 1, SignedCharType)
             }
             is Identifier -> {
-                val temp = symbolTable.lookup(name)
-                if (temp == null) name.error("undeclared symbol $name")
+                val temp = symbolTable.lookup(name) ?: name.error("undeclared symbol $name")
 
                 symbol = temp
                 if (temp.type is EnumerationConstant) {
@@ -515,8 +508,7 @@ class TypeChecker(translationUnit: TranslationUnit) {
                 val structType = leftType.unqualified()
 
                 if (structType is StructType) {
-                    val member = structType.member(right)
-                    if (member == null) right.error("$right is not a member of $leftType")
+                    val member = structType.member(right) ?: right.error("$right is not a member of $leftType")
                     member.type.addQualifiersFrom(leftType)
                 } else if (leftType is PointerType && leftType.referencedType.unqualified() is StructType) {
                     dot.error("Use -> instead of . for indirect member access")
@@ -533,8 +525,7 @@ class TypeChecker(translationUnit: TranslationUnit) {
                 val structType = leftType.unqualified()
 
                 if (structType is StructType) {
-                    val member = structType.member(right)
-                    if (member == null) right.error("$right is not a member of $leftType")
+                    val member = structType.member(right) ?: right.error("$right is not a member of $leftType")
                     member.type.addQualifiersFrom(leftType)
                 } else {
                     arrow.error("$leftType is not a struct type")

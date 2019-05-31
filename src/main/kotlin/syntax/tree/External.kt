@@ -10,7 +10,7 @@ class TranslationUnit(val externalDeclarations: List<Node>) : Node() {
     val declarations: List<Declaration>
 
     init {
-        declarations = ArrayList<Declaration>()
+        declarations = ArrayList()
         walkChildren({}) {
             if (it is Declaration) {
                 declarations.add(it)

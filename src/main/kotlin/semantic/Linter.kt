@@ -91,14 +91,14 @@ class Linter(val translationUnit: TranslationUnit) : LinterBase() {
 
     private fun detectUnusedVariables() {
         val unusedVariables = HashSet<Token>()
-        translationUnit.walk({
-            when (it) {
+        translationUnit.walk({ node ->
+            when (node) {
                 is FunctionDefinition -> {
-                    it.parameters.forEach { unusedVariables.add(it.name) }
+                    node.parameters.forEach { unusedVariables.add(it.name) }
                 }
                 is Declaration -> {
-                    if (it.specifiers.storageClass != TYPEDEF) {
-                        for (namedDeclarator in it.namedDeclarators) {
+                    if (node.specifiers.storageClass != TYPEDEF) {
+                        for (namedDeclarator in node.namedDeclarators) {
                             unusedVariables.add(namedDeclarator.name)
                             if (namedDeclarator.declarator is Declarator.Initialized) {
                                 namedDeclarator.declarator.init.walk({}) {
@@ -113,10 +113,10 @@ class Linter(val translationUnit: TranslationUnit) : LinterBase() {
                     }
                 }
             }
-        }) {
-            when (it) {
+        }) { node ->
+            when (node) {
                 is Identifier -> {
-                    unusedVariables.remove(it.symbol.name)
+                    unusedVariables.remove(node.symbol.name)
                 }
             }
         }
