@@ -4,6 +4,7 @@ import semantic.enumStructUnion
 import semantic.storageClasses
 import semantic.typeSpecifierIdentifier
 import semantic.typeSpecifiers
+import semantic.types.FunctionType
 import semantic.types.MarkerIsTypedefName
 import semantic.types.MarkerNotTypedefName
 import syntax.lexer.Token
@@ -12,8 +13,13 @@ import syntax.lexer.TokenKind.*
 import syntax.lexer.TokenKindSet
 import syntax.tree.*
 
-fun Parser.declare(name: Token, isTypedefName: Boolean) {
-    symbolTable.declare(name, if (isTypedefName) MarkerIsTypedefName else MarkerNotTypedefName, 0)
+fun Parser.declare(namedDeclarator: NamedDeclarator, isTypedefName: Boolean) {
+    val pseudoType = when {
+        isTypedefName -> MarkerIsTypedefName
+        namedDeclarator.declarator is Declarator.Function -> FunctionType.declarationMarker()
+        else -> MarkerNotTypedefName
+    }
+    symbolTable.declare(namedDeclarator.name, pseudoType, 0)
 }
 
 fun Parser.isTypedefName(token: Token): Boolean {
@@ -35,7 +41,7 @@ fun Parser.declaration(): Statement {
     val specifiers = declarationSpecifiers1()
     val isTypedef = specifiers.storageClass == TYPEDEF
     val declarators = commaSeparatedList0(SEMICOLON) {
-        initDeclarator().apply { declare(name, isTypedef) }
+        initDeclarator().apply { declare(this, isTypedef) }
     }
     return Declaration(specifiers, declarators).semicolon()
 }
@@ -219,7 +225,7 @@ fun Parser.declaratorFunction(): List<FunctionParameter> {
                 val specifiers = declarationSpecifiers1()
                 val declarator = parameterDeclarator()
                 if (declarator.name.wasProvided()) {
-                    declare(declarator.name, isTypedefName = false)
+                    declare(declarator, isTypedefName = false)
                 }
                 FunctionParameter(specifiers, declarator)
             }

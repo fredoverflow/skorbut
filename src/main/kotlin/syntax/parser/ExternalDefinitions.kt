@@ -1,5 +1,6 @@
 package syntax.parser
 
+import semantic.types.FunctionType
 import syntax.lexer.TokenKind.*
 import syntax.tree.*
 
@@ -14,6 +15,7 @@ fun Parser.externalDeclaration(): Node {
     }
     val firstNamedDeclarator = namedDeclarator()
     return if (firstNamedDeclarator.declarator is Declarator.Function && current == OPENING_BRACE) {
+        symbolTable.declare(firstNamedDeclarator.name, FunctionType.DEFINITION_MARKER, 0)
         symbolTable.rescoped {
             braced {
                 FunctionDefinition(specifiers, firstNamedDeclarator, list0Until(CLOSING_BRACE, ::statement), token)
@@ -21,9 +23,9 @@ fun Parser.externalDeclaration(): Node {
         }
     } else {
         val isTypedefName = specifiers.storageClass == TYPEDEF
-        declare(firstNamedDeclarator.name, isTypedefName)
+        declare(firstNamedDeclarator, isTypedefName)
         val declarators = commaSeparatedList1(initDeclarator(firstNamedDeclarator)) {
-            initDeclarator().apply { declare(name, isTypedefName) }
+            initDeclarator().apply { declare(this, isTypedefName) }
         }
         Declaration(specifiers, declarators).semicolon()
     }

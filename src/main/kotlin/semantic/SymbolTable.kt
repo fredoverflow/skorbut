@@ -30,20 +30,16 @@ class SymbolTable {
 
     inline fun <T> scoped(action: () -> T): T {
         openScope()
-        try {
-            return action()
-        } finally {
-            closeScope()
-        }
+        val result = action()
+        closeScope()
+        return result
     }
 
     inline fun <T> rescoped(action: () -> T): T {
         reopenScope()
-        try {
-            return action()
-        } finally {
-            closeScope()
-        }
+        val result = action()
+        closeScope()
+        return result
     }
 
     fun lookup(name: Token): Symbol? {
@@ -80,6 +76,12 @@ class SymbolTable {
             val symbol = Symbol(name, type, offset)
             scopes[index] = scopes[index].put(symbol)
             return symbol
+        }
+    }
+
+    fun forEach(action: (Symbol) -> Unit) {
+        for (i in current downTo 0) {
+            scopes[i].forEach(action)
         }
     }
 }

@@ -9,7 +9,8 @@ import syntax.lexer.TokenKind.*
 import syntax.lexer.nextToken
 
 class Parser(private val lexer: Lexer) {
-    private var previousEnd: Int = 0
+    var previous: Token = Token(TokenKind.END_OF_INPUT, 0, "", "")
+        private set
 
     var token: Token = lexer.nextToken()
         private set
@@ -21,7 +22,7 @@ class Parser(private val lexer: Lexer) {
         private set
 
     fun next(): TokenKind {
-        previousEnd = token.end
+        previous = token
         token = lookahead
         current = token.kind
         lookahead = lexer.nextToken()
@@ -35,7 +36,7 @@ class Parser(private val lexer: Lexer) {
     }
 
     fun expect(expected: TokenKind): Token {
-        if (current != expected) throw Diagnostic(previousEnd, "expected $expected")
+        if (current != expected) throw Diagnostic(previous.end, "expected $expected")
         return accept()
     }
 

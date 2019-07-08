@@ -4,6 +4,7 @@ import common.Diagnostic
 import freditor.LineNumbers
 import interpreter.Interpreter
 import semantic.Linter
+import syntax.parser.completeIdentifier
 import syntax.tree.Node
 
 import java.awt.BorderLayout
@@ -111,6 +112,7 @@ class MainFrame : JFrame(Editor.filename) {
         listenToSyntaxTree()
         listenToSlider()
         listenToButtons()
+        listenToKeyboard()
         listenToConsole()
 
         defaultCloseOperation = JFrame.EXIT_ON_CLOSE
@@ -215,6 +217,35 @@ class MainFrame : JFrame(Editor.filename) {
             queue.clear()
             queue.put("stop")
             interpreter.console.stop()
+        }
+    }
+
+    private fun listenToKeyboard() {
+        editor.addKeyListener(object : KeyAdapter() {
+            override fun keyPressed(event: KeyEvent) {
+                when (event.keyCode) {
+                    KeyEvent.VK_SPACE -> if (event.isControlDown) {
+                        completeIdentifier()
+                    }
+                }
+            }
+        })
+    }
+
+    private fun completeIdentifier() {
+        try {
+            val suffixes = completeIdentifier(editor.textUntilCursor)
+            when (suffixes.size) {
+                0 -> {
+                }
+
+                1 -> editor.insertString(suffixes.first())
+
+                else -> println(suffixes.sorted().joinToString(", "))
+            }
+        } catch (diagnostic: Diagnostic) {
+            editor.setCursorTo(diagnostic.position)
+            updateDiagnostics(arrayListOf(diagnostic))
         }
     }
 
