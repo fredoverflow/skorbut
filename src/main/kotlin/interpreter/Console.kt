@@ -71,6 +71,7 @@ class Console {
             'x' -> Integer.toHexString((value as ArithmeticValue).value.toLong().toInt())
             'f' -> "%f".format((value as ArithmeticValue).value).replace(',', '.')
             's' -> stringStartingAt(value as PointerValue)
+            'p' -> java.lang.Long.toHexString((value as PointerValue).referenced.address())
             else -> error("illegal conversion specifier %$specifier")
         }
     }

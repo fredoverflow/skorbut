@@ -3,6 +3,13 @@ package semantic.types
 data class ArrayType(var length: Int, val elementType: Type) : Type {
     override fun sizeof(): Int = length * elementType.sizeof()
 
+    override fun sizeof(offset: Int): Int {
+        if (offset >= count()) return sizeof()
+
+        val n = elementType.count()
+        return offset / n * elementType.sizeof() + elementType.sizeof(offset % n)
+    }
+
     override fun decayed(): Type = PointerType(elementType)
 
     override fun count(): Int = length * elementType.count()

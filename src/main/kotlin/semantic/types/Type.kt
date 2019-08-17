@@ -9,6 +9,8 @@ interface Type {
 
     fun sizeof(): Int = 0
 
+    fun sizeof(offset: Int): Int = if (offset == 0) 0 else sizeof()
+
     fun decayed(): Type = this
 
     fun pointer(): Type = PointerType(this)

@@ -19,6 +19,17 @@ abstract class CompletableType : Type {
 class StructType(val name: Token, val members: List<Symbol>) : CompletableType() {
     override fun sizeof(): Int = members.sumBy { it.type.sizeof() }
 
+    override fun sizeof(offset: Int): Int {
+        var size = 0
+        var off = offset
+        for (member in members) {
+            size += member.type.sizeof(off)
+            off -= member.type.count()
+            if (off <= 0) break
+        }
+        return size
+    }
+
     override fun count(): Int = members.sumBy { it.type.count() }
 
     fun member(name: Token) = members.find { it.name.text === name.text }

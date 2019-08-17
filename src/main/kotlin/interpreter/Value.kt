@@ -9,6 +9,12 @@ data class Object(val segment: Segment, val offset: Int, val type: Type, val ind
         if (index > bound) throw AssertionError("index $index out of bounds $bound")
     }
 
+    fun address(): Long {
+        val hi = segment.hashCode().toLong() // TODO not guaranteed to be unique
+        val lo = segment.type.sizeof(offset).toLong()
+        return hi.shl(32).or(lo)
+    }
+
     fun isSentinel(): Boolean = (index == bound)
 
     operator fun plus(delta: Int): Object = copy(offset = offset + delta * type.count(), index = index + delta)

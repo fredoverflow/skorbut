@@ -773,7 +773,10 @@ class TypeChecker(translationUnit: TranslationUnit) {
             's' -> if (type !is PointerType || type.referencedType.unqualified() !== SignedCharType) {
                 where.error("%$specifier expects string, not $type")
             }
-            'i', 'o', 'X', 'e', 'E', 'g', 'G', 'p', 'n' -> where.error("%$specifier not implemented yet")
+            'p' -> if (type !is PointerType) {
+                where.error("%$specifier expects pointer, not $type")
+            }
+            'i', 'o', 'X', 'e', 'E', 'g', 'G', 'n' -> where.error("%$specifier not implemented yet")
             else -> where.error("illegal conversion specifier %$specifier")
         }
     }
