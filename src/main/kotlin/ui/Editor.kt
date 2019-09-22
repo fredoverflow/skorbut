@@ -9,10 +9,8 @@ import java.security.MessageDigest
 
 class Editor : FreditorUI(Flexer, JavaIndenter.instance, 0, 25) {
     companion object {
-        val directory = "${System.getProperty("user.home")}/skorbut"
-        val filenamePrefix = "$directory/skorbut"
-        val filenameSuffix = ".txt"
-        val filename = "$filenamePrefix$filenameSuffix"
+        val directory = "${System.getProperty("user.home")}${File.separator}skorbut${File.separator}"
+        val filename = "${directory}!skorbut.txt"
     }
 
     init {
@@ -40,8 +38,9 @@ class Editor : FreditorUI(Flexer, JavaIndenter.instance, 0, 25) {
     }
 
     private fun createDirectory() {
-        if (File(directory).mkdir()) {
-            println("created directory $directory")
+        val dir = File(directory)
+        if (dir.mkdir()) {
+            println("created directory $dir")
         }
     }
 
@@ -49,19 +48,21 @@ class Editor : FreditorUI(Flexer, JavaIndenter.instance, 0, 25) {
         try {
             println("saving code as $pathname")
             saveToFile(pathname)
-        } catch (ex: Throwable) {
+        } catch (ex: IOException) {
             println(ex)
         }
     }
 
     private fun backupFilename(): String {
-        val hash = MessageDigest.getInstance("SHA").digest(text.toByteArray())
-        val sb = StringBuilder(filenamePrefix)
-        sb.append('_')
-        for (b in hash) {
-            sb.append("0123456789abcdef"[b.toInt().shr(4).and(0xf)])
-            sb.append("0123456789abcdef"[b.toInt().and(0xf)])
+        val sha1 = MessageDigest.getInstance("SHA")
+        val text = text.toByteArray(Charsets.ISO_8859_1)
+        val hash = sha1.digest(text)
+        val builder = StringBuilder(directory)
+        for (byte in hash) {
+            val x = byte.toInt()
+            builder.append("0123456789abcdef"[x.ushr(4).and(15)])
+            builder.append("0123456789abcdef"[x.and(15)])
         }
-        return sb.append(filenameSuffix).toString()
+        return builder.append(".txt").toString()
     }
 }
