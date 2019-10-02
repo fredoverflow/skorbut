@@ -23,7 +23,7 @@ import javax.swing.tree.TreePath
 
 object StopTheProgram : Exception()
 
-class MainFrame : JFrame(Editor.filename) {
+class MainFrame : JFrame() {
     private val queue = ArrayBlockingQueue<String>(1)
     private var interpreter = Interpreter("int main(){return 0;}")
 
@@ -51,6 +51,8 @@ class MainFrame : JFrame(Editor.filename) {
     private var targetStackDepth = Int.MAX_VALUE
 
     init {
+        title = editor.autosaver.pathname
+
         val scrolledMemory = JScrollPane(memoryUI)
         scrolledMemory.preferredSize = Dimension(500, 500)
 
@@ -118,7 +120,7 @@ class MainFrame : JFrame(Editor.filename) {
         defaultCloseOperation = JFrame.EXIT_ON_CLOSE
         addWindowListener(object : WindowAdapter() {
             override fun windowClosing(event: WindowEvent) {
-                editor.tryToSaveCode()
+                editor.autosaver.save()
             }
         })
         pack()
@@ -190,7 +192,7 @@ class MainFrame : JFrame(Editor.filename) {
 
     private fun listenToButtons() {
         start.addActionListener {
-            editor.tryToSaveCode()
+            editor.autosaver.save()
             editor.requestFocusInWindow()
             queue.clear()
             tryCompile(andRun = true)
