@@ -49,7 +49,7 @@ object SignedCharType : ArithmeticType() {
 object UnsignedCharType : ArithmeticType() {
     override fun sizeof(): Int = 1
 
-    override fun show(value: Double): String = "x%02X".format(value.toInt())
+    override fun show(value: Double): String = value.toInt().toString()
 
     override val defaultValue: ArithmeticValue = Value.unsignedChar(0)
 
