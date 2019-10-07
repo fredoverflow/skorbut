@@ -22,8 +22,11 @@ fun Lexer.constant(): Token {
 }
 
 fun Lexer.zero(): Token {
-    if (next() == 'x' || current == 'X') return hexadecimal()
+    next()
+    if (current == 'x' || current == 'X') return hexadecimal()
+    if (current == 'b' || current == 'B') return binary()
     previous()
+
     var seen8or9 = false
     var seenDecimalPoint = false
     while (true) {
@@ -62,7 +65,22 @@ fun Lexer.hexadecimal(): Token {
             else -> {
                 if (index - start > 2) return token(INTEGER_CONSTANT)
 
-                error("hexadecimal literal indicated by leading 0x must contain at least one digit")
+                error("hexadecimal literal indicated by leading ${lexeme()} must contain at least one digit")
+            }
+        }
+    }
+}
+
+fun Lexer.binary(): Token {
+    while (true) {
+        when (next()) {
+            '0', '1' -> {
+            }
+
+            else -> {
+                if (index - start > 2) return token(INTEGER_CONSTANT)
+
+                error("binary literal indicated by leading ${lexeme()} must contain at least one digit")
             }
         }
     }

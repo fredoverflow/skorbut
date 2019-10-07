@@ -1621,6 +1621,38 @@ int main()
 """)
     }
 
+    @Test fun binaryLiterals() {
+        run("""
+int main()
+{
+    assert 0b0 == 0;
+    assert 0b1 == 1;
+
+    assert 0b10 == 2;
+    assert 0b11 == 3;
+
+    assert 0b100 == 4;
+    assert 0b101 == 5;
+    assert 0b110 == 6;
+    assert 0b111 == 7;
+
+    assert 0b1000 == 8;
+    assert 0b1001 == 9;
+    assert 0b1010 == 10;
+    assert 0b1011 == 11;
+    assert 0b1100 == 12;
+    assert 0b1101 == 13;
+    assert 0b1110 == 14;
+    assert 0b1111 == 15;
+
+    assert 0b01001001100101100000001011010010 == 1234567890;
+    assert 0b10001011110100000011100000110101 == 2345678901;
+
+    return 0;
+}
+""")
+    }
+
     @Test fun localFunctionPrototype() {
         run("""
 int main()

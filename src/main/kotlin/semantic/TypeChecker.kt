@@ -8,6 +8,7 @@ import syntax.lexer.fakeIdentifier
 import syntax.lexer.missingIdentifier
 import syntax.tree.*
 import text.skipDigits
+import java.lang.NumberFormatException
 import java.util.*
 
 class TypeChecker(translationUnit: TranslationUnit) {
@@ -411,10 +412,29 @@ class TypeChecker(translationUnit: TranslationUnit) {
     }
 
     private fun Token.integer(): ArithmeticValue {
-        if (text.length <= 18) {
-            val x = java.lang.Long.decode(text)
+        var radix = 10
+        var start = 0
+        if (text[0] == '0' && text.length >= 2) {
+            when (text[1]) {
+                'x', 'X' -> {
+                    radix = 16
+                    start = 2
+                }
+                'b', 'B' -> {
+                    radix = 2
+                    start = 2
+                }
+                else -> {
+                    radix = 8
+                    start = 1
+                }
+            }
+        }
+        try {
+            val x = text.substring(start).toLong(radix)
             if (x <= 0x7fffffff) return Value.signedInt(x.toInt())
             if (x <= 0xffffffff) return Value.unsignedInt(x.toInt())
+        } catch (fallthrough: NumberFormatException) {
         }
         error("integer literal $text is too large, allowed maximum is 4294967295")
     }
