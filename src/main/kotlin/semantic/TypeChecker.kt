@@ -652,8 +652,9 @@ class TypeChecker(translationUnit: TranslationUnit) {
                 val leftType = left.typeCheck().decayed()
                 val rightType = right.typeCheck().decayed()
                 if ((leftType is ArithmeticType && leftType.isIntegral()) && (rightType is ArithmeticType && rightType.isIntegral())) {
-                    this.determineValue { a, b -> shift(a, operator, b) }
-                    leftType.integralPromotions()
+                    val typ = leftType.integralPromotions()
+                    this.determineValue { a, b -> shift(a, operator, b, typ) }
+                    typ
                 } else {
                     operator.error("needs integral operands")
                 }

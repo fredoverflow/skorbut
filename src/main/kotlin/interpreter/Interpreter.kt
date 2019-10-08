@@ -399,7 +399,7 @@ class Interpreter(program: String) {
                 }
             }
             is Shift -> {
-                shift(left.evaluate(), operator, right.evaluate())
+                shift(left.evaluate(), operator, right.evaluate(), type)
             }
             is RelationalEquality -> {
                 val left = left.evaluate()
@@ -575,15 +575,15 @@ fun minus(x: Value, y: Value): Value {
     return a - b
 }
 
-fun shift(x: Value, operator: Token, y: Value): Value {
-    val a = (x as ArithmeticValue).integralPromotions()
-    val b = (y as ArithmeticValue).integralPromotions()
+fun shift(x: Value, operator: Token, y: Value, type: Type): Value {
+    val a = (x as ArithmeticValue).integralPromotions().value.toLong().toInt()
+    val b = (y as ArithmeticValue).integralPromotions().value.toLong().toInt()
     val bits = when {
-        operator.kind == LESS_LESS -> a.value.toLong().toInt().shl(b.value.toLong().toInt())
-        a.type === SignedIntType -> a.value.toInt().shr(b.value.toLong().toInt())
-        else -> a.value.toLong().toInt().ushr(b.value.toLong().toInt())
+        operator.kind == LESS_LESS -> log(a, "<< ", b, a.shl(b))
+        x.type === UnsignedIntType -> log(a, ">>>", b, a.ushr(b))
+        else -> log(a, ">> ", b, a.shr(b))
     }
-    return a.type.cast(Value.signedInt(bits))
+    return type.cast(Value.signedInt(bits))
 }
 
 fun relationalEquality(x: ArithmeticValue, operator: Token, y: ArithmeticValue): Value {
@@ -602,13 +602,36 @@ fun relationalEquality(x: ArithmeticValue, operator: Token, y: ArithmeticValue):
 }
 
 fun bitwise(x: Value, operator: Token, y: Value, type: Type): Value {
-    val a = (x as ArithmeticValue).value.toLong()
-    val b = (y as ArithmeticValue).value.toLong()
+    val a = (x as ArithmeticValue).value.toLong().toInt()
+    val b = (y as ArithmeticValue).value.toLong().toInt()
     val result = when (operator.kind) {
-        AMPERSAND -> a.and(b)
-        CARET -> a.xor(b)
-        BAR -> a.or(b)
+        AMPERSAND -> log(a, " & ", b, a.and(b))
+        CARET -> log(a, " ^ ", b, a.xor(b))
+        BAR -> log(a, " | ", b, a.or(b))
         else -> error("no evaluate for $operator")
     }
-    return type.cast(Value.signedInt(result.toInt()))
+    return type.cast(Value.signedInt(result))
 }
+
+private fun log(x: Int, operator: String, y: Int, result: Int): Int {
+    println()
+    println("   " + x.toBinaryString32() + " " + x)
+    println(operator + y.toBinaryString32() + " " + y)
+    println(" = " + result.toBinaryString32() + " " + result)
+    return result
+}
+
+private fun Int.toBinaryString32(): String {
+    return nib(28) + nib(24) + " " + nib(20) + nib(16) + " " + nib(12) + nib(8) + " " + nib(4) + nib(0)
+}
+
+private fun Int.nib(pos: Int): String {
+    return NIBBLES[this.ushr(pos).and(15)]
+}
+
+private val NIBBLES = arrayOf(
+        "0000", "0001", "0010", "0011",
+        "0100", "0101", "0110", "0111",
+        "1000", "1001", "1010", "1011",
+        "1100", "1101", "1110", "1111"
+)
