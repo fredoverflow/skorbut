@@ -237,7 +237,7 @@ class MainFrame : JFrame() {
 
     private fun completeIdentifier() {
         try {
-            val suffixes = completeIdentifier(editor.textUntilCursor)
+            val suffixes = completeIdentifier(editor.textBeforeSelection)
             when (suffixes.size) {
                 0 -> {
                 }

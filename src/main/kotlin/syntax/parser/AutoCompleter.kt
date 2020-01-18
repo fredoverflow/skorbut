@@ -4,29 +4,29 @@ import common.Diagnostic
 import syntax.lexer.Lexer
 import syntax.lexer.TokenKind
 
-fun completeIdentifier(beforeCursor: String): List<String> {
-    val lexer = Lexer(beforeCursor)
+fun completeIdentifier(textBeforeSelection: String): List<String> {
+    val lexer = Lexer(textBeforeSelection)
     val parser = Parser(lexer)
-    val suffixes = parser.fittingSuffixes(beforeCursor)
+    val suffixes = parser.fittingSuffixes(textBeforeSelection)
     return if (suffixes.isEmpty()) {
-        emptyList()
+        suffixes
     } else {
         val lcp = longestCommonPrefixOf(suffixes)
-        if (!lcp.isEmpty()) {
-            listOf(lcp)
-        } else {
+        if (lcp.isEmpty()) {
             suffixes
+        } else {
+            listOf(lcp)
         }
     }
 }
 
-private fun Parser.fittingSuffixes(beforeCursor: String): List<String> {
+private fun Parser.fittingSuffixes(textBeforeSelection: String): List<String> {
     try {
         translationUnit()
     } catch (diagnostic: Diagnostic) {
-        if (diagnostic.position != beforeCursor.length) throw diagnostic
+        if (diagnostic.position != textBeforeSelection.length) throw diagnostic
 
-        if (previous.kind == TokenKind.IDENTIFIER && previous.end == beforeCursor.length) {
+        if (previous.kind == TokenKind.IDENTIFIER && previous.end == textBeforeSelection.length) {
             return suffixesInSymbolTable()
         }
     }
