@@ -21,11 +21,15 @@ class TypeChecker(translationUnit: TranslationUnit) {
     private var currentStackFrameSymbols = ArrayList<Symbol>()
 
     init {
+        declare(fakeIdentifier("time"), FunctionType.unary(SignedIntType, UnsignedIntType))
+
         declare(fakeIdentifier("putchar"), FunctionType.unary(SignedIntType, VoidType))
         declare(fakeIdentifier("getchar"), FunctionType.nullary(SignedIntType))
+
         declare(fakeIdentifier("malloc"), FunctionType.unary(UnsignedIntType, VoidPointerType))
         declare(fakeIdentifier("free"), FunctionType.unary(VoidPointerType, VoidType))
         declare(fakeIdentifier("realloc"), FunctionType.binary(VoidPointerType, UnsignedIntType, VoidPointerType))
+
         val predicate = FunctionType.binary(ConstVoidPointerType, ConstVoidPointerType, SignedIntType).pointer()
         declare(fakeIdentifier("qsort"), FunctionType(listOf(VoidPointerType, UnsignedIntType, UnsignedIntType, predicate), VoidType))
         declare(fakeIdentifier("bsearch"), FunctionType(listOf(ConstVoidPointerType, ConstVoidPointerType, UnsignedIntType, UnsignedIntType, predicate), VoidPointerType))

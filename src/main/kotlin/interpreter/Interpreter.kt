@@ -9,6 +9,7 @@ import syntax.lexer.TokenKind.*
 import syntax.parser.Parser
 import syntax.parser.translationUnit
 import syntax.tree.*
+import kotlin.math.floor
 
 fun FunctionDefinition.returnType(): Type = (namedDeclarator.type as FunctionType).returnType
 
@@ -279,6 +280,9 @@ class Interpreter(program: String) {
                     return definition.returnType().cast(result)
                 }
                 when (name.text) {
+                    "time" -> {
+                        return ArithmeticValue(floor(System.currentTimeMillis() / 1000.0), UnsignedIntType)
+                    }
                     "putchar" -> {
                         val arg = arguments[0].evaluate() as ArithmeticValue
                         console.putchar(arg.value.toLong().and(0xff).toChar())
