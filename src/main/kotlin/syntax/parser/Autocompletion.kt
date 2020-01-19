@@ -4,19 +4,15 @@ import common.Diagnostic
 import syntax.lexer.Lexer
 import syntax.lexer.TokenKind
 
-fun completeIdentifier(textBeforeSelection: String): List<String> {
+fun autocompleteIdentifier(textBeforeSelection: String): List<String> {
     val lexer = Lexer(textBeforeSelection)
     val parser = Parser(lexer)
     val suffixes = parser.fittingSuffixes(textBeforeSelection)
-    return if (suffixes.isEmpty()) {
+    val lcp = longestCommonPrefix(suffixes)
+    return if (lcp.isEmpty()) {
         suffixes
     } else {
-        val lcp = longestCommonPrefixOf(suffixes)
-        if (lcp.isEmpty()) {
-            suffixes
-        } else {
-            listOf(lcp)
-        }
+        listOf(lcp)
     }
 }
 
@@ -46,16 +42,12 @@ private fun Parser.suffixesInSymbolTable(): List<String> {
     return suffixes.toList()
 }
 
-private fun longestCommonPrefixOf(identifiers: List<String>): String {
-    return identifiers.fold(identifiers[0], ::longestCommonPrefix)
-}
-
-// TODO Is there an elegant AND EFFICIENT functional solution?
-private fun longestCommonPrefix(a: String, b: String): String {
-    val n = Math.min(a.length, b.length)
-    var i = 0
-    while ((i < n) && (a[i] == b[i])) {
-        ++i
+private fun longestCommonPrefix(strings: List<String>): String {
+    val shortestString = strings.minBy(String::length) ?: ""
+    shortestString.forEachIndexed { index, ch ->
+        if (!strings.all { command -> command[index] == ch }) {
+            return shortestString.substring(0, index)
+        }
     }
-    return a.substring(0, i)
+    return shortestString
 }

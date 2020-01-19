@@ -5,7 +5,7 @@ import freditor.Front
 import freditor.LineNumbers
 import interpreter.Interpreter
 import semantic.Linter
-import syntax.parser.completeIdentifier
+import syntax.parser.autocompleteIdentifier
 import syntax.tree.Node
 
 import java.awt.BorderLayout
@@ -228,23 +228,20 @@ class MainFrame : JFrame() {
             override fun keyPressed(event: KeyEvent) {
                 when (event.keyCode) {
                     KeyEvent.VK_SPACE -> if (event.isControlDown) {
-                        completeIdentifier()
+                        autocompleteIdentifier()
                     }
                 }
             }
         })
     }
 
-    private fun completeIdentifier() {
+    private fun autocompleteIdentifier() {
         try {
-            val suffixes = completeIdentifier(editor.textBeforeSelection)
-            when (suffixes.size) {
-                0 -> {
-                }
-
-                1 -> editor.insertString(suffixes.first())
-
-                else -> println(suffixes.sorted().joinToString(", "))
+            val suffixes = autocompleteIdentifier(editor.textBeforeSelection)
+            if (suffixes.size == 1) {
+                editor.insertString(suffixes[0])
+            } else {
+                println(suffixes.sorted().joinToString(", "))
             }
         } catch (diagnostic: Diagnostic) {
             editor.setCursorTo(diagnostic.position)
