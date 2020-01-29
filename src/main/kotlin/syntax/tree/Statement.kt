@@ -86,7 +86,7 @@ class Do(val d0: Token, val body: Statement, val condition: Expression) : Statem
     override fun root(): Token = d0
 }
 
-class For(val f0r: Token, val init: Expression?, val condition: Expression?, val update: Expression?, val body: Statement) : Statement() {
+class For(val f0r: Token, val init: Statement?, val condition: Expression?, val update: Expression?, val body: Statement) : Statement() {
     override fun forEachChild(action: (Node) -> Unit) {
         init?.run(action)
         condition?.run(action)

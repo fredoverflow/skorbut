@@ -196,12 +196,114 @@ int main()
 int main()
 {
     int sum = 0;
-    int i;
-    for (i = 1; i <= 10; i++)
+    for (int i = 1; i <= 10; ++i)
     {
         sum = sum + i;
     }
     assert sum == 55;
+    return 0;
+}
+""")
+    }
+
+    @Test fun forIntInt() {
+        run("""
+int main()
+{
+    int sum = 0;
+    for (int a = 1, b = 9; a <= b; ++a, --b)
+    {
+        sum += a * b;
+    }
+    assert sum == 1*9 + 2*8 + 3*7 + 4*6 + 5*5;
+    return 0;
+}
+""")
+    }
+
+    @Test fun forIntChar() {
+        run("""
+int main()
+{
+    char a[7];
+    for (struct {int i; char c;} x = {0, 'A'}; x.i < sizeof a; ++x.i, ++x.c)
+    {
+        a[x.i] = x.c;
+    }
+    assert a[0] == 'A';
+    assert a[1] == 'B';
+    assert a[2] == 'C';
+    assert a[3] == 'D';
+    assert a[4] == 'E';
+    assert a[5] == 'F';
+    assert a[6] == 'G';
+    return 0;
+}
+""")
+    }
+
+    @Test fun forStatic() {
+        run("""
+void fill(char * p, char * q) {
+    for (static char c = 'A'; p < q; ++p) {
+        *p = c++;
+    }
+}
+
+int main()
+{
+    char a[7];
+    fill(a + 0, a + 1);
+    fill(a + 1, a + 3);
+    fill(a + 3, a + 7);
+
+    assert a[0] == 'A';
+    assert a[1] == 'B';
+    assert a[2] == 'C';
+    assert a[3] == 'D';
+    assert a[4] == 'E';
+    assert a[5] == 'F';
+    assert a[6] == 'G';
+    return 0;
+}
+""")
+    }
+
+    @Test fun forTypedef() {
+        run("""
+int main()
+{
+    char a[5];
+    int i = 0;
+    for (typedef const char * str; i < sizeof a; ++i) {
+        str p = "world" + i;
+        a[i] = *p;
+    }
+    assert a[0] == 'w';
+    assert a[1] == 'o';
+    assert a[2] == 'r';
+    assert a[3] == 'l';
+    assert a[4] == 'd';
+    return 0;
+}
+""")
+    }
+
+    @Test fun forScopes() {
+        run("""
+int main()
+{
+    int i = 1;
+    assert i == 1;
+    for (int i = 2; ; ) {
+        assert i == 2;
+
+        int i = 3;
+        assert i == 3;
+
+        break;
+    }
+    assert i == 1;
     return 0;
 }
 """)

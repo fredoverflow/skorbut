@@ -189,8 +189,13 @@ class BuildControlFlowGraph(function: FunctionDefinition) {
                 insertLabel(done)
             }
             is For -> {
-                if (init != null) {
-                    add(FlatExpressionStatement(init))
+                when (init) {
+                    is ExpressionStatement -> {
+                        add(FlatExpressionStatement(init.expression))
+                    }
+                    is Declaration -> {
+                        add(FlatDeclaration(init.specifiers, init.namedDeclarators))
+                    }
                 }
 
                 val checkCondition = generateLabel()

@@ -286,10 +286,12 @@ class TypeChecker(translationUnit: TranslationUnit) {
                 condition.typeCheck()
             }
             is For -> {
-                init?.run { typeCheck() }
-                condition?.run { typeCheck() }
-                update?.run { typeCheck() }
-                body.typeCheck()
+                symbolTable.scoped {
+                    init?.run { typeCheck() }
+                    condition?.run { typeCheck() }
+                    update?.run { typeCheck() }
+                    body.typeCheck()
+                }
             }
             is LabeledStatement -> {
                 statement.typeCheck()

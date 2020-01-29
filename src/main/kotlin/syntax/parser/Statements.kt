@@ -12,11 +12,13 @@ fun Parser.statement(): Statement = when (current) {
 
     WHILE -> While(accept(), condition(), statement())
     DO -> Do(accept(), statement() before WHILE, condition()).semicolon()
-    FOR -> For(accept() before OPENING_PAREN,
-            ::expression optionalBefore SEMICOLON,
-            ::expression optionalBefore SEMICOLON,
-            ::expression optionalBefore CLOSING_PAREN,
-            statement())
+    FOR -> symbolTable.scoped {
+        For(accept() before OPENING_PAREN,
+                forInit(),
+                ::expression optionalBefore SEMICOLON,
+                ::expression optionalBefore CLOSING_PAREN,
+                statement())
+    }
 
     GOTO -> Goto(accept(), expect(IDENTIFIER)).semicolon()
     CONTINUE -> Continue(accept()).semicolon()
@@ -37,6 +39,22 @@ fun Parser.statement(): Statement = when (current) {
     IDENTIFIER -> when {
         lookahead.kind == COLON -> LabeledStatement(accept() before COLON, statement())
 
+        isTypedefName(token) -> declaration()
+
+        else -> ExpressionStatement(expression()).semicolon()
+    }
+
+    else -> ExpressionStatement(expression()).semicolon()
+}
+
+private fun Parser.forInit(): Statement? = when (current) {
+    SEMICOLON -> null.semicolon()
+
+    TYPEDEF, EXTERN, STATIC, AUTO, REGISTER, CONST, VOLATILE,
+    VOID, CHAR, SHORT, INT, LONG, FLOAT, DOUBLE, SIGNED, UNSIGNED,
+    STRUCT, UNION, ENUM -> declaration()
+
+    IDENTIFIER -> when {
         isTypedefName(token) -> declaration()
 
         else -> ExpressionStatement(expression()).semicolon()
