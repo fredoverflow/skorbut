@@ -465,7 +465,18 @@ class TypeChecker(translationUnit: TranslationUnit) {
                 ArrayType(literal.text.length + 1, SignedCharType)
             }
             is Identifier -> {
-                val temp = symbolTable.lookup(name) ?: name.error("undeclared symbol $name")
+                val temp = symbolTable.lookup(name)
+                if (temp == null) {
+                    val bestMatches = symbolTable.bestMatches(name)
+                    if (bestMatches.size == 1) {
+                        val bestMatch = bestMatches.first()
+                        val prefix = bestMatch.commonPrefixWith(name.text)
+                        name.error("undeclared symbol $name, did you mean $bestMatch?", prefix.length)
+                    } else {
+                        val commaSeparated = bestMatches.joinToString(", ")
+                        name.error("undeclared symbol $name, best matches: $commaSeparated")
+                    }
+                }
 
                 symbol = temp
                 if (temp.type is EnumerationConstant) {

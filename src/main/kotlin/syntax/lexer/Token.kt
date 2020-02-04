@@ -17,6 +17,10 @@ class Token(val kind: TokenKind, val start: Int, val source: String, val text: S
         throw Diagnostic(start, description)
     }
 
+    fun error(description: String, positionDelta: Int): Nothing {
+        throw Diagnostic(start + positionDelta, description)
+    }
+
     fun error(description: String, previous: Token): Nothing {
         throw Diagnostic(start, "$description (click here to alternate)", previous.start)
     }
