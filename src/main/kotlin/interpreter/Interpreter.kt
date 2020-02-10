@@ -448,6 +448,9 @@ class Interpreter(program: String) {
                 val result = if (condition.isTrue()) th3n.delayed() else e1se.delayed()
                 type.cast(result)
             }
+            is Cast -> {
+                type.cast(operand.evaluate())
+            }
             is Assignment -> {
                 targetType = left.type
                 val value = left.type.cast(right.evaluate())

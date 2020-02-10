@@ -56,9 +56,8 @@ class Linter(val translationUnit: TranslationUnit) : LinterBase() {
 
     private fun Expression.detectOperatorWithoutEffect() {
         val root = root()
-        val kind = root.kind
-        when (kind) {
-            SIZEOF, OPENING_BRACKET, DOT, HYPHEN_MORE,
+        when (root.kind) {
+            OPENING_PAREN, SIZEOF, OPENING_BRACKET, DOT, HYPHEN_MORE,
             AMPERSAND, ASTERISK, PLUS, HYPHEN, TILDE, BANG, SLASH, PERCENT,
             LESS_LESS, MORE_MORE, LESS, MORE, LESS_EQUAL, MORE_EQUAL, EQUAL_EQUAL, BANG_EQUAL,
             CARET, BAR, AMPERSAND_AMPERSAND, BAR_BAR,

@@ -2423,4 +2423,83 @@ int main()
 }
 """)
     }
+
+    @Test fun castConstVoidPointers() {
+        run("""
+int fruit_compare(const void * const v, const void * w)
+{
+    return *(const char * const *)v - *(const char * const * const)w;
+}
+
+int main()
+{
+    typedef const char * string;
+    string a = "apple", b = "banana", c = "cherry", d = "date", e = "eggfruit", f = "fig", g = "grape";
+    string fruits[] = {g, c, b, f, d, e, a};
+    qsort(fruits, sizeof fruits/sizeof*fruits, sizeof*fruits, fruit_compare);
+
+    assert fruits[0] == a;
+    assert fruits[1] == b;
+    assert fruits[2] == c;
+    assert fruits[3] == d;
+    assert fruits[4] == e;
+    assert fruits[5] == f;
+    assert fruits[6] == g;
+    return 0;
+}
+""")
+    }
+
+    @Test fun castIntToDouble() {
+        run("""
+int main()
+{
+    assert (double)1/2 == 0.5;
+
+    int i = 1;
+    assert (const double)i++/2 == 0.5;
+    assert i == 2;
+
+    return 0;
+}
+""")
+    }
+
+    @Test fun castArrayLength() {
+        run("""
+int main()
+{
+    char pi[(int)3.1416];
+    char e[(int)2.71828];
+
+    assert sizeof pi == 3;
+    assert sizeof e == 2;
+    return 0;
+}
+""")
+    }
+
+    @Test fun castCaseLabels() {
+        run("""
+const char * pronounce(int x)
+{
+    switch (x)
+    {
+        case 1: return "one";
+        case (int)2.71828: return "two";
+        case (int)3.1416: return "three";
+        default: return "???";
+    }
+}
+
+int main()
+{
+    assert pronounce(1) == "one";
+    assert pronounce(2) == "two";
+    assert pronounce(3) == "three";
+    assert pronounce(4) == "???";
+    return 0;
+}
+""")
+    }
 }

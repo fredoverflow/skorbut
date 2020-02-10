@@ -742,6 +742,13 @@ class TypeChecker(translationUnit: TranslationUnit) {
                     colon.error("$a and $b have no common supertype")
                 }
             }
+            is Cast -> {
+                val targetType = declarator.type(specifiers.typeCheckNoStorageClass()).unqualified()
+                val sourceType = operand.typeCheck()
+                checkAssignmentCompatible(targetType, operator, sourceType)
+                this.determineValue { targetType.cast(it) }
+                targetType
+            }
             is Assignment -> {
                 val leftType = left.typeCheck()
                 if (leftType.isConst()) operator.error("assignment to const")

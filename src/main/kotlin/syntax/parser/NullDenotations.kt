@@ -55,10 +55,11 @@ object StringLiteralDenotation : NullDenotation() {
 object PossibleCastDenotation : NullDenotation() {
     override fun Parser.parse(token: Token): Expression {
         val specifiers = declarationSpecifiers0()
-        if (!specifiers.list.isEmpty()) {
-            notImplementedYet("casting")
+        return if (specifiers.list.isEmpty()) {
+            expression() before CLOSING_PAREN
         } else {
-            return expression() before CLOSING_PAREN
+            val declarator = abstractDeclarator() before CLOSING_PAREN
+            Cast(token, specifiers, declarator, subexpression(PRECEDENCE_PREFIX))
         }
     }
 }

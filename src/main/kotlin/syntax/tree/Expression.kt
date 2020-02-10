@@ -113,6 +113,8 @@ class BitwiseNot(f: Token, x: Expression) : Unary(f, x)
 
 class LogicalNot(f: Token, x: Expression) : Unary(f, x)
 
+class Cast(operator: Token, val specifiers: DeclarationSpecifiers, val declarator: Declarator, operand: Expression) : Unary(operator, operand)
+
 class SizeofType(val operator: Token, val specifiers: DeclarationSpecifiers, val declarator: Declarator) : Expression() {
     var operandType: Type = Later
 
