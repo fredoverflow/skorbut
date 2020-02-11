@@ -546,7 +546,7 @@ class TypeChecker(translationUnit: TranslationUnit) {
 
                 if (structType is StructType) {
                     val member = structType.member(right) ?: right.error("$right is not a member of $leftType")
-                    member.type.addQualifiersFrom(leftType)
+                    leftType.applyQualifiersTo(member.type)
                 } else if (leftType is PointerType && leftType.referencedType.unqualified() is StructType) {
                     dot.error("Use -> instead of . for indirect member access")
                 } else {
@@ -563,7 +563,7 @@ class TypeChecker(translationUnit: TranslationUnit) {
 
                 if (structType is StructType) {
                     val member = structType.member(right) ?: right.error("$right is not a member of $leftType")
-                    member.type.addQualifiersFrom(leftType)
+                    leftType.applyQualifiersTo(member.type)
                 } else {
                     arrow.error("$leftType is not a struct type")
                 }

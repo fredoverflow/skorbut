@@ -29,7 +29,7 @@ interface Type {
 
     fun unqualified(): Type = this
 
-    fun addQualifiersFrom(source: Type): Type = if (source.isConst()) addConst() else this
+    fun applyQualifiersTo(target: Type): Type = target
 }
 
 data class Const(val underlying: Type) : Type by underlying {
@@ -41,7 +41,7 @@ data class Const(val underlying: Type) : Type by underlying {
 
     override fun unqualified(): Type = underlying
 
-    override fun addQualifiersFrom(source: Type): Type = this
+    override fun applyQualifiersTo(target: Type): Type = target.addConst()
 
     override fun toString(): String = "Const<$underlying>"
 }
