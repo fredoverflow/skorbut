@@ -185,7 +185,8 @@ class TypeChecker(translationUnit: TranslationUnit) {
     private fun FunctionParameter.typeCheck(): Type {
         with(namedDeclarator) {
             typeCheck(specifiers.typeCheckNoStorageClass())
-            type = type.decayed()
+            // retain const on function parameters
+            type = type.applyQualifiersTo(type.decayed())
             return type
         }
     }
@@ -195,7 +196,9 @@ class TypeChecker(translationUnit: TranslationUnit) {
             is Declarator.Identity -> from
             is Declarator.Pointer -> previous.type(from).pointer().let { if (qualifiers.isEmpty()) it else it.addConst() }
             is Declarator.Array -> ArrayType(determineLength(), previous.type(from))
-            is Declarator.Function -> FunctionType(parameters.map { it.typeCheck() }, previous.type(from).unqualified())
+            is Declarator.Function -> FunctionType(
+                    // ignore top-level const in function types
+                    parameters.map { it.typeCheck().unqualified() }, previous.type(from).unqualified())
             is Declarator.Initialized -> declarator.type(from)
         }
     }
