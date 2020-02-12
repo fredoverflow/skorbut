@@ -12,6 +12,8 @@ import java.lang.NumberFormatException
 import java.util.*
 
 class TypeChecker(translationUnit: TranslationUnit) {
+    private val functionTokens: Map<String, Token> = translationUnit.functions.map { it.namedDeclarator.name }.associateBy(Token::text)
+
     private val symbolTable = SymbolTable()
     private val stringLiterals = LinkedHashSet<String>()
     fun getStringLiterals(): Set<String> = stringLiterals
@@ -470,6 +472,10 @@ class TypeChecker(translationUnit: TranslationUnit) {
             is Identifier -> {
                 val temp = symbolTable.lookup(name)
                 if (temp == null) {
+                    val functionToken = functionTokens[name.text]
+                    if (functionToken != null && functionToken.start > name.start) {
+                        name.error("functions must be declared before use", functionToken)
+                    }
                     val bestMatches = symbolTable.bestMatches(name)
                     if (bestMatches.size == 1) {
                         val bestMatch = bestMatches.first()
