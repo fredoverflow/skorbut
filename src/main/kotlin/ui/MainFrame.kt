@@ -34,12 +34,12 @@ class MainFrame : JFrame() {
 
     private val editor = Editor()
     private val slider = JSlider(0, 11, 0)
-    private val timer = Timer(1000) { queue.offer("step") }
+    private val timer = Timer(1000) { queue.offer("into") }
 
     private val start = JButton("start")
-    private val step = JButton("step")
-    private val over = JButton("over")
-    private val r3turn = JButton("return")
+    private val into = JButton("step into")
+    private val over = JButton("step over")
+    private val r3turn = JButton("step return")
     private val stop = JButton("stop")
     private val buttons = JPanel()
 
@@ -82,8 +82,8 @@ class MainFrame : JFrame() {
         slider.paintLabels = true
 
         buttons.add(start)
-        step.isEnabled = false
-        buttons.add(step)
+        into.isEnabled = false
+        buttons.add(into)
         over.isEnabled = false
         buttons.add(over)
         r3turn.isEnabled = false
@@ -199,9 +199,9 @@ class MainFrame : JFrame() {
             tryCompile(andRun = true)
         }
 
-        step.addActionListener {
+        into.addActionListener {
             editor.requestFocusInWindow()
-            queue.offer("step")
+            queue.offer("into")
         }
 
         over.addActionListener {
@@ -284,7 +284,7 @@ class MainFrame : JFrame() {
 
         memoryUI.memory = interpreter.memory
         start.isEnabled = false
-        step.isEnabled = true
+        into.isEnabled = true
         over.isEnabled = true
         r3turn.isEnabled = true
         stop.isEnabled = true
@@ -378,7 +378,7 @@ class MainFrame : JFrame() {
             editor.setCursorTo(position)
         }
         when (fetchEntryFromQueue()) {
-            "step" -> {
+            "into" -> {
                 targetStackDepth = Int.MAX_VALUE
             }
             "over" -> {
@@ -429,7 +429,7 @@ class MainFrame : JFrame() {
             } finally {
                 SwingUtilities.invokeLater {
                     start.isEnabled = true
-                    step.isEnabled = false
+                    into.isEnabled = false
                     over.isEnabled = false
                     r3turn.isEnabled = false
                     stop.isEnabled = false
