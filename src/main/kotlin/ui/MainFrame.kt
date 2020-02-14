@@ -37,9 +37,9 @@ class MainFrame : JFrame() {
     private val timer = Timer(1000) { queue.offer("into") }
 
     private val start = JButton("start")
-    private val into = JButton("step into")
-    private val over = JButton("step over")
-    private val r3turn = JButton("step return")
+    private val into = JButton("step into (F5)")
+    private val over = JButton("step over (F6)")
+    private val r3turn = JButton("step return (F7)")
     private val stop = JButton("stop")
     private val buttons = JPanel()
 
@@ -230,6 +230,9 @@ class MainFrame : JFrame() {
                     KeyEvent.VK_SPACE -> if (event.isControlDown) {
                         autocompleteIdentifier()
                     }
+                    KeyEvent.VK_F5 -> into.doClick()
+                    KeyEvent.VK_F6 -> over.doClick()
+                    KeyEvent.VK_F7 -> r3turn.doClick()
                 }
             }
         })
