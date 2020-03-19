@@ -26,6 +26,11 @@ class Console {
 
     var update: Function0<Unit>? = null
 
+    fun puts(str: PointerValue) {
+        print(stringStartingAt(str))
+        putchar('\n')
+    }
+
     fun putchar(x: Char) {
         output.append(x)
         isDirty = true

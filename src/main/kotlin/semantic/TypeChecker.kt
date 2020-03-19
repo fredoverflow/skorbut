@@ -25,6 +25,7 @@ class TypeChecker(translationUnit: TranslationUnit) {
     init {
         declare(fakeIdentifier("time"), FunctionType.unary(SignedIntType, UnsignedIntType))
 
+        declare(fakeIdentifier("puts"), FunctionType.unary(PointerType(Const(SignedCharType)), VoidType))
         declare(fakeIdentifier("putchar"), FunctionType.unary(SignedIntType, VoidType))
         declare(fakeIdentifier("getchar"), FunctionType.nullary(SignedIntType))
 

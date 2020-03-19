@@ -283,6 +283,10 @@ class Interpreter(program: String) {
                     "time" -> {
                         return ArithmeticValue(floor(System.currentTimeMillis() / 1000.0), UnsignedIntType)
                     }
+                    "puts" -> {
+                        console.puts(arguments[0].evaluate() as PointerValue)
+                        return VoidValue
+                    }
                     "putchar" -> {
                         val arg = arguments[0].evaluate() as ArithmeticValue
                         console.putchar(arg.value.toLong().and(0xff).toChar())
