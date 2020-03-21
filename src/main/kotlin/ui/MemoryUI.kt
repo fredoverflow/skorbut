@@ -97,7 +97,7 @@ class MemoryUI(var memory: Memory) : JPanel() {
 
     private fun updateSingleSegment(segment: Segment, border: LineBorder) {
         val structType = segment.type as StructType
-        if (!structType.members.isEmpty()) {
+        if (structType.members.isNotEmpty()) {
             lineBorder = border
             update(segment)
         }
