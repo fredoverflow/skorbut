@@ -118,7 +118,7 @@ class MainFrame : JFrame() {
         listenToKeyboard()
         listenToConsole()
 
-        defaultCloseOperation = JFrame.EXIT_ON_CLOSE
+        defaultCloseOperation = EXIT_ON_CLOSE
         addWindowListener(object : WindowAdapter() {
             override fun windowClosing(event: WindowEvent) {
                 editor.autosaver.save()

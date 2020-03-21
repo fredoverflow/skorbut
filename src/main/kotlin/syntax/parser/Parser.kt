@@ -9,7 +9,7 @@ import syntax.lexer.TokenKind.*
 import syntax.lexer.nextToken
 
 class Parser(private val lexer: Lexer) {
-    var previous: Token = Token(TokenKind.END_OF_INPUT, 0, "", "")
+    var previous: Token = Token(END_OF_INPUT, 0, "", "")
         private set
 
     var token: Token = lexer.nextToken()
