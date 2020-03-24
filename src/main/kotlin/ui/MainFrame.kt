@@ -242,7 +242,7 @@ class MainFrame : JFrame() {
         try {
             val suffixes = autocompleteIdentifier(editor.textBeforeSelection)
             if (suffixes.size == 1) {
-                editor.insertString(suffixes[0])
+                editor.insert(suffixes[0])
             } else {
                 println(suffixes.sorted().joinToString(", "))
             }
