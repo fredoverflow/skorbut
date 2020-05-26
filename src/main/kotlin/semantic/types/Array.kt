@@ -20,7 +20,15 @@ data class ArrayType(var length: Int, val elementType: Type) : Type {
 
     override fun unqualified(): Type = if (isConst()) ArrayType(length, elementType.unqualified()) else this
 
-    override fun toString(): String = "Array<$length, $elementType>"
-
     fun dimensions(): Int = if (elementType is ArrayType) elementType.dimensions() + 1 else 1
+
+    override fun toString(): String = declaration("")
+
+    override fun declaration(parent: String): String {
+        return if (parent.isPointer()) {
+            elementType.declaration("($parent)[$length]")
+        } else {
+            elementType.declaration("$parent[$length]")
+        }
+    }
 }

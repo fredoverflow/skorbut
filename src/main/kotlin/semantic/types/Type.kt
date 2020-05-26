@@ -30,6 +30,12 @@ interface Type {
     fun unqualified(): Type = this
 
     fun applyQualifiersTo(target: Type): Type = target
+
+    fun declaration(parent: String): String {
+        throw AssertionError("$javaClass.declaration($parent)")
+    }
+
+    fun String.isPointer(): Boolean = this.isNotEmpty() && this.first() == '*'
 }
 
 data class Const(val underlying: Type) : Type by underlying {
@@ -43,7 +49,15 @@ data class Const(val underlying: Type) : Type by underlying {
 
     override fun applyQualifiersTo(target: Type): Type = target.addConst()
 
-    override fun toString(): String = "Const<$underlying>"
+    override fun toString(): String = declaration("")
+
+    override fun declaration(parent: String): String {
+        return if (underlying is ComparablePointerType) {
+            underlying.declaration("const$parent")
+        } else {
+            "const $underlying$parent"
+        }
+    }
 }
 
 object Later : Type

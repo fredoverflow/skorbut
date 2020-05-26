@@ -35,6 +35,8 @@ class StructType(val name: Token, val members: List<Symbol>) : CompletableType()
     fun member(name: Token) = members.find { it.name.text === name.text }
 
     override fun toString(): String = "struct $name"
+
+    override fun declaration(parent: String): String = "struct $name$parent"
 }
 
 val StructTypeLater = StructType(missingIdentifier, emptyList())

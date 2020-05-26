@@ -8,6 +8,8 @@ object VoidType : Type {
     override fun addConst(): Type = ConstVoidType
 
     override fun toString(): String = "void"
+
+    override fun declaration(parent: String): String = "void$parent"
 }
 
 object ConstVoidType : Type {
@@ -22,4 +24,6 @@ object ConstVoidType : Type {
     override fun unqualified(): Type = VoidType
 
     override fun toString(): String = "const void"
+
+    override fun declaration(parent: String): String = "const void$parent"
 }

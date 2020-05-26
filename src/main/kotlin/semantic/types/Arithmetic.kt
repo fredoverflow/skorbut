@@ -26,6 +26,8 @@ abstract class ArithmeticType : Type {
     fun usualArithmeticConversions(that: ArithmeticType): ArithmeticType = integralPromotions().max(that)
 
     fun max(that: ArithmeticType): ArithmeticType = if (this.rank() < that.rank()) that else this
+
+    override fun declaration(parent: String): String = "$this$parent"
 }
 
 object SignedCharType : ArithmeticType() {
@@ -115,7 +117,7 @@ object UnsignedIntType : ArithmeticType() {
 
     override fun show(value: Double): String = value.toLong().toString()
 
-    override val defaultValue: ArithmeticValue = Value.unsignedInt(0)
+    override val defaultValue: ArithmeticValue by lazy { Value.unsignedInt(0) }
 
     override fun rank(): Int = 5
 

@@ -7,8 +7,6 @@ interface ComparablePointerType : Type
 data class PointerType(val referencedType: Type) : ComparablePointerType {
     override fun sizeof(): Int = 4
 
-    override fun toString(): String = "Pointer<$referencedType>"
-
     override fun canCastFromDecayed(source: Type): Boolean {
         if (source === VoidPointerType) return true
 
@@ -28,26 +26,36 @@ data class PointerType(val referencedType: Type) : ComparablePointerType {
         if (!canCastFromPointer(source.type().decayed())) throw AssertionError("${source.type()} cannot be converted to $this")
         return source.decayed()
     }
+
+    override fun toString(): String = declaration("")
+
+    override fun declaration(parent: String): String {
+        return referencedType.declaration("*$parent")
+    }
 }
 
 object VoidPointerType : ComparablePointerType {
     override fun sizeof(): Int = 4
 
-    override fun toString(): String = "VoidPointer"
-
     override fun canCastFromDecayed(source: Type): Boolean {
         if (source === this) return true
         return source is PointerType && !source.referencedType.isConst()
     }
+
+    override fun toString(): String = "void*"
+
+    override fun declaration(parent: String): String = "void*$parent"
 }
 
 object ConstVoidPointerType : ComparablePointerType {
     override fun sizeof(): Int = 4
 
-    override fun toString(): String = "ConstVoidPointer"
-
     override fun canCastFromDecayed(source: Type): Boolean {
         if (source === this || source === VoidPointerType) return true
         return source is PointerType
     }
+
+    override fun toString(): String = "const void*"
+
+    override fun declaration(parent: String): String = "const void*$parent"
 }

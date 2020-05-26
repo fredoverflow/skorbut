@@ -18,5 +18,14 @@ data class FunctionType(val parameters: List<Type>, val returnType: Type) : Type
 
     override fun decayed(): Type = pointer()
 
-    override fun toString(): String = parameters.asSequence().plus(returnType).joinToString(", ", "Function<", ">")
+    override fun toString(): String = declaration("")
+
+    override fun declaration(parent: String): String {
+        val params = parameters.joinToString(transform = Type::toString, prefix = "(", separator = ",", postfix = ")")
+        return if (parent.isPointer()) {
+            returnType.declaration("($parent)$params")
+        } else {
+            returnType.declaration("$parent$params")
+        }
+    }
 }
