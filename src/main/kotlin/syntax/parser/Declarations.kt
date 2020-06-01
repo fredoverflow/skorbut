@@ -181,20 +181,18 @@ fun Parser.initializer(): Initializer {
 }
 
 fun Parser.namedDeclarator(): NamedDeclarator {
-    return with(namedDeclaratorBackwards()) {
-        NamedDeclarator(first, second.reverse())
-    }
+    return namedDeclaratorBackwards().map(Declarator::reverse)
 }
 
-fun Parser.namedDeclaratorBackwards(): Pair<Token, Declarator> {
+fun Parser.namedDeclaratorBackwards(): NamedDeclarator {
     if (current == ASTERISK) {
         next()
         val qualifiers = typeQualifierList()
         return namedDeclaratorBackwards().map { Declarator.Pointer(it, qualifiers) }
     }
-    var temp: Pair<Token, Declarator> = when (current) {
+    var temp: NamedDeclarator = when (current) {
         OPENING_PAREN -> parenthesized(::namedDeclaratorBackwards)
-        IDENTIFIER -> Pair(accept(), Declarator.Identity)
+        IDENTIFIER -> NamedDeclarator(accept(), Declarator.Identity)
         else -> illegalStartOf("declarator")
     }
     while (true) {
@@ -233,10 +231,6 @@ fun Parser.declaratorFunction(): List<FunctionParameter> {
     }
 }
 
-private inline fun Pair<Token, Declarator>.map(f: (Declarator) -> Declarator): Pair<Token, Declarator> {
-    return Pair(first, f(second))
-}
-
 fun Parser.abstractDeclarator(): Declarator {
     return abstractDeclaratorBackwards().reverse()
 }
@@ -262,27 +256,25 @@ fun Parser.abstractDeclaratorBackwards(): Declarator {
 }
 
 fun Parser.parameterDeclarator(): NamedDeclarator {
-    return with(parameterDeclaratorBackwards()) {
-        NamedDeclarator(first, second.reverse())
-    }
+    return parameterDeclaratorBackwards().map(Declarator::reverse)
 }
 
-fun Parser.parameterDeclaratorBackwards(): Pair<Token, Declarator> {
+fun Parser.parameterDeclaratorBackwards(): NamedDeclarator {
     if (current == ASTERISK) {
         next()
         val qualifiers = typeQualifierList()
         return parameterDeclaratorBackwards().map { Declarator.Pointer(it, qualifiers) }
     }
-    var temp: Pair<Token, Declarator> = when (current) {
+    var temp: NamedDeclarator = when (current) {
         OPENING_PAREN -> {
             if (isDeclarationSpecifier(lookahead)) {
-                Pair(token, Declarator.Function(Declarator.Identity, declaratorFunction()))
+                NamedDeclarator(token, Declarator.Function(Declarator.Identity, declaratorFunction()))
             } else {
                 parenthesized(::parameterDeclaratorBackwards)
             }
         }
-        IDENTIFIER -> Pair(accept(), Declarator.Identity)
-        else -> Pair(token, Declarator.Identity)
+        IDENTIFIER -> NamedDeclarator(accept(), Declarator.Identity)
+        else -> NamedDeclarator(token, Declarator.Identity)
     }
     while (true) {
         temp = when (current) {

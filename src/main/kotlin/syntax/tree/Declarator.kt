@@ -11,6 +11,8 @@ class NamedDeclarator(val name: Token, val declarator: Declarator) : Node() {
     var offset: Int = 1234567890
 
     override fun toString(): String = "$name : $type"
+
+    inline fun map(f: (Declarator) -> Declarator): NamedDeclarator = NamedDeclarator(name, f(declarator))
 }
 
 class FunctionParameter(val specifiers: DeclarationSpecifiers, val namedDeclarator: NamedDeclarator)
