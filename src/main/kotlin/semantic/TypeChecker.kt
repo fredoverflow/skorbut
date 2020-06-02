@@ -197,11 +197,11 @@ class TypeChecker(translationUnit: TranslationUnit) {
     private fun Declarator.type(from: Type): Type {
         return when (this) {
             is Declarator.Identity -> from
-            is Declarator.Pointer -> previous.type(from).pointer().let { if (qualifiers.isEmpty()) it else it.addConst() }
-            is Declarator.Array -> ArrayType(determineLength(), previous.type(from))
-            is Declarator.Function -> FunctionType(
+            is Declarator.Pointer -> child.type(from.pointer().let { if (qualifiers.isEmpty()) it else it.addConst() })
+            is Declarator.Array -> child.type(ArrayType(determineLength(), from))
+            is Declarator.Function -> child.type(FunctionType(
                     // ignore top-level const in function types
-                    parameters.map { it.typeCheck().unqualified() }, previous.type(from).unqualified())
+                    parameters.map { it.typeCheck().unqualified() }, from.unqualified()))
             is Declarator.Initialized -> declarator.type(from)
         }
     }

@@ -30,7 +30,7 @@ class TranslationUnit(val externalDeclarations: List<Node>) : Node() {
 class FunctionDefinition(val specifiers: DeclarationSpecifiers, val namedDeclarator: NamedDeclarator, val body: List<Statement>, val closingBrace: Token) : Node() {
     fun name(): String = namedDeclarator.name.text
 
-    val parameters: List<NamedDeclarator> = (namedDeclarator.declarator as Declarator.Function).parameters.map { it.namedDeclarator }
+    val parameters: List<NamedDeclarator> = (namedDeclarator.declarator.leaf() as Declarator.Function).parameters.map(FunctionParameter::namedDeclarator)
 
     var stackFrameType: StructType = StructTypeLater
 

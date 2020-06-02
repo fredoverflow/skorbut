@@ -18,28 +18,28 @@ class NamedDeclarator(val name: Token, val declarator: Declarator) : Node() {
 class FunctionParameter(val specifiers: DeclarationSpecifiers, val namedDeclarator: NamedDeclarator)
 
 sealed class Declarator {
-    fun reverse(): Declarator = reverse(Identity)
+    fun leaf(): Declarator = leaf(Identity)
 
-    protected abstract fun reverse(result: Declarator): Declarator
+    protected abstract fun leaf(parent: Declarator): Declarator
 
     object Identity : Declarator() {
-        override fun reverse(result: Declarator): Declarator = result
+        override fun leaf(parent: Declarator): Declarator = parent
     }
 
-    class Pointer(val previous: Declarator, val qualifiers: List<Token>) : Declarator() {
-        override fun reverse(result: Declarator): Declarator = previous.reverse(Pointer(result, qualifiers))
+    class Pointer(val child: Declarator, val qualifiers: List<Token>) : Declarator() {
+        override fun leaf(parent: Declarator): Declarator = child.leaf(this)
     }
 
-    class Array(val previous: Declarator, val length: Expression?) : Declarator() {
-        override fun reverse(result: Declarator): Declarator = previous.reverse(Array(result, length))
+    class Array(val child: Declarator, val length: Expression?) : Declarator() {
+        override fun leaf(parent: Declarator): Declarator = child.leaf(this)
     }
 
-    class Function(val previous: Declarator, val parameters: List<FunctionParameter>) : Declarator() {
-        override fun reverse(result: Declarator): Declarator = previous.reverse(Function(result, parameters))
+    class Function(val child: Declarator, val parameters: List<FunctionParameter>) : Declarator() {
+        override fun leaf(parent: Declarator): Declarator = child.leaf(this)
     }
 
     class Initialized(val declarator: Declarator, val init: Initializer) : Declarator() {
-        override fun reverse(result: Declarator) = error("reverse on initialized declarator")
+        override fun leaf(parent: Declarator): Declarator = declarator.leaf(Identity)
     }
 }
 

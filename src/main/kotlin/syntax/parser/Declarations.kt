@@ -16,7 +16,7 @@ import syntax.tree.*
 fun Parser.declare(namedDeclarator: NamedDeclarator, isTypedefName: Boolean) {
     val pseudoType = when {
         isTypedefName -> MarkerIsTypedefName
-        namedDeclarator.declarator is Declarator.Function -> FunctionType.declarationMarker()
+        namedDeclarator.declarator.leaf() is Declarator.Function -> FunctionType.declarationMarker()
         else -> MarkerNotTypedefName
     }
     symbolTable.declare(namedDeclarator.name, pseudoType, 0)
@@ -181,17 +181,13 @@ fun Parser.initializer(): Initializer {
 }
 
 fun Parser.namedDeclarator(): NamedDeclarator {
-    return namedDeclaratorBackwards().map(Declarator::reverse)
-}
-
-fun Parser.namedDeclaratorBackwards(): NamedDeclarator {
     if (current == ASTERISK) {
         next()
         val qualifiers = typeQualifierList()
-        return namedDeclaratorBackwards().map { Declarator.Pointer(it, qualifiers) }
+        return namedDeclarator().map { Declarator.Pointer(it, qualifiers) }
     }
     var temp: NamedDeclarator = when (current) {
-        OPENING_PAREN -> parenthesized(::namedDeclaratorBackwards)
+        OPENING_PAREN -> parenthesized(::namedDeclarator)
         IDENTIFIER -> NamedDeclarator(accept(), Declarator.Identity)
         else -> illegalStartOf("declarator")
     }
@@ -232,17 +228,13 @@ fun Parser.declaratorFunction(): List<FunctionParameter> {
 }
 
 fun Parser.abstractDeclarator(): Declarator {
-    return abstractDeclaratorBackwards().reverse()
-}
-
-fun Parser.abstractDeclaratorBackwards(): Declarator {
     if (current == ASTERISK) {
         next()
         val qualifiers = typeQualifierList()
-        return Declarator.Pointer(abstractDeclaratorBackwards(), qualifiers)
+        return Declarator.Pointer(abstractDeclarator(), qualifiers)
     }
     var temp: Declarator = when (current) {
-        OPENING_PAREN -> parenthesized(::abstractDeclaratorBackwards)
+        OPENING_PAREN -> parenthesized(::abstractDeclarator)
         IDENTIFIER -> token.error("identifier in abstract declarator")
         else -> Declarator.Identity
     }
@@ -256,21 +248,17 @@ fun Parser.abstractDeclaratorBackwards(): Declarator {
 }
 
 fun Parser.parameterDeclarator(): NamedDeclarator {
-    return parameterDeclaratorBackwards().map(Declarator::reverse)
-}
-
-fun Parser.parameterDeclaratorBackwards(): NamedDeclarator {
     if (current == ASTERISK) {
         next()
         val qualifiers = typeQualifierList()
-        return parameterDeclaratorBackwards().map { Declarator.Pointer(it, qualifiers) }
+        return parameterDeclarator().map { Declarator.Pointer(it, qualifiers) }
     }
     var temp: NamedDeclarator = when (current) {
         OPENING_PAREN -> {
             if (isDeclarationSpecifier(lookahead)) {
                 NamedDeclarator(token, Declarator.Function(Declarator.Identity, declaratorFunction()))
             } else {
-                parenthesized(::parameterDeclaratorBackwards)
+                parenthesized(::parameterDeclarator)
             }
         }
         IDENTIFIER -> NamedDeclarator(accept(), Declarator.Identity)

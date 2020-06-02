@@ -14,7 +14,7 @@ fun Parser.externalDeclaration(): Node {
         return Declaration(specifiers, emptyList()).semicolon()
     }
     val firstNamedDeclarator = namedDeclarator()
-    return if (firstNamedDeclarator.declarator is Declarator.Function && current == OPENING_BRACE) {
+    return if (firstNamedDeclarator.declarator.leaf() is Declarator.Function && current == OPENING_BRACE) {
         symbolTable.declare(firstNamedDeclarator.name, FunctionType.DEFINITION_MARKER, 0)
         symbolTable.rescoped {
             braced {
