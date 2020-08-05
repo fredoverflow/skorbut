@@ -377,10 +377,19 @@ class MainFrame : JFrame() {
     }
 
     private fun pauseAt(position: Int) {
-        SwingUtilities.invokeLater {
-            editor.setCursorTo(position)
+        val entry = if (interpreter.stackDepth <= targetStackDepth) {
+            // Step into mode
+            SwingUtilities.invokeLater {
+                editor.setCursorTo(position)
+            }
+            // Block until the next button press
+            queue.take()
+        } else {
+            // Step over/return mode
+            // Don't block, but consume potential button presses, especially stop
+            queue.poll()
         }
-        when (fetchEntryFromQueue()) {
+        when (entry) {
             "into" -> {
                 targetStackDepth = Int.MAX_VALUE
             }
@@ -394,18 +403,6 @@ class MainFrame : JFrame() {
                 timer.stop()
                 throw StopTheProgram
             }
-        }
-    }
-
-    private fun fetchEntryFromQueue(): String? {
-        return if (interpreter.stackDepth <= targetStackDepth) {
-            // Normal mode
-            // Block until the next button press
-            queue.take()
-        } else {
-            // Step over/step return mode
-            // Don't block, but consume potential button presses, especially stop
-            queue.poll()
         }
     }
 
