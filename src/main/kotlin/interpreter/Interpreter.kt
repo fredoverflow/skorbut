@@ -17,7 +17,7 @@ class Interpreter(program: String) {
     val translationUnit = Parser(Lexer(program)).translationUnit()
     val typeChecker = TypeChecker(translationUnit)
 
-    val functions = LinkedHashMap<String, FunctionDefinition>()
+    val functions = translationUnit.functions.associateBy(FunctionDefinition::name)
     val variables = translationUnit.declarations.filter { it.specifiers.storageClass != TYPEDEF }
             .flatMap { it.namedDeclarators }.filter { it.offset < 0 && it.type.requiresStorage() }
 
@@ -31,7 +31,6 @@ class Interpreter(program: String) {
     init {
         for (function in translationUnit.functions) {
             BuildControlFlowGraph(function)
-            functions[function.name()] = function
         }
 
         for (namedDeclarator in variables) {
