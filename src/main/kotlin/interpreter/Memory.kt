@@ -69,8 +69,7 @@ class Memory(stringLiterals: Iterable<String>, variables: Iterable<NamedDeclarat
         try {
             action()
         } finally {
-            stack.last().kill()
-            stack.removeAt(stack.lastIndex)
+            stack.removeAt(stack.lastIndex).kill()
         }
     }
 
