@@ -32,6 +32,8 @@ class StructType(val name: Token, val members: List<Symbol>) : CompletableType()
 
     override fun count(): Int = members.sumBy { it.type.count() }
 
+    override fun canCastFromDecayed(source: Type): Boolean = (this === source)
+
     fun member(name: Token): Symbol? = members.find { it.name.text === name.text }
 
     override fun toString(): String = "struct $name"

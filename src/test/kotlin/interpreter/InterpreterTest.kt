@@ -740,6 +740,110 @@ int main()
 """)
     }
 
+    @Test fun passStructByValue() {
+        run("""
+struct Point
+{
+    int x;
+    int y, z;
+};
+
+void add(struct Point * dst, struct Point src)
+{
+    dst->x += src.x;
+    dst->y += src.y;
+    dst->z += src.z;
+    // modifying src should have no effect
+    ++src.x;
+    ++src.y;
+    ++src.z;
+}
+
+int main()
+{
+    struct Point a = {2, 3, 5};
+    struct Point b = {7, 11, 13};
+
+    add(&a, b);
+
+    assert a.x == 9;
+    assert a.y == 14;
+    assert a.z == 18;
+
+    assert b.x == 7;
+    assert b.y == 11;
+    assert b.z == 13;
+
+    return 0;
+}
+""")
+    }
+
+    @Test fun assignStruct() {
+        run("""
+struct Point
+{
+    int x, y, z;
+};
+
+int main()
+{
+    struct Point a = {2, 3, 5};
+    const struct Point b = a;
+    struct Point c;
+    c = b;
+
+    assert a.x == 2;
+    assert a.y == 3;
+    assert a.z == 5;
+
+    assert b.x == 2;
+    assert b.y == 3;
+    assert b.z == 5;
+
+    assert c.x == 2;
+    assert c.y == 3;
+    assert c.z == 5;
+
+    return 0;
+}
+""")
+    }
+
+    @Test fun initializeStructInArray() {
+        run("""
+struct Point
+{
+    int x, y, z;
+};
+
+int main()
+{
+    const struct Point b = {7, 11, 13};
+    struct Point d = {29, 31, 37};
+    const struct Point a[] = {{2, 3, 5}, b, {17, 19, 23}, d};
+
+    assert a[0].x == 2;
+    assert a[0].y == 3;
+    assert a[0].z == 5;
+
+    assert a[1].x == 7;
+    assert a[1].y == 11;
+    assert a[1].z == 13;
+
+    assert a[2].x == 17;
+    assert a[2].y == 19;
+    assert a[2].z == 23;
+
+    assert a[3].x == 29;
+    assert a[3].y == 31;
+    assert a[3].z == 37;
+
+    return 0;
+}
+""")
+    }
+
     @Test fun passFunctionPointer() {
         run("""
 int twice(int (*f)(int x), int x)

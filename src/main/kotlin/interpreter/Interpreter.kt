@@ -66,8 +66,9 @@ class Interpreter(program: String) {
         ++stackDepth
         try {
             memory.functionScoped(stackFrameType) {
+                val segment = memory.currentStackFrame()
                 for ((param, arg) in parameters.zip(arguments)) {
-                    memory.currentStackFrame()[param.offset] = param.type.cast(arg)
+                    param.type.cast(arg).store(segment, param.offset)
                 }
                 after?.invoke()
 
@@ -144,8 +145,7 @@ class Interpreter(program: String) {
                 } else {
                     targetType = type
                     val value = type.cast(init.expression.evaluate())
-                    segment[start] = value
-                    start + 1
+                    value.store(segment, start)
                 }
             }
             is InitializerList -> {
@@ -458,7 +458,8 @@ class Interpreter(program: String) {
                 targetType = left.type
                 val value = left.type.cast(right.evaluate())
                 val obj = left.locate()
-                obj.assign(value)
+                obj.preventSentinelAccess()
+                value.store(obj.segment, obj.offset)
                 value
             }
             is PlusAssignment -> {

@@ -31,7 +31,9 @@ class Segment(val type: Type) {
         checkAlive()
         if (readOnlyErrorMessage != null) throw AssertionError(readOnlyErrorMessage)
         val oldValue = memory[offset]
-        assert(oldValue === IndeterminateValue || oldValue.type() == newValue.type())
+        assert(oldValue === IndeterminateValue || oldValue.type() == newValue.type()) {
+            "$oldValue === $IndeterminateValue || ${oldValue.type()} == ${newValue.type()}"
+        }
         memory[offset] = newValue
     }
 

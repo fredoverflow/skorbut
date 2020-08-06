@@ -35,14 +35,22 @@ data class Object(val segment: Segment, val offset: Int, val type: Type, val ind
     }
 
     fun evaluate(): Value {
-        return if (type is ArrayType) {
-            // array-to-pointer decay
-            PointerValue(copy(type = type.elementType, index = 0, bound = type.length))
-        } else {
-            preventSentinelAccess()
-            val result = segment[offset]
-            if (result == IndeterminateValue) throw AssertionError("read from uninitialized variable")
-            result
+        val type = this.type.unqualified()
+        return when (type) {
+            is ArrayType -> {
+                // array-to-pointer decay
+                PointerValue(copy(type = type.elementType, index = 0, bound = type.length))
+            }
+            is StructType -> {
+                // structs are not values, they must be preserved as objects
+                StructPseudoValue(this)
+            }
+            else -> {
+                preventSentinelAccess()
+                val result = segment[offset]
+                if (result == IndeterminateValue) throw AssertionError("read from uninitialized variable")
+                result
+            }
         }
     }
 
@@ -58,6 +66,11 @@ interface Value {
     fun show(): String
 
     fun decayed(): Value = this
+
+    fun store(segment: Segment, offset: Int): Int {
+        segment[offset] = this
+        return offset + 1
+    }
 
     companion object {
         fun signedChar(x: Int): ArithmeticValue = ArithmeticValue(x.toDouble(), SignedCharType)
@@ -146,4 +159,18 @@ object IndeterminateValue : Value {
     override fun type(): Type = throw AssertionError("indeterminate value has no type")
 
     override fun show(): String = ""
+}
+
+data class StructPseudoValue(val struct: Object) : Value {
+    override fun type(): Type = struct.type
+
+    override fun show(): String = "SPV"
+
+    override fun store(segment: Segment, offset: Int): Int {
+        val count = struct.type.count()
+        for (i in 0 until count) {
+            segment[offset + i] = struct.segment[struct.offset + i]
+        }
+        return offset + count
+    }
 }

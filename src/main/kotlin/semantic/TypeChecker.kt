@@ -224,6 +224,10 @@ class TypeChecker(translationUnit: TranslationUnit) {
         val functionType = namedDeclarator.typeCheck(specifiers.typeCheckNoStorageClass()) as FunctionType
         functionType.defined = true
         currentReturnType = functionType.returnType
+        if (currentReturnType is StructType) {
+            // What is the lifetime of a returned struct?
+            namedDeclarator.name.error("structs cannot be returned yet")
+        }
         currentStackFrameSymbols = ArrayList()
         symbolTable.scoped {
             for (parameter in parameters) {
