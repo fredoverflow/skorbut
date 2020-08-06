@@ -846,7 +846,7 @@ class TypeChecker(translationUnit: TranslationUnit) {
         }
     }
 
-    fun validateType(name: Token, type: Type) {
+    private fun validateType(name: Token, type: Type) {
         if (!type.isComplete()) name.error("incomplete type $type")
         when (type) {
             is ArrayType -> validateType(name, type.elementType)
