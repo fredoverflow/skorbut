@@ -600,6 +600,19 @@ int main()
 """)
     }
 
+    @Test fun plusAssignmentConst() {
+        run("""
+int main()
+{
+    int a = 1;
+    const int b = 2;
+    a += b; // failed to typecheck
+    assert(a == 3);
+    return 0;
+}
+""")
+    }
+
     @Test fun bitwiseAnd() {
         run("""
 int main()

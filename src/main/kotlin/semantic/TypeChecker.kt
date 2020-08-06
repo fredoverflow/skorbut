@@ -790,7 +790,7 @@ class TypeChecker(translationUnit: TranslationUnit) {
         val leftType = left.typeCheck()
         if (leftType.isConst()) operator.error("assignment to const")
         checkLocator(operator, left)
-        val rightType = right.typeCheck()
+        val rightType = right.typeCheck().decayed()
         if ((leftType is ArithmeticType) && (rightType is ArithmeticType)) {
             return leftType
         } else if ((leftType is PointerType) && (rightType is ArithmeticType)) {
