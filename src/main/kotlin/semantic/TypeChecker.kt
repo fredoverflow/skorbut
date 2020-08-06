@@ -842,7 +842,11 @@ class TypeChecker(translationUnit: TranslationUnit) {
 
     private fun checkAssignmentCompatible(left: Type, operator: Token, right: Type) {
         if (!left.canCastFrom(right)) {
-            operator.error("$right cannot be converted to $left")
+            if (left == right) {
+                operator.error("$right cannot be copied")
+            } else {
+                operator.error("$right cannot be converted to $left")
+            }
         }
     }
 
