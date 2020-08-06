@@ -22,7 +22,7 @@ data class Object(val segment: Segment, val offset: Int, val type: Type, val ind
     operator fun minus(delta: Int): Object = copy(offset = offset - delta * type.count(), index = index - delta)
 
     fun preventSentinelAccess() {
-        if (isSentinel()) throw AssertionError("sentinel element access")
+        if (isSentinel()) throw AssertionError("index $index out of bounds $bound")
     }
 
     fun checkReferable(): Object {
