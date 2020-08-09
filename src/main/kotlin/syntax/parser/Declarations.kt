@@ -23,7 +23,14 @@ fun Parser.declare(namedDeclarator: NamedDeclarator, isTypedefName: Boolean) {
 }
 
 fun Parser.isTypedefName(token: Token): Boolean {
-    return symbolTable.lookup(token)?.type === MarkerIsTypedefName
+    val symbol = symbolTable.lookup(token)
+    if (symbol == null) {
+        val taggedSymbol = symbolTable.lookup(token.tagged())
+        if (taggedSymbol != null) {
+            token.error("Did you forget struct/enum/union before ${token.text}?")
+        }
+    }
+    return symbol?.type === MarkerIsTypedefName
 }
 
 fun Parser.isDeclarationSpecifier(token: Token): Boolean = when (token.kind) {
@@ -38,7 +45,7 @@ fun Parser.isDeclarationSpecifier(token: Token): Boolean = when (token.kind) {
 }
 
 fun Parser.declaration(): Statement {
-    val specifiers = declarationSpecifiers1()
+    val specifiers = declarationSpecifiers1declareDefTagName()
     val isTypedef = specifiers.storageClass == TYPEDEF
     val declarators = commaSeparatedList0(SEMICOLON) {
         initDeclarator().apply { declare(this, isTypedef) }
@@ -46,9 +53,26 @@ fun Parser.declaration(): Statement {
     return Declaration(specifiers, declarators).semicolon()
 }
 
+fun Parser.declarationSpecifiers1declareDefTagName(): DeclarationSpecifiers {
+    val specifiers = declarationSpecifiers1()
+    specifiers.defTagName()?.let { name ->
+        symbolTable.declare(name, MarkerNotTypedefName, 0)
+    }
+    return specifiers
+}
+
 fun Parser.declarationSpecifiers1(): DeclarationSpecifiers {
     val specifiers = declarationSpecifiers0()
-    if (specifiers.list.isEmpty()) illegalStartOf("declaration")
+    if (specifiers.list.isEmpty()) {
+        val symbol = symbolTable.lookup(token)
+        if (symbol != null) {
+            val taggedSymbol = symbolTable.lookup(token.tagged())
+            if (taggedSymbol != null) {
+                token.error("Did you forget struct/enum/union before ${token.text}?")
+            }
+        }
+        illegalStartOf("declaration")
+    }
     return specifiers
 }
 
@@ -216,7 +240,7 @@ fun Parser.declaratorFunction(): List<FunctionParameter> {
                 next()
             }
             commaSeparatedList0(CLOSING_PAREN) {
-                val specifiers = declarationSpecifiers1()
+                val specifiers = declarationSpecifiers1declareDefTagName()
                 val declarator = parameterDeclarator()
                 if (declarator.name.wasProvided()) {
                     declare(declarator, isTypedefName = false)

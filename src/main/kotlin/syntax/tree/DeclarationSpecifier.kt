@@ -81,6 +81,22 @@ class DeclarationSpecifiers(val list: List<DeclarationSpecifier>,
     }
 
     override fun toString(): String = list.joinToString(" ")
+
+    fun defTagName(): Token? {
+        when (typeTokens.first()) {
+            ENUM -> list.forEach { if (it is DeclarationSpecifier.EnumDef && it.name.wasProvided()) return it.name }
+            STRUCT -> list.forEach { if (it is DeclarationSpecifier.StructDef && it.name.wasProvided()) return it.name }
+        }
+        return null
+    }
+
+    fun isDeclaratorOptional(): Boolean {
+        return (storageClass != TokenKind.TYPEDEF) && when (typeTokens.first()) {
+            ENUM -> true
+            STRUCT -> list.any { it is DeclarationSpecifier.StructDef && it.name.wasProvided() }
+            else -> false
+        }
+    }
 }
 
 class Enumerator(val name: Token, val init: Expression?) : Node() {
