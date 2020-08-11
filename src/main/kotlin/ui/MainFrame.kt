@@ -50,6 +50,7 @@ class MainFrame : JFrame() {
     private val controls = JPanel()
 
     private var targetStackDepth = Int.MAX_VALUE
+    private var lastReceivedPosition = 0
 
     init {
         title = editor.autosaver.pathname
@@ -377,6 +378,7 @@ class MainFrame : JFrame() {
     }
 
     private fun pauseAt(position: Int) {
+        lastReceivedPosition = position
         val entry = if (interpreter.stackDepth <= targetStackDepth) {
             // Step into mode
             SwingUtilities.invokeLater {
@@ -411,6 +413,7 @@ class MainFrame : JFrame() {
             try {
                 memoryUI.active = true
                 targetStackDepth = Int.MAX_VALUE
+                lastReceivedPosition = 0
                 interpreter.run()
             } catch (stop: StopTheProgram) {
                 memoryUI.active = false
@@ -423,6 +426,7 @@ class MainFrame : JFrame() {
             } catch (other: Throwable) {
                 memoryUI.active = false
                 SwingUtilities.invokeLater {
+                    editor.setCursorTo(lastReceivedPosition)
                     other.printStackTrace()
                     JOptionPane.showMessageDialog(this, other.message, "Throwable", JOptionPane.ERROR_MESSAGE)
                 }
