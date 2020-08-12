@@ -87,4 +87,10 @@ class AutocompletionTest {
         val actual = autocompleteIdentifier("void baz(); void bar() { baz(); } void baz() { bar(); } void foo() { b")
         assertEquals(listOf("a"), actual)
     }
+
+    @Test
+    fun enumerationConstant() {
+        val actual = autocompleteIdentifier("enum { WORD_SIZE = sizeof W")
+        assertEquals(listOf("ORD_SIZE"), actual)
+    }
 }

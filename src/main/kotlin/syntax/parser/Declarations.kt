@@ -153,7 +153,9 @@ fun Parser.enumSpecifier(): DeclarationSpecifier {
 fun Parser.enumBody(): List<Enumerator> {
     return braced {
         commaSeparatedList1 {
-            Enumerator(expect(IDENTIFIER), optional(EQUAL, ::assignmentExpression))
+            Enumerator(expect(IDENTIFIER), optional(EQUAL, ::assignmentExpression)).apply {
+                symbolTable.declare(name, MarkerNotTypedefName, 0)
+            }
         }
     }
 }
