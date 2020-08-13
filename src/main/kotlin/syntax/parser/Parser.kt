@@ -1,6 +1,7 @@
 package syntax.parser
 
 import common.Diagnostic
+import freditor.persistent.HamtSet
 import semantic.SymbolTable
 import syntax.lexer.Lexer
 import syntax.lexer.Token
@@ -9,6 +10,9 @@ import syntax.lexer.TokenKind.*
 import syntax.lexer.nextToken
 
 class Parser(private val lexer: Lexer) {
+    var beforePrevious: Token = Token(END_OF_INPUT, 0, "", "")
+        private set
+
     var previous: Token = Token(END_OF_INPUT, 0, "", "")
         private set
 
@@ -22,6 +26,7 @@ class Parser(private val lexer: Lexer) {
         private set
 
     fun next(): TokenKind {
+        beforePrevious = previous
         previous = token
         token = lookahead
         current = token.kind
@@ -148,4 +153,5 @@ class Parser(private val lexer: Lexer) {
     }
 
     val symbolTable = SymbolTable()
+    var allMemberNames: HamtSet<String> = HamtSet.empty()
 }

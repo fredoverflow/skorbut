@@ -178,7 +178,9 @@ fun Parser.structSpecifier(): DeclarationSpecifier {
 fun Parser.structBody(): List<StructDeclaration> {
     return braced {
         list1Until(CLOSING_BRACE) {
-            StructDeclaration(declarationSpecifiers1(), commaSeparatedList1(::namedDeclarator)).semicolon()
+            StructDeclaration(declarationSpecifiers1(), commaSeparatedList1 {
+                namedDeclarator().apply { allMemberNames = allMemberNames.put(name.text) }
+            }).semicolon()
         }
     }
 }

@@ -23,10 +23,25 @@ private fun Parser.fittingSuffixes(textBeforeSelection: String): List<String> {
         if (diagnostic.position != textBeforeSelection.length) throw diagnostic
 
         if (previous.kind == TokenKind.IDENTIFIER && previous.end == textBeforeSelection.length) {
-            return suffixesInSymbolTable()
+            return when (beforePrevious.kind) {
+                TokenKind.DOT, TokenKind.HYPHEN_MORE -> suffixesInAllMemberNames()
+                else -> suffixesInSymbolTable()
+            }
         }
     }
     return emptyList()
+}
+
+private fun Parser.suffixesInAllMemberNames(): List<String> {
+    val suffixes = HashSet<String>()
+    val prefix = previous.text
+    val prefixLength = prefix.length
+    allMemberNames.forEach { text ->
+        if (text.length > prefixLength && text.startsWith(prefix)) {
+            suffixes.add(text.substring(prefixLength))
+        }
+    }
+    return suffixes.toList()
 }
 
 private fun Parser.suffixesInSymbolTable(): List<String> {
