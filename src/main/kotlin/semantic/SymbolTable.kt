@@ -14,7 +14,9 @@ class SymbolTable {
     private val scopes = Array(128) { StringedValueMap.empty<Symbol>() }
     private var current = 0
 
-    fun atGlobalScope(): Boolean = current == 0
+    fun atGlobalScope(): Boolean {
+        return current == 0
+    }
 
     fun openScope() {
         scopes[++current] = StringedValueMap.empty()
@@ -90,5 +92,15 @@ class SymbolTable {
         val vocabulary = ArrayList<String>()
         forEach { vocabulary.add(it.name.text) }
         return Levenshtein.bestMatches(name.text, vocabulary)
+    }
+
+    fun symbols(): Sequence<Symbol> = sequence {
+        for (i in current downTo 0) {
+            yieldAll(scopes[i])
+        }
+    }
+
+    fun names(): Sequence<String> {
+        return symbols().map(Symbol::toString)
     }
 }

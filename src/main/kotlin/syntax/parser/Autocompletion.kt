@@ -24,43 +24,28 @@ private fun Parser.fittingSuffixes(textBeforeSelection: String): List<String> {
 
         if (previous.kind == TokenKind.IDENTIFIER && previous.end == textBeforeSelection.length) {
             return when (beforePrevious.kind) {
-                TokenKind.DOT, TokenKind.HYPHEN_MORE -> suffixesInAllMemberNames()
-                else -> suffixesInSymbolTable()
+                TokenKind.DOT, TokenKind.HYPHEN_MORE -> suffixesIn(allMemberNames.asSequence())
+                else -> suffixesIn(symbolTable.names())
             }
         }
     }
     return emptyList()
 }
 
-private fun Parser.suffixesInAllMemberNames(): List<String> {
-    val suffixes = HashSet<String>()
+private fun Parser.suffixesIn(names: Sequence<String>): List<String> {
     val prefix = previous.text
     val prefixLength = prefix.length
-    allMemberNames.forEach { text ->
-        if (text.length > prefixLength && text.startsWith(prefix)) {
-            suffixes.add(text.substring(prefixLength))
-        }
-    }
-    return suffixes.toList()
-}
 
-private fun Parser.suffixesInSymbolTable(): List<String> {
-    val suffixes = HashSet<String>()
-    val prefix = previous.text
-    val prefixLength = prefix.length
-    symbolTable.forEach { symbol ->
-        val text = symbol.name.text
-        if (text.length > prefixLength && text.startsWith(prefix)) {
-            suffixes.add(text.substring(prefixLength))
-        }
-    }
-    return suffixes.toList()
+    return names
+            .filter { it.length > prefixLength && it.startsWith(prefix) }
+            .map { it.substring(prefixLength) }
+            .toList()
 }
 
 private fun longestCommonPrefix(strings: List<String>): String {
     val shortestString = strings.minBy(String::length) ?: ""
     shortestString.forEachIndexed { index, ch ->
-        if (!strings.all { command -> command[index] == ch }) {
+        if (!strings.all { it[index] == ch }) {
             return shortestString.substring(0, index)
         }
     }
