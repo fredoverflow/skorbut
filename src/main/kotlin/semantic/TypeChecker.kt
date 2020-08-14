@@ -1,5 +1,6 @@
 package semantic
 
+import freditor.Levenshtein
 import interpreter.*
 import semantic.types.*
 import syntax.lexer.Token
@@ -481,7 +482,7 @@ class TypeChecker(translationUnit: TranslationUnit) {
                     if (functionToken != null && functionToken.start > name.start) {
                         name.error("functions must be declared before use", functionToken)
                     }
-                    val bestMatches = symbolTable.bestMatches(name)
+                    val bestMatches = Levenshtein.bestMatches(name.text, symbolTable.names().asIterable())
                     if (bestMatches.size == 1) {
                         val bestMatch = bestMatches.first()
                         val prefix = bestMatch.commonPrefixWith(name.text)

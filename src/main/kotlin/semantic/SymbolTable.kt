@@ -1,6 +1,5 @@
 package semantic
 
-import freditor.Levenshtein
 import freditor.persistent.StringedValueMap
 import semantic.types.FunctionType
 import semantic.types.Type
@@ -80,18 +79,6 @@ class SymbolTable {
             scopes[index] = scopes[index].put(symbol)
             return symbol
         }
-    }
-
-    fun forEach(action: (Symbol) -> Unit) {
-        for (i in current downTo 0) {
-            scopes[i].forEach(action)
-        }
-    }
-
-    fun bestMatches(name: Token): List<String> {
-        val vocabulary = ArrayList<String>()
-        forEach { vocabulary.add(it.name.text) }
-        return Levenshtein.bestMatches(name.text, vocabulary)
     }
 
     fun symbols(): Sequence<Symbol> = sequence {
