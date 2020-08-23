@@ -122,7 +122,7 @@ class BuildControlFlowGraph(function: FunctionDefinition) {
                 val done = generateLabel()
 
                 @Suppress("NAME_SHADOWING")
-                val state = state.openSwitch(control.type as ArithmeticType, breakTarget = done)
+                val state = state.openSwitch(control.type.unqualified() as ArithmeticType, breakTarget = done)
 
                 add(SwitchPlaceholder)
                 val basicBlock = currentBasicBlock
@@ -137,7 +137,7 @@ class BuildControlFlowGraph(function: FunctionDefinition) {
                 }
                 val caseLabel = generateLabel()
                 insertLabel(caseLabel)
-                val previous = state.cases.put(state.switchControlType.cast(choice.value as ArithmeticValue), caseLabel)
+                val previous = state.cases.put(state.switchControlType.integralPromotions().cast(choice.value as ArithmeticValue), caseLabel)
                 if (previous != null) {
                     case.error("duplicate case label")
                 }

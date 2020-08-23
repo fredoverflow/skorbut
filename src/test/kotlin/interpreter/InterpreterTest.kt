@@ -2619,4 +2619,33 @@ int main()
 }
 """)
     }
+
+    @Test fun switchCharCaseInt() {
+        run("""
+int main()
+{
+    const char x = 'A';
+    switch (x)
+    {
+        case 65: break;
+        default: assert 0;
+    }
+    return 0;
+}
+""")
+    }
+
+    @Test fun switchUnsignedCaseInt() {
+        run("""
+int main()
+{
+    switch (0xffffffff)
+    {
+        case -1: break;
+        default: assert 0;
+    }
+    return 0;
+}
+""")
+    }
 }

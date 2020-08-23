@@ -86,7 +86,7 @@ class Interpreter(program: String) {
                                 pc = 0
                             }
                             is HashSwitch -> {
-                                basicBlock = controlFlowGraph[cases[control.delayed()] ?: default]!!.getStatements()
+                                basicBlock = controlFlowGraph[cases[(control.delayed() as ArithmeticValue).integralPromotions()] ?: default]!!.getStatements()
                                 pc = 0
                             }
                             is FlatDeclaration -> {

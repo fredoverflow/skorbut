@@ -269,7 +269,7 @@ class TypeChecker(translationUnit: TranslationUnit) {
                 e1se?.typeCheck()
             }
             is Switch -> {
-                control.typeCheck().let {
+                control.typeCheck().unqualified().let {
                     if (it !is ArithmeticType || !it.isIntegral()) {
                         switch.error("switch control expression must be of integral type")
                     }
