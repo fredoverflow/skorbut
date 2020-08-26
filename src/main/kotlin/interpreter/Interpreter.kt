@@ -10,6 +10,7 @@ import syntax.parser.Parser
 import syntax.parser.translationUnit
 import syntax.tree.*
 import kotlin.math.floor
+import kotlin.math.pow
 
 fun FunctionDefinition.returnType(): Type = (namedDeclarator.type as FunctionType).returnType
 
@@ -279,6 +280,11 @@ class Interpreter(program: String) {
                     return definition.returnType().cast(result)
                 }
                 when (name.text) {
+                    "pow" -> {
+                        val base = (arguments[0].evaluate() as ArithmeticValue).value
+                        val exponent = (arguments[1].evaluate() as ArithmeticValue).value
+                        return ArithmeticValue(base.pow(exponent), DoubleType)
+                    }
                     "time" -> {
                         return ArithmeticValue(floor(System.currentTimeMillis() / 1000.0), UnsignedIntType)
                     }

@@ -24,6 +24,7 @@ class TypeChecker(translationUnit: TranslationUnit) {
     private var currentStackFrameSymbols = ArrayList<Symbol>()
 
     init {
+        declare(fakeIdentifier("pow"), FunctionType.binary(DoubleType, DoubleType, DoubleType))
         declare(fakeIdentifier("time"), FunctionType.unary(SignedIntType, UnsignedIntType))
 
         declare(fakeIdentifier("puts"), FunctionType.unary(PointerType(Const(SignedCharType)), VoidType))
