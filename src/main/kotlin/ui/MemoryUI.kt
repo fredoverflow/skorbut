@@ -62,7 +62,12 @@ class MemoryUI(var memory: Memory) : JPanel() {
         val axis = BoxLayout.Y_AXIS
         cells.layout = BoxLayout(cells, axis)
         for (symbol in type.members) {
-            cells.add(objectComponent(symbol.name.text, symbol.type))
+            val name = symbol.name.text
+            if (!name.startsWith('_')) {
+                cells.add(objectComponent(name, symbol.type))
+            } else {
+                valueIndex += symbol.type.count()
+            }
         }
         return cells
     }
