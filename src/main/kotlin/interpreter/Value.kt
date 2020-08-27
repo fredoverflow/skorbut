@@ -168,9 +168,7 @@ data class StructPseudoValue(val struct: Object) : Value {
 
     override fun store(segment: Segment, offset: Int): Int {
         val count = struct.type.count()
-        for (i in 0 until count) {
-            segment[offset + i] = struct.segment[struct.offset + i]
-        }
+        segment.replace(offset, count, struct.segment, struct.offset)
         return offset + count
     }
 }

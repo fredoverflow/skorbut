@@ -40,4 +40,15 @@ class Segment(val type: Type) {
     operator fun set(obj: Object, newValue: Value) {
         set(obj.offset, newValue)
     }
+
+    fun replace(offset: Int, count: Int, source: Segment, sourceOffset: Int) {
+        checkAlive()
+        if (readOnlyErrorMessage != null) throw AssertionError(readOnlyErrorMessage)
+        source.checkAlive()
+
+        val sourceMemory = source.memory
+        for (i in 0 until count) {
+            memory[offset + i] = sourceMemory[sourceOffset + i]
+        }
+    }
 }
