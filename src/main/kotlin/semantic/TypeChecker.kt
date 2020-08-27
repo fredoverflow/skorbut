@@ -635,12 +635,16 @@ class TypeChecker(translationUnit: TranslationUnit) {
             }
             is SizeofType -> {
                 operandType = declarator.type(specifiers.typeCheckNoStorageClass())
-                value = Value.unsignedInt(operandType.sizeof())
+                val size = operandType.sizeof()
+                if (size == 0) operator.error("sizeof requires object type")
+                value = Value.unsignedInt(size)
                 UnsignedIntType
             }
             is SizeofExpression -> {
                 sizeofContext { operand.typeCheck() }
-                value = Value.unsignedInt(operand.type.sizeof())
+                val size = operand.type.sizeof()
+                if (size == 0) operator.error("sizeof requires object type")
+                value = Value.unsignedInt(size)
                 UnsignedIntType
             }
             is Multiplicative -> {
