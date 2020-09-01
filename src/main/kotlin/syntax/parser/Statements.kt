@@ -23,7 +23,7 @@ fun Parser.statement(): Statement = when (current) {
     GOTO -> Goto(accept(), expect(IDENTIFIER)).semicolon()
     CONTINUE -> Continue(accept()).semicolon()
     BREAK -> Break(accept()).semicolon()
-    RETURN -> Return(accept(), expression()).semicolon()
+    RETURN -> Return(accept(), ::expression optionalBefore SEMICOLON)
     ASSERT -> Assert(accept(), expression()).semicolon()
 
     TYPEDEF, EXTERN, STATIC, AUTO, REGISTER, CONST, VOLATILE,

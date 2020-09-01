@@ -315,7 +315,11 @@ class TypeChecker(translationUnit: TranslationUnit) {
             is Break -> {
             }
             is Return -> {
-                checkAssignmentCompatible(currentReturnType, result.root(), result.typeCheck())
+                if (result == null) {
+                    if (currentReturnType !== VoidType) r3turn.error("missing return value")
+                } else {
+                    checkAssignmentCompatible(currentReturnType, result.root(), result.typeCheck())
+                }
             }
             is Assert -> {
                 if (condition is Assignment) condition.root().error("= is assignment, did you mean == instead?")

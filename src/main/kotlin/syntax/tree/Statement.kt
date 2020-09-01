@@ -105,9 +105,9 @@ class Break(val br3ak: Token) : Statement() {
     override fun root(): Token = br3ak
 }
 
-class Return(val r3turn: Token, val result: Expression) : Statement() {
+class Return(val r3turn: Token, val result: Expression?) : Statement() {
     override fun forEachChild(action: (Node) -> Unit) {
-        action(result)
+        result?.run(action)
     }
 
     override fun root(): Token = r3turn

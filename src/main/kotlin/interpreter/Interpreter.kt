@@ -105,7 +105,12 @@ class Interpreter(program: String) {
                                 expression.delayed()
                             }
                             is FlatReturn -> {
-                                return result.delayed()
+                                if (result == null) {
+                                    before?.invoke(r3turn.start)
+                                    after?.invoke()
+                                } else {
+                                    return result.delayed()
+                                }
                             }
                             is FlatAssert -> {
                                 if (!condition.delayedCondition()) condition.root().error("assertion failed")

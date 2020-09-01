@@ -246,7 +246,7 @@ class BuildControlFlowGraph(function: FunctionDefinition) {
                 add(Jump(state.breakTarget))
             }
             is Return -> {
-                add(FlatReturn(result))
+                add(FlatReturn(r3turn, result))
             }
             is Assert -> {
                 add(FlatAssert(condition))

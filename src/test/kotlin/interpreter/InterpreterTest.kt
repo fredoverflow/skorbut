@@ -2648,4 +2648,39 @@ int main()
 }
 """)
     }
+
+    @Test fun returnEarlyFromVoidFunction() {
+        run("""
+int lastSign;
+
+void setSign(int x)
+{
+    if (x < 0)
+    {
+        lastSign = -1;
+        return;
+    }
+    if (x > 0)
+    {
+        lastSign = +1;
+        return;
+    }
+    lastSign = 0;
+}
+
+int sign(int x)
+{
+    setSign(x);
+    return lastSign;
+}
+
+int main()
+{
+    assert sign(-42) == -1;
+    assert sign(0) == 0;
+    assert sign(+42) == +1;
+    return 0;
+}
+""")
+    }
 }

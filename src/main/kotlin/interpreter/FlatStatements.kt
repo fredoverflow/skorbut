@@ -1,5 +1,6 @@
 package interpreter
 
+import syntax.lexer.Token
 import syntax.tree.DeclarationSpecifiers
 import syntax.tree.Expression
 import syntax.tree.NamedDeclarator
@@ -61,7 +62,7 @@ class FlatExpressionStatement(val expression: Expression) : FlatStatement() {
     override fun toString(): String = "$expression ;"
 }
 
-class FlatReturn(val result: Expression) : FlatStatement() {
+class FlatReturn(val r3turn: Token, val result: Expression?) : FlatStatement() {
     override fun toString(): String = "return $result"
 
     override fun transfersControl(): Boolean = true
