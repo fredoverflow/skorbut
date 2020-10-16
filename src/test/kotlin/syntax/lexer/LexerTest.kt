@@ -13,7 +13,7 @@ class LexerTest {
 
     @Test
     fun identifiers() {
-        lexer = Lexer("a z a0 z9 a_z foo _bar the_quick_brown_fox_jumped_over_the_lazy_dog THE_QUICK_BROWN_FOX_JUMPED_OVER_THE_LAZY_DOG")
+        lexer = Lexer("a z a0 z9 a_z foo _bar the_quick_brown_fox_jumps_over_the_lazy_dog THE_QUICK_BROWN_FOX_JUMPS_OVER_THE_LAZY_DOG")
 
         expectIdentifier("a")
         expectIdentifier("z")
@@ -22,8 +22,8 @@ class LexerTest {
         expectIdentifier("a_z")
         expectIdentifier("foo")
         expectIdentifier("_bar")
-        expectIdentifier("the_quick_brown_fox_jumped_over_the_lazy_dog")
-        expectIdentifier("THE_QUICK_BROWN_FOX_JUMPED_OVER_THE_LAZY_DOG")
+        expectIdentifier("the_quick_brown_fox_jumps_over_the_lazy_dog")
+        expectIdentifier("THE_QUICK_BROWN_FOX_JUMPS_OVER_THE_LAZY_DOG")
     }
 
     @Test
