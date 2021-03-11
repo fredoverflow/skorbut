@@ -423,17 +423,13 @@ class Interpreter(program: String) {
                 val left = left.evaluate()
                 val right = right.evaluate()
                 if (left is PointerValue && right is PointerValue) {
-                    left.referenced.checkReferable()
-                    right.referenced.checkReferable()
-                    val a = left.referenced.offset
-                    val b = right.referenced.offset
                     Value.truth(when (operator.kind) {
-                        LESS -> a < b
-                        MORE -> a > b
-                        LESS_EQUAL -> a <= b
-                        MORE_EQUAL -> a >= b
-                        EQUAL_EQUAL -> a == b
-                        BANG_EQUAL -> a != b
+                        LESS -> left.less(right)
+                        MORE -> right.less(left)
+                        LESS_EQUAL -> !right.less(left)
+                        MORE_EQUAL -> !left.less(right)
+                        EQUAL_EQUAL -> left.equal(right)
+                        BANG_EQUAL -> !left.equal(right)
                         else -> error("no evaluate for $this")
                     })
                 } else {

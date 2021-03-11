@@ -2683,4 +2683,19 @@ int main()
 }
 """)
     }
+
+    @Test fun sameOffsetInDifferentSegments() {
+        run("""
+int main()
+{
+    int * a = malloc(sizeof(int));
+    int * b = malloc(sizeof(int));
+    assert a != b;
+    assert !(a == b);
+    free(a);
+    free(b);
+    return 0;
+}
+""")
+    }
 }

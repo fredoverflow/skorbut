@@ -139,6 +139,16 @@ data class PointerValue(val referenced: Object) : Value {
         if (referenced.segment != base.referenced.segment) throw AssertionError("subtract across segments")
         return (referenced.offset - base.referenced.offset) / referenced.type.count()
     }
+
+    infix fun equal(that: PointerValue): Boolean {
+        return this.referenced.segment === that.referenced.segment &&
+                this.referenced.offset == that.referenced.offset
+    }
+
+    infix fun less(that: PointerValue): Boolean {
+        if (this.referenced.segment !== that.referenced.segment) throw AssertionError("compare across segments")
+        return this.referenced.offset < that.referenced.offset
+    }
 }
 
 data class FunctionDesignator(val functionName: Token, val functionType: FunctionType) : Value {
