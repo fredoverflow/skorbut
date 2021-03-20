@@ -1,7 +1,7 @@
 package ui
 
 import common.Counter
-import freditor.Front
+import freditor.Fronts
 import interpreter.Memory
 import interpreter.PointerValue
 import interpreter.Segment
@@ -42,7 +42,7 @@ class MemoryUI(var memory: Memory) : JPanel() {
             else -> scalarComponent()
         }
         component.alignmentX = Component.LEFT_ALIGNMENT
-        component.border = CompoundBorder(emptyBorder, TitledBorder(lineBorder, title, TitledBorder.LEADING, TitledBorder.DEFAULT_POSITION, Front.sansSerif))
+        component.border = CompoundBorder(emptyBorder, TitledBorder(lineBorder, title, TitledBorder.LEADING, TitledBorder.DEFAULT_POSITION, Fronts.sansSerif))
         objects[this]!![address][type] = component
         return component
     }
@@ -75,7 +75,7 @@ class MemoryUI(var memory: Memory) : JPanel() {
     private fun Segment.scalarComponent(): JComponent {
         val value = this[valueIndex++]
         val scalar = JLabel(" %3s ".format(value.show()))
-        scalar.font = Front.monospaced
+        scalar.font = Fronts.monospaced
         if (value is PointerValue && value.referenced.isReferable()) {
             pointers[scalar] = value
         }

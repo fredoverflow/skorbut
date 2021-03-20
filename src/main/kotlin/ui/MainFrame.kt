@@ -1,7 +1,7 @@
 package ui
 
 import common.Diagnostic
-import freditor.Front
+import freditor.Fronts
 import freditor.LineNumbers
 import interpreter.Interpreter
 import semantic.Linter
@@ -58,7 +58,7 @@ class MainFrame : JFrame() {
         val scrolledMemory = JScrollPane(memoryUI)
         scrolledMemory.preferredSize = Dimension(500, 500)
 
-        syntaxTree.font = Front.sansSerif
+        syntaxTree.font = Fronts.sansSerif
         val scrolledSyntaxTree = JScrollPane(syntaxTree)
         scrolledSyntaxTree.preferredSize = Dimension(500, 500)
 
@@ -97,7 +97,7 @@ class MainFrame : JFrame() {
         diagnosticsPanel.layout = BorderLayout()
         diagnosticsPanel.add(scrolledDiagnostics)
 
-        consoleUI.font = Front.monospaced
+        consoleUI.font = Fronts.monospaced
         consoleUI.isEditable = false
 
         output.addTab("diagnostics", scrolledDiagnostics)
