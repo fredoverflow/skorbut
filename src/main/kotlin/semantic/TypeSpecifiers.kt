@@ -10,7 +10,7 @@ val storageClasses = TokenKindSet.of(TYPEDEF, EXTERN, STATIC, AUTO, REGISTER)
 
 val typeSpecifierIdentifier = TokenKindSet.of(IDENTIFIER)
 
-val typeSpecifiers = ChampMap.empty<TokenKindSet, Type>()
+val typeSpecifiers: ChampMap<TokenKindSet, Type> = ChampMap.empty<TokenKindSet, Type>()
         .put(TokenKindSet.of(VOID), VoidType)
         .put(TokenKindSet.of(CHAR), SignedCharType)
         .put(TokenKindSet.of(SIGNED, CHAR), SignedCharType)
