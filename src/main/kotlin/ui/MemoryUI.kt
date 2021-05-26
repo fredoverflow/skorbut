@@ -18,6 +18,8 @@ import javax.swing.border.CompoundBorder
 import javax.swing.border.EmptyBorder
 import javax.swing.border.LineBorder
 import javax.swing.border.TitledBorder
+import kotlin.math.pow
+import kotlin.math.sqrt
 
 class MemoryUI(var memory: Memory) : JPanel() {
     init {
@@ -139,7 +141,7 @@ class MemoryUI(var memory: Memory) : JPanel() {
             val targetPos = SwingUtilities.convertPoint(target, 0, 0, this)
             val x1 = sourcePos.x + source.width / 2
             val y1 = sourcePos.y + source.height / 2
-            val x2 = targetPos.x + if (obj.isSentinel()) target.width else lerp(source.width, Math.pow(0.5, place * 0.5), 16)
+            val x2 = targetPos.x + if (obj.isSentinel()) target.width else lerp(source.width, 0.5.pow(place * 0.5), 16)
             var y2 = targetPos.y + 8
             if (y2 < y1) {
                 y2 = targetPos.y + target.height - 8
@@ -163,7 +165,7 @@ class MemoryUI(var memory: Memory) : JPanel() {
 
         deltaX = controlX - x2
         deltaY = controlY - y2
-        val scaleFactor = 8.0 / Math.sqrt((deltaX * deltaX + deltaY * deltaY) * 2)
+        val scaleFactor = 8.0 / sqrt((deltaX * deltaX + deltaY * deltaY) * 2)
         deltaX *= scaleFactor
         deltaY *= scaleFactor
         g2d.draw(Line2D.Double(x2, y2, x2 + (deltaX - deltaY), y2 + (deltaY + deltaX)))

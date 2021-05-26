@@ -8,6 +8,7 @@ import semantic.types.Type
 import syntax.lexer.fakeIdentifier
 import syntax.lexer.missingIdentifier
 import syntax.tree.NamedDeclarator
+import kotlin.math.min
 
 fun Iterable<String>.synthesizeStringConstantsType(): StructType {
     val symbols = ArrayList<Symbol>()
@@ -100,7 +101,7 @@ class Memory(stringLiterals: Iterable<String>, variables: Iterable<NamedDeclarat
     fun realloc(pointer: PointerValue, type: Type): PointerValue {
         val oldSegment = pointer.referenced.segment
         val newSegment = Segment(type)
-        val smallerCount = Math.min(oldSegment.count(), newSegment.count())
+        val smallerCount = min(oldSegment.count(), newSegment.count())
         for (i in 0 until smallerCount) {
             newSegment[i] = oldSegment[i]
         }
@@ -112,7 +113,7 @@ class Memory(stringLiterals: Iterable<String>, variables: Iterable<NamedDeclarat
     fun realloc(pointer: PointerValue, arrayType: ArrayType): PointerValue {
         val oldSegment = pointer.referenced.segment
         val newSegment = Segment(arrayType)
-        val smallerCount = Math.min(oldSegment.count(), newSegment.count())
+        val smallerCount = min(oldSegment.count(), newSegment.count())
         for (i in 0 until smallerCount) {
             newSegment[i] = oldSegment[i]
         }
