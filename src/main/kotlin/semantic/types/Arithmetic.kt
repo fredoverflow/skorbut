@@ -42,7 +42,7 @@ object SignedCharType : ArithmeticType() {
     override fun trim(x: Double): Double {
         if (x < -128.0) throw ArithmeticException("char underflow $x")
         if (x > +127.0) throw ArithmeticException("char overflow $x")
-        return x.toByte().toDouble()
+        return x.toInt().toByte().toDouble()
     }
 
     override fun toString(): String = "char"
@@ -74,7 +74,7 @@ object SignedShortType : ArithmeticType() {
     override fun trim(x: Double): Double {
         if (x < -32768.0) throw ArithmeticException("short underflow $x")
         if (x > +32767.0) throw ArithmeticException("short overflow $x")
-        return x.toShort().toDouble()
+        return x.toInt().toShort().toDouble()
     }
 
     override fun toString(): String = "short"
