@@ -2698,4 +2698,30 @@ int main()
 }
 """)
     }
+
+    @Test fun strcmp() {
+        run("""
+int main()
+{
+    assert strcmp("apple", "apple") == 0;
+    assert strcmp("apple", "pear") < 0;
+    assert strcmp("pear", "apple") > 0;
+
+    assert strcmp("apple", "ape") > 0;
+    assert strcmp("ape", "apple") < 0;
+
+    assert strcmp("apple", "apply") < 0;
+    assert strcmp("apply", "apple") > 0;
+
+    assert strcmp("apple", "applepie") < 0;
+    assert strcmp("applepie", "apple") > 0;
+
+    assert strcmp("", "") == 0;
+    assert strcmp("", "a") < 0;
+    assert strcmp("a", "") > 0;
+
+    return 0;
+}
+""")
+    }
 }

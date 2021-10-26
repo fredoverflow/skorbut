@@ -27,7 +27,8 @@ class TypeChecker(translationUnit: TranslationUnit) {
         declare(fakeIdentifier("pow"), FunctionType.binary(DoubleType, DoubleType, DoubleType))
         declare(fakeIdentifier("time"), FunctionType.unary(SignedIntType, UnsignedIntType))
 
-        declare(fakeIdentifier("puts"), FunctionType.unary(PointerType(Const(SignedCharType)), VoidType))
+        val constCharPointer = PointerType(Const(SignedCharType))
+        declare(fakeIdentifier("puts"), FunctionType.unary(constCharPointer, VoidType))
         declare(fakeIdentifier("putchar"), FunctionType.unary(SignedIntType, VoidType))
         declare(fakeIdentifier("getchar"), FunctionType.nullary(SignedIntType))
 
@@ -38,6 +39,8 @@ class TypeChecker(translationUnit: TranslationUnit) {
         val predicate = FunctionType.binary(ConstVoidPointerType, ConstVoidPointerType, SignedIntType).pointer()
         declare(fakeIdentifier("qsort"), FunctionType(listOf(VoidPointerType, UnsignedIntType, UnsignedIntType, predicate), VoidType))
         declare(fakeIdentifier("bsearch"), FunctionType(listOf(ConstVoidPointerType, ConstVoidPointerType, UnsignedIntType, UnsignedIntType, predicate), VoidPointerType))
+
+        declare(fakeIdentifier("strcmp"), FunctionType.binary(constCharPointer, constCharPointer, SignedIntType))
 
         translationUnit.externalDeclarations.forEach {
             when (it) {

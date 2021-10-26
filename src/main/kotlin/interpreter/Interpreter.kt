@@ -348,6 +348,11 @@ class Interpreter(program: String) {
                         val comp = arguments[4].evaluate().decayed() as FunctionPointerValue
                         return bsearch(key, base, count, functions[comp.designator.functionName.text]!!)
                     }
+                    "strcmp" -> {
+                        val s = arguments[0].evaluate() as PointerValue
+                        val t = arguments[1].evaluate() as PointerValue
+                        return strcmp(s, t)
+                    }
                     else -> error("undefined function $name")
                 }
             }
@@ -530,6 +535,16 @@ class Interpreter(program: String) {
             }
         }
         return base + count
+    }
+
+    private tailrec fun strcmp(s: PointerValue, t: PointerValue): ArithmeticValue {
+        val c = s.referenced.evaluate() as ArithmeticValue
+        val d = t.referenced.evaluate() as ArithmeticValue
+        return when {
+            (c != d) -> (c - d)
+            (c == Value.NUL) -> Value.ZERO
+            else -> strcmp(s + 1, t + 1)
+        }
     }
 
     fun allocate(function: Expression, size: Expression, one: (Type) -> PointerValue, many: (ArrayType) -> PointerValue): PointerValue {
