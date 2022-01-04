@@ -33,7 +33,7 @@ abstract class ArithmeticType : Type {
 object SignedCharType : ArithmeticType() {
     override fun sizeof(): Int = 1
 
-    override fun show(value: Double): String = value.toChar().quote()
+    override fun show(value: Double): String = value.toInt().toChar().quote()
 
     override val defaultValue: ArithmeticValue = Value.signedChar(0)
 

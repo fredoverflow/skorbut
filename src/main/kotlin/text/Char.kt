@@ -105,5 +105,5 @@ fun Char.quote(): String = when (this) {
     '}' -> "'}'"
     '~' -> "'~'"
 
-    else -> "'\\${Integer.toOctalString(toInt())}'"
+    else -> "'\\${Integer.toOctalString(code)}'"
 }

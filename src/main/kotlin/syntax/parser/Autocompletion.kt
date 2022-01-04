@@ -43,7 +43,7 @@ private fun Parser.suffixesIn(names: Sequence<String>): List<String> {
 }
 
 private fun longestCommonPrefix(strings: List<String>): String {
-    val shortestString = strings.minBy(String::length) ?: ""
+    val shortestString = strings.minByOrNull(String::length) ?: ""
     shortestString.forEachIndexed { index, ch ->
         if (!strings.all { it[index] == ch }) {
             return shortestString.substring(0, index)

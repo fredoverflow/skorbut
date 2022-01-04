@@ -17,7 +17,7 @@ abstract class CompletableType : Type {
 }
 
 class StructType(val name: Token, val members: List<Symbol>) : CompletableType() {
-    override fun sizeof(): Int = members.sumBy { it.type.sizeof() }
+    override fun sizeof(): Int = members.sumOf { it.type.sizeof() }
 
     override fun sizeof(offset: Int): Int {
         var size = 0
@@ -30,7 +30,7 @@ class StructType(val name: Token, val members: List<Symbol>) : CompletableType()
         return size
     }
 
-    override fun count(): Int = members.sumBy { it.type.count() }
+    override fun count(): Int = members.sumOf { it.type.count() }
 
     override fun canCastFromDecayed(source: Type): Boolean = (this === source)
 
