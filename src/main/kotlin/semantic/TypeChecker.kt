@@ -554,11 +554,10 @@ class TypeChecker(translationUnit: TranslationUnit) {
 
                 val parameterTypes = functionType.parameters
                 val nParameters = parameterTypes.size
-                val argumentTypes = arguments.map { it.typeCheck() }
-                val nArguments = argumentTypes.size
+                val nArguments = arguments.size
                 if (nParameters != nArguments) function.root().error("function takes $nParameters arguments, not $nArguments")
-                for ((parameterType, argumentType) in parameterTypes.zip(argumentTypes)) {
-                    checkAssignmentCompatible(parameterType, function.root(), argumentType)
+                for ((parameterType, argument) in parameterTypes.zip(arguments)) {
+                    checkAssignmentCompatible(parameterType, argument.root(), argument.typeCheck())
                 }
                 functionType.returnType
             }
