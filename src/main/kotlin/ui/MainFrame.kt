@@ -195,6 +195,7 @@ class MainFrame : JFrame() {
     private fun listenToButtons() {
         start.addActionListener {
             editor.autosaver.save()
+            editor.clearDiagnostics()
             editor.requestFocusInWindow()
             queue.clear()
             tryCompile(andRun = true)
@@ -248,7 +249,7 @@ class MainFrame : JFrame() {
                 println(suffixes.sorted().joinToString(", "))
             }
         } catch (diagnostic: Diagnostic) {
-            editor.setCursorTo(diagnostic.position)
+            showDiagnostic(diagnostic)
             updateDiagnostics(arrayListOf(diagnostic))
         }
     }
@@ -258,11 +259,11 @@ class MainFrame : JFrame() {
             compile()
             if (andRun) run()
         } catch (diagnostic: Diagnostic) {
-            editor.setCursorTo(diagnostic.position)
+            showDiagnostic(diagnostic)
             updateDiagnostics(arrayListOf(diagnostic))
         } catch (other: Throwable) {
+            showDiagnostic(other.message ?: "null")
             other.printStackTrace()
-            JOptionPane.showMessageDialog(this, other.message, "Throwable", JOptionPane.ERROR_MESSAGE)
         }
     }
 
@@ -347,6 +348,20 @@ class MainFrame : JFrame() {
         }
     }
 
+    private fun showDiagnostic(diagnostic: Diagnostic) {
+        showDiagnostic(diagnostic.position, diagnostic.message)
+    }
+
+    private fun showDiagnostic(position: Int, message: String) {
+        editor.setCursorTo(position)
+        showDiagnostic(message)
+    }
+
+    private fun showDiagnostic(message: String) {
+        editor.requestFocusInWindow()
+        editor.showDiagnostic(message)
+    }
+
     private fun updateDiagnostics(diagnostics: List<Diagnostic>) {
         val list = JList(diagnostics.toTypedArray())
         list.addListSelectionListener { event ->
@@ -420,15 +435,13 @@ class MainFrame : JFrame() {
             } catch (diagnostic: Diagnostic) {
                 memoryUI.active = false
                 SwingUtilities.invokeLater {
-                    editor.setCursorTo(diagnostic.position)
-                    JOptionPane.showMessageDialog(this, diagnostic.message, "Runtime error", JOptionPane.ERROR_MESSAGE)
+                    showDiagnostic(diagnostic)
                 }
             } catch (other: Throwable) {
                 memoryUI.active = false
                 SwingUtilities.invokeLater {
-                    editor.setCursorTo(lastReceivedPosition)
+                    showDiagnostic(lastReceivedPosition, other.message ?: "null")
                     other.printStackTrace()
-                    JOptionPane.showMessageDialog(this, other.message, "Throwable", JOptionPane.ERROR_MESSAGE)
                 }
             } finally {
                 SwingUtilities.invokeLater {

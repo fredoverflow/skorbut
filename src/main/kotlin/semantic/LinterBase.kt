@@ -9,11 +9,11 @@ abstract class LinterBase {
 
     fun getWarnings(): List<Diagnostic> = warnings.sortedBy { it.position }
 
-    protected fun Token.warn(description: String) {
-        warnings.add(Diagnostic(start, description))
+    protected fun Token.warn(message: String) {
+        warnings.add(Diagnostic(start, message))
     }
 
-    protected fun Expression.warn(description: String) {
-        root().warn(description)
+    protected fun Expression.warn(message: String) {
+        root().warn(message)
     }
 }

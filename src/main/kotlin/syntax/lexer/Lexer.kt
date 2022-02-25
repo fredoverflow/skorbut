@@ -54,8 +54,8 @@ class Lexer(private val input: String) {
         return verbatim(kind)
     }
 
-    fun error(description: String): Nothing {
-        throw Diagnostic(index, description)
+    fun error(message: String): Nothing {
+        throw Diagnostic(index, message)
     }
 
     @Suppress("UNCHECKED_CAST")
