@@ -348,6 +348,10 @@ class Interpreter(program: String) {
                         val comp = arguments[4].evaluate().decayed() as FunctionPointerValue
                         return bsearch(key, base, count, functions[comp.designator.functionName.text]!!)
                     }
+                    "strlen" -> {
+                        val s = arguments[0].evaluate() as PointerValue
+                        return strlen(s, 0)
+                    }
                     "strcmp" -> {
                         val s = arguments[0].evaluate() as PointerValue
                         val t = arguments[1].evaluate() as PointerValue
@@ -535,6 +539,14 @@ class Interpreter(program: String) {
             }
         }
         return base + count
+    }
+
+    private tailrec fun strlen(s: PointerValue, len: Int): ArithmeticValue {
+        val c = s.referenced.evaluate() as ArithmeticValue
+        return when {
+            (c == Value.NUL) -> Value.unsignedChar(len)
+            else -> strlen(s + 1, len + 1)
+        }
     }
 
     private tailrec fun strcmp(s: PointerValue, t: PointerValue): ArithmeticValue {

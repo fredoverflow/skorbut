@@ -2699,6 +2699,22 @@ int main()
 """)
     }
 
+    @Test fun strlen() {
+        run("""
+int main()
+{
+    assert strlen("") == 0;
+    assert strlen("C") == 1;
+    assert strlen("in") == 2;
+    assert strlen("the") == 3;
+    assert strlen("name") == 4;
+    assert strlen("brand") == 5;
+
+    return 0;
+}
+""")
+    }
+
     @Test fun strcmp() {
         run("""
 int main()

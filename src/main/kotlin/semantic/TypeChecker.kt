@@ -40,6 +40,7 @@ class TypeChecker(translationUnit: TranslationUnit) {
         declare(fakeIdentifier("qsort"), FunctionType(listOf(VoidPointerType, UnsignedIntType, UnsignedIntType, predicate), VoidType))
         declare(fakeIdentifier("bsearch"), FunctionType(listOf(ConstVoidPointerType, ConstVoidPointerType, UnsignedIntType, UnsignedIntType, predicate), VoidPointerType))
 
+        declare(fakeIdentifier("strlen"), FunctionType.unary(constCharPointer, UnsignedIntType))
         declare(fakeIdentifier("strcmp"), FunctionType.binary(constCharPointer, constCharPointer, SignedIntType))
 
         translationUnit.externalDeclarations.forEach {
