@@ -91,7 +91,6 @@ class MainFrame : JFrame() {
         buttons.add(r3turn)
         stop.isEnabled = false
         buttons.add(stop)
-        buttons.maximumSize = buttons.preferredSize
 
         val diagnosticsPanel = JPanel()
         diagnosticsPanel.layout = BorderLayout()
