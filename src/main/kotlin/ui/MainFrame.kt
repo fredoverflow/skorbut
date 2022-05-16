@@ -428,7 +428,7 @@ class MainFrame : JFrame() {
                 memoryUI.active = true
                 targetStackDepth = Int.MAX_VALUE
                 lastReceivedPosition = 0
-                interpreter.run()
+                interpreter.run(editor.cursor())
             } catch (stop: StopTheProgram) {
                 memoryUI.active = false
             } catch (diagnostic: Diagnostic) {

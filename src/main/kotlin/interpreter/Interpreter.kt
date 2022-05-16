@@ -48,6 +48,18 @@ class Interpreter(program: String) {
     var before: Function1<Int, Unit>? = null
     var after: Function0<Unit>? = null
 
+    fun run(cursor: Int) {
+        val entryPoint = translationUnit.functions.firstOrNull { function ->
+            cursor in function.specifiers.list.first().root().start..function.closingBrace.start
+        }
+        if (entryPoint != null && entryPoint.returnType() == VoidType && entryPoint.parameters.isEmpty()) {
+            entryPoint.execute(emptyList())
+            reportMemoryLeaks(entryPoint)
+        } else {
+            run()
+        }
+    }
+
     fun run() {
         val main = translationUnit.functions.firstOrNull { it.name() == "main" }
         if (main == null) throw Diagnostic(0, "no main function found")
@@ -58,8 +70,12 @@ class Interpreter(program: String) {
         val exitCode = (result as ArithmeticValue).value.toInt()
         console.print("\nmain finished with exit code $exitCode")
         console.update?.invoke()
+        reportMemoryLeaks(main)
+    }
+
+    private fun reportMemoryLeaks(function: FunctionDefinition) {
         if (memory.heap.isNotEmpty()) {
-            main.closingBrace.error("You forgot to free ${memory.heap.size} heap blocks")
+            function.closingBrace.error("${memory.heap.size} missing free calls")
         }
     }
 
