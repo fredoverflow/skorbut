@@ -193,6 +193,7 @@ class MainFrame : JFrame() {
 
     private fun listenToButtons() {
         start.addActionListener {
+            editor.indent()
             editor.autosaver.save()
             editor.clearDiagnostics()
             editor.requestFocusInWindow()
