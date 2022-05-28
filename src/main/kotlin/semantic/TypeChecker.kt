@@ -232,7 +232,7 @@ class TypeChecker(translationUnit: TranslationUnit) {
         currentReturnType = functionType.returnType
         if (currentReturnType is StructType) {
             // What is the lifetime of a returned struct?
-            namedDeclarator.name.error("structs cannot be returned yet")
+            namedDeclarator.name.error("cannot return structs yet")
         }
         currentStackFrameSymbols = ArrayList()
         symbolTable.scoped {
@@ -347,11 +347,7 @@ class TypeChecker(translationUnit: TranslationUnit) {
             val declarator = namedDeclarator.declarator
             if (declarator !is Declarator.Initialized) {
                 if (type is ArrayType && type.length == 0) {
-                    if (type.elementType === SignedCharType) {
-                        name.error("arrays of unknown size must be initialized with braces or string literals")
-                    } else {
-                        name.error("arrays of unknown size must be initialized with braces")
-                    }
+                    name.error("array length inference requires initializer")
                 }
                 if (type !is FunctionType) validateType(name, type)
             } else {
@@ -380,7 +376,7 @@ class TypeChecker(translationUnit: TranslationUnit) {
                 } else {
                     init.expression.typeCheck()
                     if (currentDeclarationIsStatic && init.expression.value == null && init.expression !is StringLiteral) {
-                        init.expression.root().error("static variables can only be initialized with compile-time constants")
+                        init.expression.root().error("static initializers must be compile-time constants")
                     }
                     checkAssignmentCompatible(type, init.expression.root(), init.expression.type)
                 }
@@ -489,7 +485,7 @@ class TypeChecker(translationUnit: TranslationUnit) {
                 if (temp == null) {
                     val functionToken = functionTokens[name.text]
                     if (functionToken != null && functionToken.start > name.start) {
-                        name.error("functions must be declared before use", functionToken)
+                        name.error("must declare function before use", functionToken)
                     }
                     val bestMatches = Levenshtein.bestMatches(name.text, symbolTable.names().asIterable())
                     if (bestMatches.size == 1) {
@@ -527,12 +523,12 @@ class TypeChecker(translationUnit: TranslationUnit) {
             }
             is Postfix -> {
                 val operandType = operand.typeCheck()
-                if (operandType.isConst()) operator.error("assignment to const")
-                checkLocator(operator, operand)
+                if (operandType.isConst()) operator.error("const", "$operator")
+                if (!operand.isLocator) operator.error("value", "$operator")
                 if ((operandType is ArithmeticType) || (operandType is PointerType)) {
                     operandType
                 } else {
-                    operator.error("needs arithmetic or pointer operand")
+                    operator.error("$operandType", "$operator")
                 }
             }
             is Subscript -> {
@@ -544,14 +540,14 @@ class TypeChecker(translationUnit: TranslationUnit) {
                 } else if ((leftType is ArithmeticType) && (rightType is PointerType)) {
                     rightType.referencedType
                 } else {
-                    operator.error("needs pointer and arithmetic operands")
+                    operator.error("$leftType", "[$rightType]")
                 }
             }
             is FunctionCall -> {
                 val functionPointerType = function.typeCheck().decayed()
-                if (functionPointerType !is PointerType) function.root().error("not a function")
+                if (functionPointerType !is PointerType) function.root().error("$functionPointerType is not a function")
                 val functionType = functionPointerType.referencedType
-                if (functionType !is FunctionType) function.root().error("not a function")
+                if (functionType !is FunctionType) function.root().error("$functionType is not a function")
 
                 val parameterTypes = functionType.parameters
                 val nParameters = parameterTypes.size
@@ -573,14 +569,14 @@ class TypeChecker(translationUnit: TranslationUnit) {
                 } else if (leftType is PointerType && leftType.referencedType.unqualified() is StructType) {
                     dot.error("Use -> instead of . for indirect member access")
                 } else {
-                    dot.error("$leftType is not a struct type")
+                    left.root().error("$leftType is not a struct")
                 }
             }
             is IndirectMemberAccess -> {
                 isLocator = true
                 val leftPointerType = left.typeCheck().decayed()
                 if (leftPointerType is StructType) arrow.error("Use . instead of -> for direct member access")
-                if (leftPointerType !is PointerType) arrow.error("$leftPointerType is not a pointer type")
+                if (leftPointerType !is PointerType) arrow.error("$leftPointerType is not a pointer")
                 val leftType = leftPointerType.referencedType
                 val structType = leftType.unqualified()
 
@@ -588,23 +584,23 @@ class TypeChecker(translationUnit: TranslationUnit) {
                     val member = structType.member(right) ?: right.error("$right is not a member of $leftType")
                     leftType.applyQualifiersTo(member.type)
                 } else {
-                    arrow.error("$leftType is not a struct type")
+                    left.root().error("$leftType is not a struct")
                 }
             }
             is Prefix -> {
                 val operandType = operand.typeCheck()
-                if (operandType.isConst()) operator.error("assignment to const")
-                checkLocator(operator, operand)
+                if (operandType.isConst()) operator.error("${operator}const")
+                if (!operand.isLocator) operator.error("${operator}value")
                 if ((operandType is ArithmeticType) || (operandType is PointerType)) {
                     operandType
                 } else {
-                    operator.error("needs arithmetic or pointer operand")
+                    operator.error("${operator}$operandType")
                 }
             }
             is Reference -> {
                 val operandType = operand.typeCheck()
                 if (operandType !is FunctionType) {
-                    checkLocator(operator, operand)
+                    if (!operand.isLocator) operator.error("${operator}value")
                 } else if (operand is Identifier) {
                     value = FunctionDesignator(operand.name, operandType).decayed()
                 }
@@ -612,31 +608,31 @@ class TypeChecker(translationUnit: TranslationUnit) {
             }
             is Dereference -> {
                 val operandType = operand.typeCheck().decayed()
-                if (operandType !is PointerType) operator.error("needs pointer operand")
+                if (operandType !is PointerType) operator.error("${operator}$operandType")
                 isLocator = (operandType.referencedType !is FunctionType)
                 operandType.referencedType
             }
             is UnaryPlus -> {
                 val operandType = operand.typeCheck().decayed()
-                if (operandType !is ArithmeticType) operator.error("needs arithmetic operand")
+                if (operandType !is ArithmeticType) operator.error("${operator}$operandType")
                 this.determineValue(::unaryPlus)
                 SignedIntType.max(operandType)
             }
             is UnaryMinus -> {
                 val operandType = operand.typeCheck().decayed()
-                if (operandType !is ArithmeticType) operator.error("needs arithmetic operand")
+                if (operandType !is ArithmeticType) operator.error("${operator}$operandType")
                 this.determineValue(::unaryMinus)
                 SignedIntType.max(operandType)
             }
             is BitwiseNot -> {
                 val operandType = operand.typeCheck().decayed()
-                if (operandType !is ArithmeticType || !operandType.isIntegral()) operator.error("needs integral operand")
+                if (operandType !is ArithmeticType || !operandType.isIntegral()) operator.error("${operator}$operandType")
                 this.determineValue(::bitwiseNot)
                 SignedIntType.max(operandType)
             }
             is LogicalNot -> {
                 val operandType = operand.typeCheck().decayed()
-                if (operandType !is ArithmeticType) operator.error("needs arithmetic operand")
+                if (operandType !is ArithmeticType) operator.error("${operator}$operandType")
                 this.determineValue(::logicalNot)
                 SignedIntType
             }
@@ -661,7 +657,7 @@ class TypeChecker(translationUnit: TranslationUnit) {
                     this.determineValue { a, b -> multiplicative(a, operator, b) }
                     leftType.usualArithmeticConversions(rightType)
                 } else {
-                    operator.error("needs arithmetic operands")
+                    operator.error("$leftType ", "$operator $rightType")
                 }
             }
             is Plus -> {
@@ -675,7 +671,7 @@ class TypeChecker(translationUnit: TranslationUnit) {
                     this.determineValue(::plus)
                     leftType.usualArithmeticConversions(rightType)
                 } else {
-                    operator.error("needs arithmetic operands or pointer and arithmetic operands")
+                    operator.error("$leftType ", "$operator $rightType")
                 }
             }
             is Minus -> {
@@ -689,7 +685,7 @@ class TypeChecker(translationUnit: TranslationUnit) {
                     this.determineValue(::minus)
                     leftType.usualArithmeticConversions(rightType)
                 } else {
-                    operator.error("needs pointer and/or arithmetic operands")
+                    operator.error("$leftType ", "$operator $rightType")
                 }
             }
             is Shift -> {
@@ -700,7 +696,7 @@ class TypeChecker(translationUnit: TranslationUnit) {
                     this.determineValue { a, b -> shift(a, operator, b, typ) }
                     typ
                 } else {
-                    operator.error("needs integral operands")
+                    operator.error("$leftType ", "$operator $rightType")
                 }
             }
             is RelationalEquality -> {
@@ -712,7 +708,7 @@ class TypeChecker(translationUnit: TranslationUnit) {
                     this.determineValue { a, b -> relationalEquality(a as ArithmeticValue, operator, b as ArithmeticValue) }
                     SignedIntType
                 } else {
-                    operator.error("needs arithmetic or pointer operands")
+                    operator.error("$leftType ", "$operator $rightType")
                 }
             }
             is Bitwise -> {
@@ -723,7 +719,7 @@ class TypeChecker(translationUnit: TranslationUnit) {
                     this.determineValue { a, b -> bitwise(a, operator, b, typ) }
                     typ
                 } else {
-                    operator.error("needs integral operands")
+                    operator.error("$leftType ", "$operator $rightType")
                 }
             }
             is Logical -> {
@@ -745,7 +741,7 @@ class TypeChecker(translationUnit: TranslationUnit) {
                     }
                     SignedIntType
                 } else {
-                    operator.error("needs arithmetic operands")
+                    operator.error("$leftType ", "$operator $rightType")
                 }
             }
             is Conditional -> {
@@ -778,8 +774,8 @@ class TypeChecker(translationUnit: TranslationUnit) {
             }
             is Assignment -> {
                 val leftType = left.typeCheck()
-                if (leftType.isConst()) operator.error("assignment to const")
-                checkLocator(operator, left)
+                if (leftType.isConst()) operator.error("const ", "$operator ")
+                if (!left.isLocator) operator.error("value ", "$operator ")
                 val rightType = right.typeCheck()
                 checkAssignmentCompatible(leftType, operator, rightType)
                 leftType
@@ -801,15 +797,15 @@ class TypeChecker(translationUnit: TranslationUnit) {
 
     private fun Binary.typeCheckPlusMinusAssignment(): Type {
         val leftType = left.typeCheck()
-        if (leftType.isConst()) operator.error("assignment to const")
-        checkLocator(operator, left)
+        if (leftType.isConst()) operator.error("const ", "$operator ")
+        if (!left.isLocator) operator.error("value ", "$operator ")
         val rightType = right.typeCheck().decayed()
         if ((leftType is ArithmeticType) && (rightType is ArithmeticType)) {
             return leftType
         } else if ((leftType is PointerType) && (rightType is ArithmeticType)) {
             return leftType
         } else {
-            operator.error("needs pointer and/or arithmetic operands")
+            operator.error("$leftType ", "$operator $rightType")
         }
     }
 
@@ -853,16 +849,12 @@ class TypeChecker(translationUnit: TranslationUnit) {
         }
     }
 
-    private fun checkLocator(operator: Token, operand: Expression) {
-        if (!operand.isLocator) operator.error("$operand is not a locator")
-    }
-
     private fun checkAssignmentCompatible(left: Type, operator: Token, right: Type) {
         if (!left.canCastFrom(right)) {
             if (left == right) {
-                operator.error("$right cannot be copied")
+                operator.error("cannot copy $right")
             } else {
-                operator.error("$right cannot be converted to $left")
+                operator.error("cannot convert $right to $left")
             }
         }
     }
