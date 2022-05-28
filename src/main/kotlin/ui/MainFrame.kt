@@ -349,12 +349,15 @@ class MainFrame : JFrame() {
     }
 
     private fun showDiagnostic(diagnostic: Diagnostic) {
-        showDiagnostic(diagnostic.position, diagnostic.message)
+        editor.setCursorTo(diagnostic.position)
+        editor.requestFocusInWindow()
+        editor.showDiagnostic(diagnostic.message, diagnostic.position, diagnostic.columnDelta)
     }
 
     private fun showDiagnostic(position: Int, message: String) {
         editor.setCursorTo(position)
-        showDiagnostic(message)
+        editor.requestFocusInWindow()
+        editor.showDiagnostic(message)
     }
 
     private fun showDiagnostic(message: String) {

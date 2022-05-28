@@ -17,8 +17,12 @@ class Token(val kind: TokenKind, val start: Int, val source: String, val text: S
         throw Diagnostic(start, message)
     }
 
-    fun error(message: String, positionDelta: Int): Nothing {
-        throw Diagnostic(start + positionDelta, message)
+    fun error(message: String, columnDelta: Int): Nothing {
+        throw Diagnostic(start, message, columnDelta = columnDelta)
+    }
+
+    fun error(before: String, after: String): Nothing {
+        throw Diagnostic(start, before + after, columnDelta = -before.length)
     }
 
     fun error(message: String, previous: Token): Nothing {
