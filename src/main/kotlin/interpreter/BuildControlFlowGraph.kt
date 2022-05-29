@@ -20,11 +20,11 @@ class State(val continueTarget: String, val breakTarget: String,
 }
 
 class BuildControlFlowGraph(function: FunctionDefinition) {
-    val controlFlowGraph = LinkedHashMap<String, BasicBlock>()
+    private val controlFlowGraph = LinkedHashMap<String, BasicBlock>()
 
-    var lastGeneratedLabel = -1
-    var currentLabelStr = ""
-    var currentBasicBlock = BasicBlock()
+    private var lastGeneratedLabel = -1
+    private var currentLabelStr = ""
+    private var currentBasicBlock = BasicBlock()
 
     private fun generateLabel(): String {
         return "${++lastGeneratedLabel}"

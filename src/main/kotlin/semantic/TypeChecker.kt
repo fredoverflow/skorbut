@@ -9,8 +9,6 @@ import syntax.lexer.fakeIdentifier
 import syntax.lexer.missingIdentifier
 import syntax.tree.*
 import text.skipDigits
-import java.lang.NumberFormatException
-import java.util.*
 
 class TypeChecker(translationUnit: TranslationUnit) {
     private val functionTokens: Map<String, Token> = translationUnit.functions.map { it.namedDeclarator.name }.associateBy(Token::text)
@@ -105,9 +103,9 @@ class TypeChecker(translationUnit: TranslationUnit) {
         type = typeSpecifiers.get(typeTokens)
         if (type == Later) {
             type = when (typeTokens.first()) {
-                ENUM -> list.mapNotNull { it.enumType() }.first()
+                ENUM -> list.firstNotNullOf { it.enumType() }
 
-                STRUCT -> list.mapNotNull { it.structType() }.first()
+                STRUCT -> list.firstNotNullOf { it.structType() }
 
                 IDENTIFIER -> {
                     val specifier = list.find { it.kind() == IDENTIFIER }
@@ -456,7 +454,7 @@ class TypeChecker(translationUnit: TranslationUnit) {
             val x = text.substring(start).toLong(radix)
             if (x <= 0x7fffffff) return Value.signedInt(x.toInt())
             if (x <= 0xffffffff) return Value.unsignedInt(x.toInt())
-        } catch (fallthrough: NumberFormatException) {
+        } catch (_: NumberFormatException) {
         }
         error("integer literal $text is too large, allowed maximum is 4294967295")
     }

@@ -159,7 +159,8 @@ class Console {
         return arguments.size
     }
 
-    fun skipWhitespace() {
+    private fun skipWhitespace() {
+        @Suppress("ControlFlowWithEmptyBody")
         while (getchar().isWhitespace()) {
         }
         unget()

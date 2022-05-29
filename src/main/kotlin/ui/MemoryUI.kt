@@ -35,7 +35,7 @@ class MemoryUI(var memory: Memory) : JPanel() {
     private val heapBorder = LineBorder(Color(128, 0, 128), 2, true)
     private var lineBorder = stringsBorder
 
-    fun Segment.objectComponent(title: String, qualified: Type): JComponent {
+    private fun Segment.objectComponent(title: String, qualified: Type): JComponent {
         val type = qualified.unqualified()
         val address = valueIndex
         val component = when (type) {

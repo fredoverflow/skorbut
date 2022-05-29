@@ -1,11 +1,10 @@
 package ui
 
 import freditor.FlexerState
-import freditor.FlexerStateBuilder
-import freditor.persistent.ChampMap
-
 import freditor.FlexerState.EMPTY
 import freditor.FlexerState.THIS
+import freditor.FlexerStateBuilder
+import freditor.persistent.ChampMap
 
 object Flexer : freditor.Flexer() {
     private val SLASH_SLASH = FlexerState('\n', null).setDefault(THIS)

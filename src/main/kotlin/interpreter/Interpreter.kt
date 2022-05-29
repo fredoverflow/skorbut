@@ -16,10 +16,10 @@ fun FunctionDefinition.returnType(): Type = (namedDeclarator.type as FunctionTyp
 
 class Interpreter(program: String) {
     val translationUnit = Parser(Lexer(program)).translationUnit()
-    val typeChecker = TypeChecker(translationUnit)
+    private val typeChecker = TypeChecker(translationUnit)
 
-    val functions = translationUnit.functions.associateBy(FunctionDefinition::name)
-    val variables = translationUnit.declarations.filter { it.specifiers.storageClass != TYPEDEF }
+    private val functions = translationUnit.functions.associateBy(FunctionDefinition::name)
+    private val variables = translationUnit.declarations.filter { it.specifiers.storageClass != TYPEDEF }
             .flatMap { it.namedDeclarators }.filter { it.offset < 0 && it.type.requiresStorage() }
 
     val memory = Memory(typeChecker.getStringLiterals(), variables)
@@ -27,7 +27,7 @@ class Interpreter(program: String) {
 
     var stackDepth = 0
 
-    var targetType: Type = VoidPointerType
+    private var targetType: Type = VoidPointerType
 
     init {
         for (function in translationUnit.functions) {
@@ -62,7 +62,7 @@ class Interpreter(program: String) {
 
     fun run() {
         val main = translationUnit.functions.firstOrNull { it.name() == "main" }
-        if (main == null) throw Diagnostic(0, "no main function found")
+                ?: throw Diagnostic(0, "no main function found")
         if (main.parameters.isNotEmpty()) main.root().error("main cannot have parameters")
         if (main.returnType() !== SignedIntType) main.root().error("main must return int")
 
@@ -575,7 +575,7 @@ class Interpreter(program: String) {
         }
     }
 
-    fun allocate(function: Expression, size: Expression, one: (Type) -> PointerValue, many: (ArrayType) -> PointerValue): PointerValue {
+    private fun allocate(function: Expression, size: Expression, one: (Type) -> PointerValue, many: (ArrayType) -> PointerValue): PointerValue {
         if (targetType === VoidPointerType) {
             function.root().error("cannot infer desired type to allocate via void*")
         }

@@ -35,8 +35,7 @@ data class Object(val segment: Segment, val offset: Int, val type: Type, val ind
     }
 
     fun evaluate(): Value {
-        val type = this.type.unqualified()
-        return when (type) {
+        return when (val type = this.type.unqualified()) {
             is ArrayType -> {
                 // array-to-pointer decay
                 PointerValue(copy(type = type.elementType, index = 0, bound = type.size))
@@ -115,7 +114,7 @@ data class ArithmeticValue(val value: Double, val type: ArithmeticType) : Value 
 
     operator fun rem(that: ArithmeticValue): ArithmeticValue = ArithmeticValue(value % that.value, type.usualArithmeticConversions(that.type)).trim()
 
-    fun trim(): ArithmeticValue = ArithmeticValue(type.trim(value), type)
+    private fun trim(): ArithmeticValue = ArithmeticValue(type.trim(value), type)
 
     fun integralPromotions(): ArithmeticValue = type.integralPromotions().cast(this)
 

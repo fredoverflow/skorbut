@@ -299,7 +299,7 @@ class MainFrame : JFrame() {
 
     private fun updateSyntaxTreeModel() {
         syntaxTree.model = object : TreeModel {
-            override fun getRoot(): Any? {
+            override fun getRoot(): Any {
                 return interpreter.translationUnit
             }
 
