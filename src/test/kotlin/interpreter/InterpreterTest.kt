@@ -1720,7 +1720,7 @@ int main()
 """)
     }
 
-    @Test fun arrayLengthConstantExpression() {
+    @Test fun arraySizeConstantExpression() {
         run("""
 int main()
 {
@@ -2582,7 +2582,7 @@ int main()
 """)
     }
 
-    @Test fun castArrayLength() {
+    @Test fun castArraySize() {
         run("""
 int main()
 {

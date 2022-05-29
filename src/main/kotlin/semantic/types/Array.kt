@@ -1,7 +1,7 @@
 package semantic.types
 
-data class ArrayType(var length: Int, val elementType: Type) : Type {
-    override fun sizeof(): Int = length * elementType.sizeof()
+data class ArrayType(var size: Int, val elementType: Type) : Type {
+    override fun sizeof(): Int = size * elementType.sizeof()
 
     override fun sizeof(offset: Int): Int {
         if (offset >= count()) return sizeof()
@@ -12,13 +12,13 @@ data class ArrayType(var length: Int, val elementType: Type) : Type {
 
     override fun decayed(): Type = PointerType(elementType)
 
-    override fun count(): Int = length * elementType.count()
+    override fun count(): Int = size * elementType.count()
 
     override fun isConst(): Boolean = elementType.isConst()
 
-    override fun addConst(): Type = if (isConst()) this else ArrayType(length, elementType.addConst())
+    override fun addConst(): Type = if (isConst()) this else ArrayType(size, elementType.addConst())
 
-    override fun unqualified(): Type = if (isConst()) ArrayType(length, elementType.unqualified()) else this
+    override fun unqualified(): Type = if (isConst()) ArrayType(size, elementType.unqualified()) else this
 
     fun dimensions(): Int = if (elementType is ArrayType) elementType.dimensions() + 1 else 1
 
@@ -26,9 +26,9 @@ data class ArrayType(var length: Int, val elementType: Type) : Type {
 
     override fun declaration(parent: String): String {
         return if (parent.isPointer()) {
-            elementType.declaration("($parent)[$length]")
+            elementType.declaration("($parent)[$size]")
         } else {
-            elementType.declaration("$parent[$length]")
+            elementType.declaration("$parent[$size]")
         }
     }
 }

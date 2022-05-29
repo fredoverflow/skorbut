@@ -30,7 +30,7 @@ sealed class Declarator {
         override fun leaf(parent: Declarator): Declarator = child.leaf(this)
     }
 
-    class Array(val child: Declarator, val length: Expression?) : Declarator() {
+    class Array(val child: Declarator, val size: Expression?) : Declarator() {
         override fun leaf(parent: Declarator): Declarator = child.leaf(this)
     }
 

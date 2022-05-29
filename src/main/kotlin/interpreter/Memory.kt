@@ -15,9 +15,9 @@ fun Iterable<String>.synthesizeStringConstantsType(): StructType {
     val type = StructType(fakeIdentifier("strings"), symbols)
     var offset = 0
     for (str in this) {
-        val len = str.length + 1
-        symbols.add(Symbol(missingIdentifier, ArrayType(len, SignedCharType), offset))
-        offset += len
+        val size = str.length + 1
+        symbols.add(Symbol(missingIdentifier, ArrayType(size, SignedCharType), offset))
+        offset += size
     }
     return type
 }
@@ -83,7 +83,7 @@ class Memory(stringLiterals: Iterable<String>, variables: Iterable<NamedDeclarat
     fun malloc(arrayType: ArrayType): PointerValue {
         val segment = Segment(arrayType)
         heap.add(segment)
-        return PointerValue(Object(segment, 0, arrayType.elementType, 0, arrayType.length))
+        return PointerValue(Object(segment, 0, arrayType.elementType, 0, arrayType.size))
     }
 
     fun free(pointer: PointerValue) {
@@ -119,7 +119,7 @@ class Memory(stringLiterals: Iterable<String>, variables: Iterable<NamedDeclarat
         }
         free(pointer)
         heap.add(newSegment)
-        return PointerValue(Object(newSegment, 0, arrayType.elementType, 0, arrayType.length))
+        return PointerValue(Object(newSegment, 0, arrayType.elementType, 0, arrayType.size))
     }
 
     fun swap(a: Object, b: Object) {

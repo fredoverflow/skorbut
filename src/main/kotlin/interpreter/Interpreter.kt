@@ -160,10 +160,10 @@ class Interpreter(program: String) {
                     for ((i, c) in str.withIndex()) {
                         segment[start + i] = Value.signedChar(c.code)
                     }
-                    for (i in str.length until type.length) {
+                    for (i in str.length until type.size) {
                         segment[start + i] = Value.NUL
                     }
-                    start + type.length
+                    start + type.size
                 } else {
                     targetType = type
                     val value = type.cast(init.expression.evaluate())
@@ -191,7 +191,7 @@ class Interpreter(program: String) {
                 segment[start] = type.defaultValue
             }
             is ArrayType -> {
-                (0 until type.length).fold(start) { offset, _ ->
+                (0 until type.size).fold(start) { offset, _ ->
                     defaultInitialize(type.elementType, segment, offset)
                 }
             }
@@ -582,13 +582,13 @@ class Interpreter(program: String) {
         val elementType = (targetType as PointerType).referencedType
         val elementSize = elementType.sizeof()
         val requestedBytes = (size.evaluate() as ArithmeticValue).value.toInt()
-        val arrayLength = requestedBytes / elementSize
-        if (arrayLength * elementSize != requestedBytes) {
+        val arraySize = requestedBytes / elementSize
+        if (arraySize * elementSize != requestedBytes) {
             size.root().error("$requestedBytes is not a multiple of $elementSize. Did you forget to multiply by sizeof(element type)?")
         }
-        return when (arrayLength) {
+        return when (arraySize) {
             1 -> one(elementType)
-            else -> many(ArrayType(arrayLength, elementType))
+            else -> many(ArrayType(arraySize, elementType))
         }
     }
 }

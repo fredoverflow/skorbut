@@ -53,7 +53,7 @@ class MemoryUI(var memory: Memory) : JPanel() {
         val cells = JPanel()
         val axis = if (type.dimensions().and(1) == 1) BoxLayout.X_AXIS else BoxLayout.Y_AXIS
         cells.layout = BoxLayout(cells, axis)
-        for (i in 0 until type.length) {
+        for (i in 0 until type.size) {
             cells.add(objectComponent(i.toString(), type.elementType))
         }
         return cells

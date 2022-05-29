@@ -39,7 +39,7 @@ data class Object(val segment: Segment, val offset: Int, val type: Type, val ind
         return when (type) {
             is ArrayType -> {
                 // array-to-pointer decay
-                PointerValue(copy(type = type.elementType, index = 0, bound = type.length))
+                PointerValue(copy(type = type.elementType, index = 0, bound = type.size))
             }
             is StructType -> {
                 // structs are not values, they must be preserved as objects

@@ -204,7 +204,7 @@ class TypeChecker(translationUnit: TranslationUnit) {
         return when (this) {
             is Declarator.Identity -> from
             is Declarator.Pointer -> child.type(from.pointer().let { if (qualifiers.isEmpty()) it else it.addConst() })
-            is Declarator.Array -> child.type(ArrayType(determineLength(), from))
+            is Declarator.Array -> child.type(ArrayType(determineSize(), from))
             is Declarator.Function -> child.type(FunctionType(
                     // ignore top-level const in function types
                     parameters.map { it.typeCheck().unqualified() }, from.unqualified()))
@@ -212,18 +212,18 @@ class TypeChecker(translationUnit: TranslationUnit) {
         }
     }
 
-    private fun Declarator.Array.determineLength(): Int {
-        if (length == null) return 0
+    private fun Declarator.Array.determineSize(): Int {
+        if (size == null) return 0
 
-        val type = length.typeCheck()
-        if (type !is ArithmeticType || !type.isIntegral()) length.root().error("array length must be an integral number")
+        val type = size.typeCheck()
+        if (type !is ArithmeticType || !type.isIntegral()) size.root().error("array size must be an integral number")
 
-        val value = length.value ?: length.root().error("array length must be a compile-time constant")
+        val value = size.value ?: size.root().error("array size must be a compile-time constant")
 
-        val len = (value as ArithmeticValue).value.toInt()
-        if (len < 1) length.root().error("non-positive array length $len")
+        val size = (value as ArithmeticValue).value.toInt()
+        if (size < 1) this.size.root().error("non-positive array size $size")
 
-        return len
+        return size
     }
 
     private fun FunctionDefinition.typeCheck() {
@@ -346,17 +346,17 @@ class TypeChecker(translationUnit: TranslationUnit) {
             namedDeclarator.offset = symbolTable.lookup(namedDeclarator.name)!!.offset
             val declarator = namedDeclarator.declarator
             if (declarator !is Declarator.Initialized) {
-                if (type is ArrayType && type.length == 0) {
-                    name.error("array length inference requires initializer")
+                if (type is ArrayType && type.size == 0) {
+                    name.error("array size inference requires initializer")
                 }
                 if (type !is FunctionType) validateType(name, type)
             } else {
                 val init = declarator.init
-                if (type is ArrayType && type.length == 0) {
+                if (type is ArrayType && type.size == 0) {
                     if (init is InitializerList) {
-                        type.length = init.list.size
+                        type.size = init.list.size
                     } else if (init is ExpressionInitializer && init.expression is StringLiteral) {
-                        type.length = init.expression.literal.text.length + 1
+                        type.size = init.expression.literal.text.length + 1
                     }
                     if (currentDeclarationIsStatic) staticOffset += type.count()
                 }
@@ -370,7 +370,7 @@ class TypeChecker(translationUnit: TranslationUnit) {
         when (init) {
             is ExpressionInitializer -> {
                 if (init.expression is StringLiteral && type is ArrayType && type.elementType == SignedCharType) {
-                    if (type.length <= init.expression.literal.text.length) {
+                    if (type.size <= init.expression.literal.text.length) {
                         init.expression.root().error("string literal too long")
                     }
                 } else {
@@ -383,15 +383,15 @@ class TypeChecker(translationUnit: TranslationUnit) {
             }
             is InitializerList -> when (type) {
                 is ArrayType -> {
-                    val length = type.length
-                    if (length < init.list.size) init.list[length].root().error("too many initializers for $type")
-                    if (length > init.list.size) init.list.last().root().error("not enough initializers for $type")
+                    val size = type.size
+                    if (size < init.list.size) init.list[size].root().error("too many initializers for $type")
+                    if (size > init.list.size) init.list.last().root().error("not enough initializers for $type")
                     init.list.forEach { typeCheck(type.elementType, it) }
                 }
                 is StructType -> {
-                    val length = type.members.size
-                    if (length < init.list.size) init.list[length].root().error("too many initializers for $type")
-                    if (length > init.list.size) init.list.last().root().error("not enough initializers for $type")
+                    val size = type.members.size
+                    if (size < init.list.size) init.list[size].root().error("too many initializers for $type")
+                    if (size > init.list.size) init.list.last().root().error("not enough initializers for $type")
                     for ((member, initializer) in type.members.zip(init.list)) {
                         typeCheck(member.type, initializer)
                     }
