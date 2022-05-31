@@ -236,7 +236,7 @@ class TypeChecker(translationUnit: TranslationUnit) {
         symbolTable.scoped {
             for (parameter in parameters) {
                 with(parameter) {
-                    if (!name.wasProvided()) name.error("missing name for parameter in function definition")
+                    if (!name.wasProvided()) name.error("missing parameter name in function definition")
                     validateType(name, type)
                     val symbol = declare(name, type)
                     offset = symbol.offset
@@ -345,7 +345,7 @@ class TypeChecker(translationUnit: TranslationUnit) {
             val declarator = namedDeclarator.declarator
             if (declarator !is Declarator.Initialized) {
                 if (type is ArrayType && type.size == 0) {
-                    name.error("array size inference requires initializer")
+                    name.error("missing array size or initializer")
                 }
                 if (type !is FunctionType) validateType(name, type)
             } else {
@@ -512,9 +512,9 @@ class TypeChecker(translationUnit: TranslationUnit) {
             is ScanfCall -> {
                 arguments.forEach {
                     val type = it.typeCheck().decayed()
-                    if (type !is PointerType) it.root().error("Did you forget the & before the variable?")
+                    if (type !is PointerType) it.root().error("missing &")
                     if (type.referencedType is ArrayType && type.referencedType.elementType === SignedCharType) {
-                        it.root().error("Strings do not need the & before the variable.")
+                        it.root().error("redundant &")
                     }
                 }
                 SignedIntType
@@ -562,27 +562,27 @@ class TypeChecker(translationUnit: TranslationUnit) {
                 val structType = leftType.unqualified()
 
                 if (structType is StructType) {
-                    val member = structType.member(right) ?: right.error("$right is not a member of $leftType")
+                    val member = structType.member(right) ?: right.error("$right is not a member of $structType")
                     leftType.applyQualifiersTo(member.type)
                 } else if (leftType is PointerType && leftType.referencedType.unqualified() is StructType) {
-                    dot.error("Use -> instead of . for indirect member access")
+                    dot.error("replace . with -> for indirect member access")
                 } else {
-                    left.root().error("$leftType is not a struct")
+                    left.root().error("$structType is not a struct")
                 }
             }
             is IndirectMemberAccess -> {
                 isLocator = true
                 val leftPointerType = left.typeCheck().decayed()
-                if (leftPointerType is StructType) arrow.error("Use . instead of -> for direct member access")
-                if (leftPointerType !is PointerType) arrow.error("$leftPointerType is not a pointer")
+                if (leftPointerType is StructType) arrow.error("replace -> with . for direct member access")
+                if (leftPointerType !is PointerType) left.root().error("$leftPointerType is not a struct pointer")
                 val leftType = leftPointerType.referencedType
                 val structType = leftType.unqualified()
 
                 if (structType is StructType) {
-                    val member = structType.member(right) ?: right.error("$right is not a member of $leftType")
+                    val member = structType.member(right) ?: right.error("$right is not a member of $structType")
                     leftType.applyQualifiersTo(member.type)
                 } else {
-                    left.root().error("$leftType is not a struct")
+                    left.root().error("$structType is not a struct")
                 }
             }
             is Prefix -> {
@@ -754,13 +754,13 @@ class TypeChecker(translationUnit: TranslationUnit) {
                     if (a.referencedType == b.referencedType) {
                         a
                     } else {
-                        colon.error("$a and $b refer to different types")
+                        colon.error("$a ", ": $b")
                     }
                 } else if (a is ComparablePointerType && b is ComparablePointerType) {
                     // one or more void pointers
                     VoidPointerType
                 } else {
-                    colon.error("$a and $b have no common supertype")
+                    colon.error("$a ", ": $b")
                 }
             }
             is Cast -> {
