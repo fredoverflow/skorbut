@@ -320,7 +320,7 @@ class TypeChecker(translationUnit: TranslationUnit) {
                 if (result == null) {
                     if (currentReturnType !== VoidType) r3turn.error("missing return value")
                 } else {
-                    checkAssignmentCompatible(currentReturnType, result.root(), result.typeCheck())
+                    checkAssignmentCompatibility(currentReturnType, result.root(), result.typeCheck(), -2)
                 }
             }
             is Assert -> {
@@ -376,7 +376,7 @@ class TypeChecker(translationUnit: TranslationUnit) {
                     if (currentDeclarationIsStatic && init.expression.value == null && init.expression !is StringLiteral) {
                         init.expression.root().error("static initializers must be compile-time constants")
                     }
-                    checkAssignmentCompatible(type, init.expression.root(), init.expression.type)
+                    checkAssignmentCompatibility(type, init.expression.root(), init.expression.type, -2)
                 }
             }
             is InitializerList -> when (type) {
@@ -552,7 +552,7 @@ class TypeChecker(translationUnit: TranslationUnit) {
                 val nArguments = arguments.size
                 if (nParameters != nArguments) function.root().error("function takes $nParameters arguments, not $nArguments")
                 for ((parameterType, argument) in parameterTypes.zip(arguments)) {
-                    checkAssignmentCompatible(parameterType, argument.root(), argument.typeCheck())
+                    checkAssignmentCompatibility(parameterType, argument.root(), argument.typeCheck(), -2)
                 }
                 functionType.returnType
             }
@@ -766,7 +766,7 @@ class TypeChecker(translationUnit: TranslationUnit) {
             is Cast -> {
                 val targetType = declarator.type(specifiers.typeCheckNoStorageClass()).unqualified()
                 val sourceType = operand.typeCheck()
-                checkAssignmentCompatible(targetType, operator, sourceType)
+                checkAssignmentCompatibility(targetType, operator, sourceType, 0)
                 this.determineValue { targetType.cast(it) }
                 targetType
             }
@@ -775,7 +775,7 @@ class TypeChecker(translationUnit: TranslationUnit) {
                 if (leftType.isConst()) operator.error("const ", "$operator ")
                 if (!left.isLocator) operator.error("value ", "$operator ")
                 val rightType = right.typeCheck()
-                checkAssignmentCompatible(leftType, operator, rightType)
+                checkAssignmentCompatibility(leftType, operator, rightType, 0)
                 leftType
             }
             is PlusAssignment -> {
@@ -847,12 +847,13 @@ class TypeChecker(translationUnit: TranslationUnit) {
         }
     }
 
-    private fun checkAssignmentCompatible(left: Type, operator: Token, right: Type) {
+    private fun checkAssignmentCompatibility(left: Type, operator: Token, right: Type, columnDelta: Int) {
         if (!left.canCastFrom(right)) {
-            if (left == right) {
-                operator.error("cannot copy $right")
+            val decayed = right.decayed()
+            if (decayed === right) {
+                operator.error("  $right \nø $left ", columnDelta)
             } else {
-                operator.error("cannot convert $right to $left")
+                operator.error("  $right \n¤ $decayed \nø $left ", columnDelta)
             }
         }
     }
