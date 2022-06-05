@@ -467,7 +467,7 @@ class TypeChecker(translationUnit: TranslationUnit) {
                     DOUBLE_CONSTANT -> Value.double(constant.text.toDouble())
                     FLOAT_CONSTANT -> Value.float(constant.text.toFloat())
                     INTEGER_CONSTANT -> constant.integer()
-                    CHARACTER_CONSTANT -> Value.signedChar(constant.text[0].code)
+                    CHARACTER_CONSTANT -> Value.signedInt(constant.text[0].code)
                     else -> error("no value for $this")
                 }
                 value = temp
