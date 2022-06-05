@@ -5,8 +5,12 @@ import freditor.Fronts
 import freditor.LineNumbers
 import interpreter.Interpreter
 import semantic.Linter
+import semantic.TypeChecker
+import syntax.lexer.Lexer
+import syntax.parser.Parser
 import syntax.parser.autocompleteIdentifier
-import syntax.tree.Node
+import syntax.parser.translationUnit
+import syntax.tree.*
 
 import java.awt.BorderLayout
 import java.awt.Dimension
@@ -16,6 +20,7 @@ import java.awt.event.KeyEvent
 import java.awt.event.WindowAdapter
 import java.awt.event.WindowEvent
 import java.util.concurrent.ArrayBlockingQueue
+import java.util.function.Consumer
 
 import javax.swing.*
 import javax.swing.event.TreeModelListener
@@ -74,6 +79,10 @@ class MainFrame : JFrame() {
         editorWithLineNumbers.layout = BoxLayout(editorWithLineNumbers, BoxLayout.X_AXIS)
         editorWithLineNumbers.add(LineNumbers(editor))
         editorWithLineNumbers.add(editor)
+        editor.onRightClick = Consumer {
+            editor.clearDiagnostics()
+            showType()
+        }
         editor.setComponentToRepaint(editorWithLineNumbers)
 
         val horizontalSplit = JSplitPane(JSplitPane.HORIZONTAL_SPLIT, visualizer, editorWithLineNumbers)
@@ -232,6 +241,7 @@ class MainFrame : JFrame() {
                     KeyEvent.VK_SPACE -> if (event.isControlDown) {
                         autocompleteIdentifier()
                     }
+                    KeyEvent.VK_F1 -> showType()
                     KeyEvent.VK_F5 -> into.doClick()
                     KeyEvent.VK_F6 -> over.doClick()
                     KeyEvent.VK_F7 -> r3turn.doClick()
@@ -251,6 +261,36 @@ class MainFrame : JFrame() {
         } catch (diagnostic: Diagnostic) {
             showDiagnostic(diagnostic)
             updateDiagnostics(arrayListOf(diagnostic))
+        }
+    }
+
+    private fun detectRoot(node: Node) {
+        val root = node.root()
+        if (editor.cursor() in root.start until root.end) {
+            root.error(" $node ", -1)
+        }
+    }
+
+    private fun showType() {
+        try {
+            val translationUnit = Parser(Lexer(editor.text)).translationUnit()
+            TypeChecker(translationUnit)
+
+            translationUnit.walk({}) { node ->
+                if (node is Expression) {
+                    detectRoot(node)
+                } else if (node is FunctionDefinition) {
+                    detectRoot(node)
+                    node.parameters.forEach(::detectRoot)
+                } else if (node is NamedDeclarator) {
+                    detectRoot(node)
+                    if (node.declarator is Declarator.Initialized) {
+                        node.declarator.init.walk({}, ::detectRoot)
+                    }
+                }
+            }
+        } catch (diagnostic: Diagnostic) {
+            showDiagnostic(diagnostic)
         }
     }
 

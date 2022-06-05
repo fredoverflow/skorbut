@@ -12,7 +12,12 @@ abstract class Expression : Node() {
 
     var isLocator: Boolean = false
 
-    override fun toString(): String = "${super.toString()} : $type ${value?.show() ?: ""}"
+    override fun toString(): String {
+        value?.let { value ->
+            return "${super.toString()} : $type ${value.show()}"
+        }
+        return "${super.toString()} : $type"
+    }
 }
 
 abstract class Unary(val operator: Token, val operand: Expression) : Expression() {
