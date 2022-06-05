@@ -9,6 +9,7 @@ import syntax.lexer.TokenKind.*
 import syntax.parser.Parser
 import syntax.parser.translationUnit
 import syntax.tree.*
+import java.util.concurrent.atomic.AtomicReference
 import kotlin.math.floor
 import kotlin.math.pow
 
@@ -48,16 +49,25 @@ class Interpreter(program: String) {
     var before: Function1<Int, Unit>? = null
     var after: Function0<Unit>? = null
 
-    fun run(cursor: Int) {
-        val entryPoint = translationUnit.functions.firstOrNull { function ->
+    fun run(cursor: Int, previousEntryPoint: AtomicReference<String>) {
+        var entryPoint = translationUnit.functions.firstOrNull { function ->
             cursor in function.specifiers.list.first().root().start..function.closingBrace.start
         }
-        if (entryPoint != null && entryPoint.returnType() == VoidType && entryPoint.parameters.isEmpty()) {
-            entryPoint.execute(emptyList())
-            reportMemoryLeaks(entryPoint)
-        } else {
+        if ("main" == entryPoint?.name()) {
+            previousEntryPoint.set("")
             run()
+            return
         }
+        if (entryPoint == null || entryPoint.returnType() != VoidType || entryPoint.parameters.isNotEmpty()) {
+            entryPoint = functions[previousEntryPoint.get()]
+            if (entryPoint == null || entryPoint.returnType() != VoidType || entryPoint.parameters.isNotEmpty()) {
+                run()
+                return
+            }
+        }
+        previousEntryPoint.set(entryPoint.name())
+        entryPoint.execute(emptyList())
+        reportMemoryLeaks(entryPoint)
     }
 
     fun run() {
