@@ -9,10 +9,10 @@ data class Object(val segment: Segment, val offset: Int, val type: Type, val ind
         if (index > bound) throw AssertionError("index $index out of bounds $bound")
     }
 
-    fun address(): Long {
-        val hi = segment.hashCode().toLong() // TODO not guaranteed to be unique
-        val lo = segment.type.sizeof(offset).toLong()
-        return hi.shl(32).or(lo)
+    fun address(): Int {
+        val hi = segment.address
+        val lo = segment.type.sizeof(offset)
+        return hi.shl(16) + lo
     }
 
     fun isSentinel(): Boolean = (index == bound)
@@ -128,7 +128,7 @@ data class ArithmeticValue(val value: Double, val type: ArithmeticType) : Value 
 data class PointerValue(val referenced: Object) : Value {
     override fun type(): Type = PointerType(referenced.type)
 
-    override fun show(): String = "*"
+    override fun show(): String = "%08x".format(referenced.address())
 
     operator fun plus(delta: Int): PointerValue = PointerValue(referenced.checkReferable() + delta)
 

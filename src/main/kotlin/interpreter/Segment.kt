@@ -51,4 +51,18 @@ class Segment(val type: Type) {
             memory[offset + i] = sourceMemory[sourceOffset + i]
         }
     }
+
+    companion object {
+        private var state = System.currentTimeMillis().toInt()
+
+        // generates 4,294,967,296 unique addresses before repeating
+        fun randomAddress(): Int {
+            state = state * 214013 + 2531011
+            return state
+        }
+    }
+
+    val address: Int by lazy {
+        randomAddress()
+    }
 }
