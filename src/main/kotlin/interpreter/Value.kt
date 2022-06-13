@@ -161,7 +161,7 @@ data class FunctionDesignator(val functionName: Token, val functionType: Functio
 data class FunctionPointerValue(val designator: FunctionDesignator) : Value {
     override fun type(): Type = PointerType(designator.functionType)
 
-    override fun show(): String = "${designator.functionName}"
+    override fun show(): String = "&${designator.functionName}"
 }
 
 object IndeterminateValue : Value {
