@@ -14,19 +14,23 @@ fun Parser.externalDeclaration(): Node {
         return Declaration(specifiers, emptyList()).semicolon()
     }
     val firstNamedDeclarator = namedDeclarator()
-    return if (firstNamedDeclarator.declarator.leaf() is Declarator.Function && current == OPENING_BRACE) {
-        symbolTable.declare(firstNamedDeclarator.name, FunctionType.DEFINITION_MARKER, 0)
-        symbolTable.rescoped {
-            braced {
-                FunctionDefinition(specifiers, firstNamedDeclarator, list0Until(CLOSING_BRACE, ::statement), token)
+    if (firstNamedDeclarator.declarator.leaf() is Declarator.Function) {
+        if (current == SEMICOLON && lookahead.kind == OPENING_BRACE) {
+            token.error("function definitions require no semicolon")
+        }
+        if (current == OPENING_BRACE) {
+            symbolTable.declare(firstNamedDeclarator.name, FunctionType.DEFINITION_MARKER, 0)
+            return symbolTable.rescoped {
+                braced {
+                    FunctionDefinition(specifiers, firstNamedDeclarator, list0Until(CLOSING_BRACE, ::statement), token)
+                }
             }
         }
-    } else {
-        val isTypedefName = specifiers.storageClass == TYPEDEF
-        declare(firstNamedDeclarator, isTypedefName)
-        val declarators = commaSeparatedList1(initDeclarator(firstNamedDeclarator)) {
-            initDeclarator().apply { declare(this, isTypedefName) }
-        }
-        Declaration(specifiers, declarators).semicolon()
     }
+    val isTypedefName = specifiers.storageClass == TYPEDEF
+    declare(firstNamedDeclarator, isTypedefName)
+    val declarators = commaSeparatedList1(initDeclarator(firstNamedDeclarator)) {
+        initDeclarator().apply { declare(this, isTypedefName) }
+    }
+    return Declaration(specifiers, declarators).semicolon()
 }
