@@ -65,8 +65,12 @@ class Linter(val translationUnit: TranslationUnit) : LinterBase() {
                 is FunctionType -> root.warn("missing () for function call")
                 else -> root.warn("$root has no effect")
             }
+            PLUS, HYPHEN -> when (this) {
+                is Binary -> root.warn("$root has no effect, did you mean $root= instead?")
+                else -> root.warn("$root has no effect")
+            }
             OPENING_PAREN, SIZEOF, OPENING_BRACKET, DOT, HYPHEN_MORE,
-            AMPERSAND, ASTERISK, PLUS, HYPHEN, TILDE, BANG, SLASH, PERCENT,
+            AMPERSAND, ASTERISK, TILDE, BANG, SLASH, PERCENT,
             LESS_LESS, MORE_MORE, LESS, MORE, LESS_EQUAL, MORE_EQUAL, BANG_EQUAL,
             CARET, BAR, AMPERSAND_AMPERSAND, BAR_BAR,
             DOUBLE_CONSTANT, FLOAT_CONSTANT, INTEGER_CONSTANT,
