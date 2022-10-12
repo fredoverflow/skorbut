@@ -44,6 +44,8 @@ fun Parser.statement(): Statement = when (current) {
         else -> ExpressionStatement(expression()).semicolon()
     }
 
+    SEMICOLON -> token.error("unexpected semicolon")
+
     else -> ExpressionStatement(expression()).semicolon()
 }
 
