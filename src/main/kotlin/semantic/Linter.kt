@@ -40,11 +40,6 @@ class Linter(val translationUnit: TranslationUnit) : LinterBase() {
                     it.condition.detectSuspiciousCondition()
                 }
                 is For -> {
-                    when (it.init) {
-                        is ExpressionStatement -> {
-                            it.init.expression.detectOperatorWithoutEffect()
-                        }
-                    }
                     it.condition?.run { detectSuspiciousCondition() }
                     it.update?.run { detectOperatorWithoutEffect() }
                 }
