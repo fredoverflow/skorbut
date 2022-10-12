@@ -57,9 +57,10 @@ class Linter(val translationUnit: TranslationUnit) : LinterBase() {
     private fun Expression.detectOperatorWithoutEffect() {
         val root = root()
         when (root.kind) {
+            EQUAL_EQUAL -> root.warn("== is comparison, did you mean = instead?")
             OPENING_PAREN, SIZEOF, OPENING_BRACKET, DOT, HYPHEN_MORE,
             AMPERSAND, ASTERISK, PLUS, HYPHEN, TILDE, BANG, SLASH, PERCENT,
-            LESS_LESS, MORE_MORE, LESS, MORE, LESS_EQUAL, MORE_EQUAL, EQUAL_EQUAL, BANG_EQUAL,
+            LESS_LESS, MORE_MORE, LESS, MORE, LESS_EQUAL, MORE_EQUAL, BANG_EQUAL,
             CARET, BAR, AMPERSAND_AMPERSAND, BAR_BAR,
             DOUBLE_CONSTANT, FLOAT_CONSTANT, INTEGER_CONSTANT,
             CHARACTER_CONSTANT, STRING_LITERAL,
