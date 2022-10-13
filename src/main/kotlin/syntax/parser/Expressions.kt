@@ -22,6 +22,13 @@ inline fun Parser.assignmentExpression(): Expression {
     return subexpression(outerPrecedence = PRECEDENCE_COMMA)
 }
 
+fun Parser.functionCallArgument(): Expression {
+    if (isDeclarationSpecifier(token)) {
+        token.error("function call arguments require no types, \nas opposed to function definition parameters")
+    }
+    return subexpression(outerPrecedence = PRECEDENCE_COMMA)
+}
+
 fun Parser.subexpression(outerPrecedence: Int): Expression {
     val nullDenotation = nullDenotations[current.ordinal] ?: illegalStartOf("expression")
 

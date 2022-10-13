@@ -16,7 +16,7 @@ object SubscriptDenotation : LeftDenotation(PRECEDENCE_POSTFIX) {
 
 object FunctionCallDenotation : LeftDenotation(PRECEDENCE_POSTFIX) {
     override fun Parser.parse(left: Expression, operator: Token): Expression {
-        return FunctionCall(left, commaSeparatedList0(CLOSING_PAREN, ::assignmentExpression) before CLOSING_PAREN)
+        return FunctionCall(left, commaSeparatedList0(CLOSING_PAREN, ::functionCallArgument) before CLOSING_PAREN)
     }
 }
 
