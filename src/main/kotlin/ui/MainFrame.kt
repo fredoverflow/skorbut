@@ -326,6 +326,7 @@ class MainFrame : JFrame() {
                 }
             }
         }
+        consoleUI.text = ""
         interpreter.console.update = { SwingUtilities.invokeAndWait { updateConsole() } }
 
         memoryUI.memory = interpreter.memory

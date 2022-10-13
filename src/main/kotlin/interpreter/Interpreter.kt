@@ -9,6 +9,9 @@ import syntax.lexer.TokenKind.*
 import syntax.parser.Parser
 import syntax.parser.translationUnit
 import syntax.tree.*
+import java.time.LocalTime
+import java.time.format.DateTimeFormatter.ISO_TIME
+import java.time.temporal.ChronoUnit.SECONDS
 import java.util.concurrent.atomic.AtomicReference
 import kotlin.math.floor
 import kotlin.math.pow
@@ -27,6 +30,8 @@ class Interpreter(program: String) {
     val console = Console()
 
     var stackDepth = 0
+        private set
+    private var passedAssertions = 0
 
     private var targetType: Type = VoidPointerType
 
@@ -67,6 +72,7 @@ class Interpreter(program: String) {
         }
         previousEntryPoint.set(entryPoint.name())
         entryPoint.execute(emptyList())
+        reportPassedAssertions()
         reportMemoryLeaks(entryPoint)
     }
 
@@ -78,9 +84,18 @@ class Interpreter(program: String) {
 
         val result = main.execute(emptyList())
         val exitCode = (result as ArithmeticValue).value.toInt()
-        console.print("\nmain finished with exit code $exitCode")
+        console.print("\nmain finished with exit code $exitCode\n")
         console.update?.invoke()
+        reportPassedAssertions()
         reportMemoryLeaks(main)
+    }
+
+    private fun reportPassedAssertions() {
+        if (passedAssertions != 0) {
+            val now = LocalTime.now().truncatedTo(SECONDS).format(ISO_TIME)
+            console.print("\n[$now] passed assertions: $passedAssertions\n")
+            console.update?.invoke()
+        }
     }
 
     private fun reportMemoryLeaks(function: FunctionDefinition) {
@@ -140,6 +155,7 @@ class Interpreter(program: String) {
                             }
                             is FlatAssert -> {
                                 if (!condition.delayedCondition()) condition.root().error("assertion failed")
+                                ++passedAssertions
                             }
                             else -> error("no execute for $this")
                         }
