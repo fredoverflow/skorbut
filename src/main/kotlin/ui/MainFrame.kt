@@ -158,7 +158,6 @@ class MainFrame : JFrame() {
                     updateConsole()
                 } else {
                     JOptionPane.showMessageDialog(this@MainFrame, "You probably forgot one STEP", "Nobody is waiting for input yet", JOptionPane.ERROR_MESSAGE)
-                    editor.requestFocusInWindow()
                 }
             }
         })
@@ -167,6 +166,10 @@ class MainFrame : JFrame() {
     private fun updateConsole() {
         consoleUI.text = interpreter.console.getText()
         output.selectedIndex = 1
+        requestFocusInBlockedConsoleOrEditor()
+    }
+
+    private fun requestFocusInBlockedConsoleOrEditor() {
         if (interpreter.console.isBlocked()) {
             consoleUI.requestFocusInWindow()
         } else {
@@ -176,7 +179,7 @@ class MainFrame : JFrame() {
 
     private fun listenToSlider() {
         slider.addChangeListener {
-            editor.requestFocusInWindow()
+            requestFocusInBlockedConsoleOrEditor()
             configureTimer()
         }
     }
@@ -212,17 +215,17 @@ class MainFrame : JFrame() {
         }
 
         into.addActionListener {
-            editor.requestFocusInWindow()
+            requestFocusInBlockedConsoleOrEditor()
             queue.offer("into")
         }
 
         over.addActionListener {
-            editor.requestFocusInWindow()
+            requestFocusInBlockedConsoleOrEditor()
             queue.offer("over")
         }
 
         r3turn.addActionListener {
-            editor.requestFocusInWindow()
+            requestFocusInBlockedConsoleOrEditor()
             queue.offer("return")
         }
 
