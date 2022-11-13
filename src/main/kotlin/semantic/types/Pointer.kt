@@ -23,7 +23,7 @@ data class PointerType(val referencedType: Type) : ComparablePointerType {
     }
 
     override fun cast(source: Value): Value {
-        if (!canCastFromPointer(source.type().decayed())) throw AssertionError("${source.type()}\n cannot be converted to\n$this")
+        if (!canCastFromPointer(source.type().decayed())) throw AssertionError("${source.type()}\n cannot be converted to \n$this")
         return source.decayed()
     }
 
