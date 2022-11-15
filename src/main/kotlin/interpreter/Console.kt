@@ -70,7 +70,7 @@ class Console {
 
     private fun formatValue(value: Value, specifier: Char): CharSequence {
         return when (specifier) {
-            'c' -> (value as ArithmeticValue).value.toLong().and(0xff).toInt().toChar().toString()
+            'c' -> (value as ArithmeticValue).value.toLong().toInt().and(0xff).toChar().toString()
             'd' -> (value as ArithmeticValue).value.toLong().toInt().toString()
             'u' -> (value as ArithmeticValue).value.toLong().and(0xffffffff).toString()
             'x' -> Integer.toHexString((value as ArithmeticValue).value.toLong().toInt())
@@ -86,7 +86,7 @@ class Console {
         var ptr = start
         var x = (ptr.referenced.evaluate() as ArithmeticValue).value
         while (x != 0.0) {
-            sb.append(x.toInt().toChar())
+            sb.append(x.toInt().and(0xff).toChar())
             ptr += 1
             if (ptr.referenced.isSentinel()) error("missing NUL terminator")
             x = (ptr.referenced.evaluate() as ArithmeticValue).value
@@ -128,7 +128,7 @@ class Console {
                         }
                         'c' -> {
                             if (type !== SignedCharType) format.error("%f expects ${SignedCharType.pointer()}, not ${type.pointer()}")
-                            arg.referenced.assign(Value.signedChar(getchar().code))
+                            arg.referenced.assign(Value.signedChar(getchar()))
                         }
                         's' -> {
                             format.error("%s is unsafe, please use %123s instead, where 123 is the maximum length")
@@ -144,7 +144,7 @@ class Console {
                             val x = scanString(len)
                             var obj = arg.referenced
                             for (c in x) {
-                                obj.assign(Value.signedChar(c.code))
+                                obj.assign(Value.signedChar(c))
                                 obj += 1
                             }
                             obj.assign(Value.NUL)
@@ -207,7 +207,7 @@ class Console {
 
     private fun scanString(len: Int): CharSequence {
         val sb = StringBuilder()
-        while (getchar() in '!'..'~') {
+        while (getchar() > ' ') {
             sb.append(current)
             if (sb.length == len) return sb
         }
@@ -228,7 +228,8 @@ class Console {
 
     fun keyTyped(x: Char) {
         when (x) {
-            in ' '..'~' -> input.append(x)
+            in '\u0020'..'\u007e' -> input.append(x)
+            in '\u00a0'..'\u00ff' -> input.append(x)
             '\b' -> backspace()
             '\n' -> enter()
             '\u0004', '\u001a' -> stop()

@@ -184,7 +184,7 @@ class Interpreter(program: String) {
                 return if (init.expression is StringLiteral && type is ArrayType && type.elementType == SignedCharType) {
                     val str = init.expression.literal.text
                     for ((i, c) in str.withIndex()) {
-                        segment[start + i] = Value.signedChar(c.code)
+                        segment[start + i] = Value.signedChar(c)
                     }
                     for (i in str.length until type.size) {
                         segment[start + i] = Value.NUL
@@ -341,11 +341,11 @@ class Interpreter(program: String) {
                     }
                     "putchar" -> {
                         val arg = arguments[0].evaluate() as ArithmeticValue
-                        console.putchar(arg.value.toLong().and(0xff).toInt().toChar())
+                        console.putchar(arg.value.toLong().toInt().and(0xff).toChar())
                         return VoidValue
                     }
                     "getchar" -> {
-                        return Value.signedInt(console.getchar().code)
+                        return Value.signedInt(console.getchar().code.toByte().toInt())
                     }
                     "malloc" -> {
                         return allocate(function, arguments[0], { type -> memory.malloc(type) }, { type -> memory.malloc(type) })

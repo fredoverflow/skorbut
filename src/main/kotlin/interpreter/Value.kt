@@ -72,7 +72,7 @@ interface Value {
     }
 
     companion object {
-        fun signedChar(x: Int): ArithmeticValue = ArithmeticValue(x.toDouble(), SignedCharType)
+        fun signedChar(x: Char): ArithmeticValue = ArithmeticValue(x.code.toByte().toDouble(), SignedCharType)
         fun unsignedChar(x: Int): ArithmeticValue = ArithmeticValue(x.toDouble(), UnsignedCharType)
 
         fun signedShort(x: Int): ArithmeticValue = ArithmeticValue(x.toDouble(), SignedShortType)
@@ -85,7 +85,7 @@ interface Value {
         fun double(x: Double): ArithmeticValue = ArithmeticValue(x, DoubleType)
 
         val ONE = signedInt(1)
-        val NUL = signedChar(0)
+        val NUL = signedChar('\u0000')
         val ZERO = signedInt(0)
         val MINUS_ONE = signedInt(-1)
 

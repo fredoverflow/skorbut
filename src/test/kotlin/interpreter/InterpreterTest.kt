@@ -191,6 +191,38 @@ int main()
 """)
     }
 
+    @Test fun latin1() {
+        run("""
+int main()
+{
+    char x = 'ß';
+    int i = x;
+    assert x == -33;
+    assert i == -33;
+
+    char a[] = "äöüÄÖÜß";
+    assert a[0] == -28;
+    assert a[1] == -10;
+    assert a[2] == -4;
+    assert a[3] == -60;
+    assert a[4] == -42;
+    assert a[5] == -36;
+    assert a[6] == -33;
+    
+    char * s = "äöüÄÖÜß";
+    assert s[0] == -28;
+    assert s[1] == -10;
+    assert s[2] == -4;
+    assert s[3] == -60;
+    assert s[4] == -42;
+    assert s[5] == -36;
+    assert s[6] == -33;
+    
+    return 0;
+}
+""")
+    }
+
     @Test fun sumOfFirstTenNumbers() {
         run("""
 int main()
