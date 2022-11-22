@@ -14,6 +14,7 @@ import syntax.tree.*
 
 import java.awt.BorderLayout
 import java.awt.Dimension
+import java.awt.EventQueue
 import java.awt.Toolkit
 import java.awt.event.KeyAdapter
 import java.awt.event.KeyEvent
@@ -322,7 +323,7 @@ class MainFrame : JFrame() {
     private fun run() {
         interpreter.before = { pauseAt(it) }
         interpreter.after = {
-            SwingUtilities.invokeAndWait {
+            EventQueue.invokeAndWait {
                 memoryUI.update()
                 if (interpreter.console.isDirty) {
                     updateConsole()
@@ -330,7 +331,7 @@ class MainFrame : JFrame() {
             }
         }
         consoleUI.text = ""
-        interpreter.console.update = { SwingUtilities.invokeAndWait { updateConsole() } }
+        interpreter.console.update = { EventQueue.invokeAndWait(::updateConsole) }
 
         memoryUI.memory = interpreter.memory
         start.isEnabled = false
@@ -444,7 +445,7 @@ class MainFrame : JFrame() {
         lastReceivedPosition = position
         val entry = if (interpreter.stackDepth <= targetStackDepth) {
             // Step into mode
-            SwingUtilities.invokeLater {
+            EventQueue.invokeLater {
                 editor.setCursorTo(position)
             }
             // Block until the next button press
@@ -484,17 +485,17 @@ class MainFrame : JFrame() {
                 memoryUI.active = false
             } catch (diagnostic: Diagnostic) {
                 memoryUI.active = false
-                SwingUtilities.invokeLater {
+                EventQueue.invokeLater {
                     showDiagnostic(diagnostic)
                 }
             } catch (other: Throwable) {
                 memoryUI.active = false
-                SwingUtilities.invokeLater {
+                EventQueue.invokeLater {
                     showDiagnostic(lastReceivedPosition, other.message ?: "null")
                     other.printStackTrace()
                 }
             } finally {
-                SwingUtilities.invokeLater {
+                EventQueue.invokeLater {
                     start.isEnabled = true
                     into.isEnabled = false
                     over.isEnabled = false
