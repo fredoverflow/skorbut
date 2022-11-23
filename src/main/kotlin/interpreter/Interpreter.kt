@@ -26,7 +26,13 @@ class Interpreter(program: String) {
     private val variables = translationUnit.declarations.filter { it.specifiers.storageClass != TYPEDEF }
             .flatMap { it.namedDeclarators }.filter { it.offset < 0 && it.type.requiresStorage() }
 
-    val memory = Memory(typeChecker.getStringLiterals(), variables)
+    var onMemorySet: Function1<Memory, Unit>? = null
+    private var memory = Memory(emptySet(), emptyList())
+        private set(value) {
+            field = value
+            onMemorySet?.invoke(value)
+        }
+
     val console = Console()
 
     var stackDepth = 0
@@ -38,16 +44,6 @@ class Interpreter(program: String) {
     init {
         for (function in translationUnit.functions) {
             BuildControlFlowGraph(function)
-        }
-
-        for (namedDeclarator in variables) {
-            with(namedDeclarator) {
-                if (declarator is Declarator.Initialized) {
-                    initialize(type, declarator.init, memory.staticVariables, offset + Int.MIN_VALUE)
-                } else {
-                    defaultInitialize(type, memory.staticVariables, offset + Int.MIN_VALUE)
-                }
-            }
         }
     }
 
@@ -71,6 +67,7 @@ class Interpreter(program: String) {
             }
         }
         previousEntryPoint.set(entryPoint.name())
+        initializeMemory(entryPoint)
         entryPoint.execute(emptyList())
         reportPassedAssertions()
         reportMemoryLeaks(entryPoint)
@@ -82,12 +79,56 @@ class Interpreter(program: String) {
         if (main.parameters.isNotEmpty()) main.root().error("main cannot have parameters")
         if (main.returnType() !== SignedIntType) main.root().error("main must return int")
 
+        initializeMemory(main)
         val result = main.execute(emptyList())
         val exitCode = (result as ArithmeticValue).value.toInt()
         console.print("\nmain finished with exit code $exitCode\n")
         console.update?.invoke()
         reportPassedAssertions()
         reportMemoryLeaks(main)
+    }
+
+    private fun initializeMemory(start: FunctionDefinition) {
+        val usedStringLiterals = HashSet<String>()
+
+        val exploredFunctions = hashSetOf(start)
+
+        fun explore(parent: Node) {
+            parent.walkChildren({}) { node ->
+                when (node) {
+                    is StringLiteral -> {
+                        usedStringLiterals.add(node.literal.text)
+                    }
+                    is Identifier -> {
+                        if (node.type is FunctionType) {
+                            functions[node.name.text]?.let { function ->
+                                if (exploredFunctions.add(function)) {
+                                    explore(function)
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        for (namedDeclarator in variables) {
+            explore(namedDeclarator)
+        }
+        explore(start)
+
+        val stringLiterals = typeChecker.stringLiterals
+        stringLiterals.retainAll(usedStringLiterals)
+
+        memory = Memory(stringLiterals, variables)
+        for (namedDeclarator in variables) {
+            with(namedDeclarator) {
+                if (declarator is Declarator.Initialized) {
+                    initialize(type, declarator.init, memory.staticVariables, offset + Int.MIN_VALUE)
+                } else {
+                    defaultInitialize(type, memory.staticVariables, offset + Int.MIN_VALUE)
+                }
+            }
+        }
     }
 
     private fun reportPassedAssertions() {

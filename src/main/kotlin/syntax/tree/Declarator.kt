@@ -5,6 +5,12 @@ import semantic.types.Type
 import syntax.lexer.Token
 
 class NamedDeclarator(val name: Token, val declarator: Declarator) : Node() {
+    override fun forEachChild(action: (Node) -> Unit) {
+        if (declarator is Declarator.Initialized) {
+            action(declarator.init)
+        }
+    }
+
     override fun root(): Token = name
 
     var type: Type = Later

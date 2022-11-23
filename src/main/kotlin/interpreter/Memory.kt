@@ -12,7 +12,7 @@ import kotlin.math.min
 
 fun Iterable<String>.synthesizeStringConstantsType(): StructType {
     val symbols = ArrayList<Symbol>()
-    val type = StructType(fakeIdentifier("strings"), symbols)
+    val type = StructType(fakeIdentifier("string literals"), symbols)
     var offset = 0
     for (str in this) {
         val size = str.length + 1

@@ -4,6 +4,7 @@ import common.Diagnostic
 import freditor.Fronts
 import freditor.LineNumbers
 import interpreter.Interpreter
+import interpreter.Memory
 import semantic.Linter
 import semantic.TypeChecker
 import syntax.lexer.Lexer
@@ -35,7 +36,7 @@ class MainFrame : JFrame() {
     private val queue = ArrayBlockingQueue<String>(1)
     private var interpreter = Interpreter("int main(){return 0;}")
 
-    private val memoryUI = MemoryUI(interpreter.memory)
+    private val memoryUI = MemoryUI(Memory(emptySet(), emptyList()))
     private val syntaxTree = JTree()
     private val visualizer = JTabbedPane()
 
@@ -321,7 +322,12 @@ class MainFrame : JFrame() {
     }
 
     private fun run() {
-        interpreter.before = { pauseAt(it) }
+        interpreter.onMemorySet = { memory ->
+            EventQueue.invokeLater {
+                memoryUI.memory = memory
+            }
+        }
+        interpreter.before = ::pauseAt
         interpreter.after = {
             EventQueue.invokeAndWait {
                 memoryUI.update()
@@ -333,7 +339,6 @@ class MainFrame : JFrame() {
         consoleUI.text = ""
         interpreter.console.update = { EventQueue.invokeAndWait(::updateConsole) }
 
-        memoryUI.memory = interpreter.memory
         start.isEnabled = false
         into.isEnabled = true
         over.isEnabled = true

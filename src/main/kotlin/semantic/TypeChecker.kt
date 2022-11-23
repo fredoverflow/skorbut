@@ -14,8 +14,7 @@ class TypeChecker(translationUnit: TranslationUnit) {
     private val functionTokens: Map<String, Token> = translationUnit.functions.map { it.namedDeclarator.name }.associateBy(Token::text)
 
     private val symbolTable = SymbolTable()
-    private val stringLiterals = LinkedHashSet<String>()
-    fun getStringLiterals(): Set<String> = stringLiterals
+    val stringLiterals = LinkedHashSet<String>()
 
     private var staticOffset = Int.MIN_VALUE
     private var currentReturnType: Type = Later
@@ -355,6 +354,7 @@ class TypeChecker(translationUnit: TranslationUnit) {
                         type.size = init.list.size
                     } else if (init is ExpressionInitializer && init.expression is StringLiteral) {
                         type.size = init.expression.literal.text.length + 1
+                        init.expression.type = type
                     }
                     if (currentDeclarationIsStatic) staticOffset += type.count()
                 }
@@ -475,7 +475,9 @@ class TypeChecker(translationUnit: TranslationUnit) {
             }
             is StringLiteral -> {
                 isLocator = true
-                stringLiterals.add(literal.text)
+                if (sizeofNesting == 0) {
+                    stringLiterals.add(literal.text)
+                }
                 ArrayType(literal.text.length + 1, SignedCharType)
             }
             is Identifier -> {
