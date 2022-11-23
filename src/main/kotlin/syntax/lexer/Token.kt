@@ -35,3 +35,4 @@ class Token(val kind: TokenKind, val start: Int, val source: String, val text: S
 fun fakeIdentifier(name: String) = Token(IDENTIFIER, Int.MIN_VALUE, name, name)
 
 val missingIdentifier = fakeIdentifier("")
+val hiddenIdentifier = fakeIdentifier("_")

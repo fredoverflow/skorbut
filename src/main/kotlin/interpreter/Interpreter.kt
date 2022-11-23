@@ -23,8 +23,6 @@ class Interpreter(program: String) {
     private val typeChecker = TypeChecker(translationUnit)
 
     private val functions = translationUnit.functions.associateBy(FunctionDefinition::name)
-    private val variables = translationUnit.declarations.filter { it.specifiers.storageClass != TYPEDEF }
-        .flatMap { it.namedDeclarators }.filter { it.offset < 0 && it.type.requiresStorage() }
 
     var onMemorySet: Function1<Memory, Unit>? = null
     private var memory = Memory(emptySet(), emptyList())
@@ -93,6 +91,13 @@ class Interpreter(program: String) {
 
         val exploredFunctions = hashSetOf(start)
 
+        val staticVariables: Map<String, NamedDeclarator> = translationUnit.declarations
+            .filter { declaration -> declaration.specifiers.storageClass != TYPEDEF }
+            .flatMap(Declaration::namedDeclarators)
+            .filter { namedDeclarator -> namedDeclarator.offset < 0 && namedDeclarator.type.requiresStorage() }
+            .associateBy { namedDeclarator -> namedDeclarator.name.text }
+        val usedStaticOffsets = HashSet<Int>()
+
         fun explore(parent: Node) {
             parent.walkChildren({}) { node ->
                 when (node) {
@@ -107,26 +112,35 @@ class Interpreter(program: String) {
                                     explore(function)
                                 }
                             }
+                        } else if (node.symbol.offset < 0) {
+                            staticVariables[node.name.text]?.let { variable ->
+                                if (usedStaticOffsets.add(node.symbol.offset)) {
+                                    explore(variable)
+                                }
+                            }
                         }
                     }
                 }
             }
-        }
-        for (namedDeclarator in variables) {
-            explore(namedDeclarator)
         }
         explore(start)
 
         val stringLiterals = typeChecker.stringLiterals
         stringLiterals.retainAll(usedStringLiterals)
 
-        memory = Memory(stringLiterals, variables)
-        for (namedDeclarator in variables) {
-            with(namedDeclarator) {
-                if (declarator is Declarator.Initialized) {
-                    initialize(type, declarator.init, memory.staticVariables, offset + Int.MIN_VALUE)
-                } else {
-                    defaultInitialize(type, memory.staticVariables, offset + Int.MIN_VALUE)
+        if (usedStaticOffsets.isEmpty()) {
+            memory = Memory(stringLiterals, emptyList())
+        } else {
+            memory = Memory(stringLiterals, staticVariables.values.map { namedDeclarator ->
+                if (namedDeclarator.offset in usedStaticOffsets) namedDeclarator else namedDeclarator.hidden()
+            })
+            for (namedDeclarator in staticVariables.values) {
+                with(namedDeclarator) {
+                    if (declarator is Declarator.Initialized && offset in usedStaticOffsets) {
+                        initialize(type, declarator.init, memory.staticVariables, offset + Int.MIN_VALUE)
+                    } else {
+                        defaultInitialize(type, memory.staticVariables, offset + Int.MIN_VALUE)
+                    }
                 }
             }
         }

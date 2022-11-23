@@ -3,6 +3,7 @@ package syntax.tree
 import semantic.types.Later
 import semantic.types.Type
 import syntax.lexer.Token
+import syntax.lexer.hiddenIdentifier
 
 class NamedDeclarator(val name: Token, val declarator: Declarator) : Node() {
     override fun forEachChild(action: (Node) -> Unit) {
@@ -15,6 +16,13 @@ class NamedDeclarator(val name: Token, val declarator: Declarator) : Node() {
 
     var type: Type = Later
     var offset: Int = 1234567890
+
+    fun hidden(): NamedDeclarator {
+        val result = NamedDeclarator(hiddenIdentifier, declarator)
+        result.type = type
+        result.offset = offset
+        return result
+    }
 
     override fun toString(): String = "$name : $type"
 
