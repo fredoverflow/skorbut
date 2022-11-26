@@ -191,6 +191,7 @@ class Interpreter(program: String) {
                                     before?.invoke(r3turn.start)
                                     after?.invoke()
                                 } else {
+                                    targetType = (namedDeclarator.type as FunctionType).returnType
                                     return result.delayed()
                                 }
                             }
