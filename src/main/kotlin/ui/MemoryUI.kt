@@ -95,8 +95,8 @@ class MemoryUI(var memory: Memory) : JPanel() {
             pointers.clear()
             updateSingleSegment(memory.stringConstants, stringsBorder)
             updateSingleSegment(memory.staticVariables, staticsBorder)
-            updateMultipleSegments(memory.stack, stackBorder)
             updateMultipleSegments(memory.heap, heapBorder)
+            updateMultipleSegments(memory.stack, stackBorder)
             revalidate()
             repaint()
         }
@@ -119,9 +119,9 @@ class MemoryUI(var memory: Memory) : JPanel() {
         }
     }
 
-    private fun updateMultipleSegments(segments: Iterable<Segment>, border: LineBorder) {
+    private fun updateMultipleSegments(segments: List<Segment>, border: LineBorder) {
         lineBorder = border
-        segments.forEach { update(it) }
+        segments.asReversed().forEach(::update)
     }
 
     override fun paint(graphics: Graphics) {
