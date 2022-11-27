@@ -97,6 +97,7 @@ class MemoryUI(var memory: Memory) : JPanel() {
             updateSingleSegment(memory.stringConstants, stringsBorder)
             updateSingleSegment(memory.staticVariables, staticsBorder)
             updateMultipleSegments(memory.heap, heapBorder)
+            add(Box.createVerticalGlue())
             updateMultipleSegments(memory.stack, stackBorder)
             revalidate()
             repaint()
