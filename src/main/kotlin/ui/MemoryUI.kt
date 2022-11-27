@@ -116,13 +116,15 @@ class MemoryUI(var memory: Memory) : JPanel() {
         valueIndex = 0
         with(segment) {
             if (type is StructType) {
-                val component = objectComponent(type.name.text, type)
+                val title = "%04x  %s".format(address.and(0xffff), type.name.text)
+                val component = objectComponent(title, type)
                 val rigidArea = Box.createRigidArea(rigidWidth) as JComponent
                 rigidArea.alignmentX = JComponent.LEFT_ALIGNMENT
                 component.add(rigidArea)
                 add(component)
             } else {
-                add(objectComponent("", type))
+                val title = "%04x".format(address.and(0xffff))
+                add(objectComponent(title, type))
             }
         }
     }

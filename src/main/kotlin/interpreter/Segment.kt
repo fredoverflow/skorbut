@@ -62,7 +62,5 @@ class Segment(val type: Type) {
         }
     }
 
-    val address: Int by lazy {
-        randomAddress()
-    }
+    val address = randomAddress()
 }
