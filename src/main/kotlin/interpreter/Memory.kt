@@ -24,7 +24,7 @@ fun Iterable<String>.synthesizeStringConstantsType(): StructType {
 
 fun Iterable<NamedDeclarator>.synthesizeStaticVariablesType(): StructType {
     val symbols = ArrayList<Symbol>()
-    val type = StructType(fakeIdentifier("statics"), symbols)
+    val type = StructType(fakeIdentifier("static variables"), symbols)
     for (namedDeclarator in this) {
         with(namedDeclarator) {
             symbols.add(Symbol(name, this.type, offset))

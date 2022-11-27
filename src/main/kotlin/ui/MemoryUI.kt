@@ -34,6 +34,7 @@ class MemoryUI(var memory: Memory) : JPanel() {
     private val stackBorder = LineBorder(Color.BLUE, 2, true)
     private val heapBorder = LineBorder(Color(128, 0, 128), 2, true)
     private var lineBorder = stringsBorder
+    private val rigidWidth = Dimension(300, 0)
 
     private fun Segment.objectComponent(title: String, qualified: Type): JComponent {
         val type = qualified.unqualified()
@@ -114,8 +115,15 @@ class MemoryUI(var memory: Memory) : JPanel() {
         objects[segment] = generateSequence { HashMap<Type, JComponent>() }.take(segment.type.count()).toMutableList()
         valueIndex = 0
         with(segment) {
-            val title = if (type is StructType) type.name.text else ""
-            add(objectComponent(title, type))
+            if (type is StructType) {
+                val component = objectComponent(type.name.text, type)
+                val rigidArea = Box.createRigidArea(rigidWidth) as JComponent
+                rigidArea.alignmentX = JComponent.LEFT_ALIGNMENT
+                component.add(rigidArea)
+                add(component)
+            } else {
+                add(objectComponent("", type))
+            }
         }
     }
 
