@@ -166,12 +166,12 @@ class MemoryUI(var memory: Memory) : JPanel() {
     private fun drawPointer(g2d: Graphics2D, x1: Double, y1: Double, x2: Double, y2: Double) {
         var deltaX = x2 - x1
         var deltaY = y2 - y1
-        var controlX = (x1 + x2 - deltaY) * 0.5
-        var controlY = (y1 + y2 + deltaX) * 0.5
-        if (controlX < 0) {
-            controlX += deltaY
-            controlY -= deltaX
+        if (deltaY > 0) {
+            deltaX = -deltaX
+            deltaY = -deltaY
         }
+        val controlX = (x1 + x2 - deltaY) * 0.5
+        val controlY = (y1 + y2 + deltaX) * 0.5
         g2d.draw(QuadCurve2D.Double(x1, y1, controlX, controlY, x2, y2))
 
         deltaX = controlX - x2
