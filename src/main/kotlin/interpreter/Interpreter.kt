@@ -196,7 +196,16 @@ class Interpreter(program: String) {
                                 }
                             }
                             is FlatAssert -> {
-                                if (!condition.delayedCondition()) condition.root().error("assertion failed")
+                                if (condition is RelationalEquality && condition.right.type is ArithmeticType) {
+                                    val left = condition.left.delayed()
+                                    val right = condition.right.evaluate()
+                                    if (relationalEquality(left as ArithmeticValue, condition.operator, right as ArithmeticValue).isFalse()) {
+                                        val leftShow = left.show()
+                                        condition.root().error(" $leftShow ${condition.operator} ${right.show()} ", -leftShow.length - 2)
+                                    }
+                                } else if (!condition.delayedCondition()) {
+                                    condition.root().error("assertion failed")
+                                }
                                 ++passedAssertions
                             }
                             else -> error("no execute for $this")
@@ -715,7 +724,7 @@ fun shift(x: Value, operator: Token, y: Value, type: Type): Value {
     return type.cast(Value.signedInt(bits))
 }
 
-fun relationalEquality(x: ArithmeticValue, operator: Token, y: ArithmeticValue): Value {
+fun relationalEquality(x: ArithmeticValue, operator: Token, y: ArithmeticValue): ArithmeticValue {
     val commonType = x.type.usualArithmeticConversions(y.type)
     val a = commonType.cast(x).value
     val b = commonType.cast(y).value
