@@ -69,7 +69,7 @@ class Interpreter(program: String) {
         previousEntryPoint.set(entryPoint.name())
         initializeMemory(entryPoint)
         entryPoint.execute(emptyList())
-        reportPassedAssertions()
+        reportPassedAssertions(entryPoint.name())
         reportMemoryLeaks(entryPoint)
     }
 
@@ -84,7 +84,7 @@ class Interpreter(program: String) {
         val exitCode = (result as ArithmeticValue).value.toInt()
         console.print("\nmain finished with exit code $exitCode\n")
         console.update?.invoke()
-        reportPassedAssertions()
+        reportPassedAssertions("main")
         reportMemoryLeaks(main)
     }
 
@@ -131,10 +131,10 @@ class Interpreter(program: String) {
         }
     }
 
-    private fun reportPassedAssertions() {
+    private fun reportPassedAssertions(entryPoint: String) {
         if (passedAssertions != 0) {
             val now = LocalTime.now().truncatedTo(SECONDS).format(ISO_TIME)
-            console.print("\n[$now] passed assertions: $passedAssertions\n")
+            console.print("\n[$now] $entryPoint: ALL $passedAssertions assertions PASSED\n")
             console.update?.invoke()
         }
     }
