@@ -45,10 +45,14 @@ fun Parser.isDeclarationSpecifier(token: Token): Boolean = when (token.kind) {
 }
 
 fun Parser.declaration(): Statement {
+    val firstSpecifier = token
     val specifiers = declarationSpecifiers1declareDefTagName()
     val isTypedef = specifiers.storageClass == TYPEDEF
     val declarators = commaSeparatedList0(SEMICOLON) {
         initDeclarator().apply { declare(this, isTypedef) }
+    }
+    if (current == OPENING_BRACE) {
+        firstSpecifier.error("cannot define function ${declarators.lastOrNull()?.name} inside function ${symbolTable.currentFunction()?.name}")
     }
     return Declaration(specifiers, declarators).semicolon()
 }

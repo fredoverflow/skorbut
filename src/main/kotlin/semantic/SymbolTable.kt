@@ -81,6 +81,10 @@ class SymbolTable {
         }
     }
 
+    fun currentFunction(): Symbol? {
+        return scopes[0].maxByOrNull(Symbol::offset)
+    }
+
     fun symbols(): Sequence<Symbol> = sequence {
         for (i in current downTo 0) {
             yieldAll(scopes[i])
