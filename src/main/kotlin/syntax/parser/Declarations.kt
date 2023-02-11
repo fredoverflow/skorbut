@@ -16,7 +16,9 @@ import syntax.tree.*
 fun Parser.declare(namedDeclarator: NamedDeclarator, isTypedefName: Boolean) {
     val pseudoType = when {
         isTypedefName -> MarkerIsTypedefName
+
         namedDeclarator.declarator.leaf() is Declarator.Function -> FunctionType.declarationMarker()
+
         else -> MarkerNotTypedefName
     }
     symbolTable.declare(namedDeclarator.name, pseudoType, 0)
@@ -115,7 +117,10 @@ fun Parser.declarationSpecifiers0(): DeclarationSpecifiers {
             ENUM, STRUCT, UNION ->
                 if (!typeTokens.isEmpty() && enumStructUnion.contains(typeTokens.first())) {
                     val previous = list.first { enumStructUnion.contains(it.kind()) }
-                    token.error("Did you forget to terminate the previous ${previous.kind()} with a semicolon?", previous.root())
+                    token.error(
+                        "Did you forget to terminate the previous ${previous.kind()} with a semicolon?",
+                        previous.root()
+                    )
                 } else if (typeTokens.contains(current)) {
                     val previous = list.first { it.kind() == current }
                     token.error("duplicate type specifier", previous.root())
@@ -134,8 +139,11 @@ fun Parser.declarationSpecifiers0(): DeclarationSpecifiers {
 
 fun Parser.declarationSpecifier(): DeclarationSpecifier = when (current) {
     ENUM -> enumSpecifier()
+
     STRUCT -> structSpecifier()
+
     UNION -> notImplementedYet("unions")
+
     else -> DeclarationSpecifier.Primitive(accept())
 }
 
@@ -220,13 +228,17 @@ fun Parser.namedDeclarator(): NamedDeclarator {
     }
     var temp: NamedDeclarator = when (current) {
         OPENING_PAREN -> parenthesized(::namedDeclarator)
+
         IDENTIFIER -> NamedDeclarator(accept(), Declarator.Identity)
+
         else -> illegalStartOf("declarator")
     }
     while (true) {
         temp = when (current) {
             OPENING_BRACKET -> temp.map { Declarator.Array(it, declaratorArray()) }
+
             OPENING_PAREN -> temp.map { Declarator.Function(it, declaratorFunction()) }
+
             else -> return temp
         }
     }
@@ -267,13 +279,17 @@ fun Parser.abstractDeclarator(): Declarator {
     }
     var temp: Declarator = when (current) {
         OPENING_PAREN -> parenthesized(::abstractDeclarator)
+
         IDENTIFIER -> token.error("identifier in abstract declarator")
+
         else -> Declarator.Identity
     }
     while (true) {
         temp = when (current) {
             OPENING_BRACKET -> Declarator.Array(temp, declaratorArray())
+
             OPENING_PAREN -> Declarator.Function(temp, declaratorFunction())
+
             else -> return temp
         }
     }
@@ -293,13 +309,17 @@ fun Parser.parameterDeclarator(): NamedDeclarator {
                 parenthesized(::parameterDeclarator)
             }
         }
+
         IDENTIFIER -> NamedDeclarator(accept(), Declarator.Identity)
+
         else -> NamedDeclarator(token, Declarator.Identity)
     }
     while (true) {
         temp = when (current) {
             OPENING_BRACKET -> temp.map { Declarator.Array(it, declaratorArray()) }
+
             OPENING_PAREN -> temp.map { Declarator.Function(it, declaratorFunction()) }
+
             else -> return temp
         }
     }

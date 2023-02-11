@@ -12,7 +12,9 @@ tailrec fun Lexer.identifierOrKeyword(): Token = when (next()) {
         val lexeme = lexeme()
         when (val value: Any? = identifiersOrKeywords[lexeme]) {
             is TokenKind -> verbatim(value)
+
             is String -> token(IDENTIFIER, value)
+
             else -> {
                 identifiersOrKeywords = identifiersOrKeywords.put(lexeme)
                 token(IDENTIFIER, lexeme)

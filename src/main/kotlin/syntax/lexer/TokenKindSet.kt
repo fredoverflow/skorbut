@@ -59,13 +59,14 @@ class TokenKindSet(private val bits: Long) {
     }
 
     override fun hashCode(): Int = fibonacciHash
+
     // Fibonacci hashing reduces the ChampMap height from 6 to 2
     private val fibonacciHash = (bits * GOLDEN_RATIO ushr 32).toInt()
 
     override fun toString(): String {
         return generateSequence(bits) { b -> b xor lowestOneBit(b) }
-                .takeWhile { b -> b != 0L }
-                .map { b -> tokenKindValues[numberOfTrailingZeros(b)] }
-                .joinToString(", ", "[", "]")
+            .takeWhile { b -> b != 0L }
+            .map { b -> tokenKindValues[numberOfTrailingZeros(b)] }
+            .joinToString(", ", "[", "]")
     }
 }

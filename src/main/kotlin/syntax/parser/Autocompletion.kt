@@ -25,6 +25,7 @@ private fun Parser.fittingSuffixes(textBeforeSelection: String): List<String> {
         if (previous.kind == TokenKind.IDENTIFIER && previous.end == textBeforeSelection.length) {
             return when (beforePrevious.kind) {
                 TokenKind.DOT, TokenKind.HYPHEN_MORE -> suffixesIn(allMemberNames.asSequence())
+
                 else -> suffixesIn(symbolTable.names())
             }
         }
@@ -37,9 +38,9 @@ private fun Parser.suffixesIn(names: Sequence<String>): List<String> {
     val prefixLength = prefix.length
 
     return names
-            .filter { it.length > prefixLength && it.startsWith(prefix) }
-            .map { it.substring(prefixLength) }
-            .toList()
+        .filter { it.length > prefixLength && it.startsWith(prefix) }
+        .map { it.substring(prefixLength) }
+        .toList()
 }
 
 private fun longestCommonPrefix(strings: List<String>): String {

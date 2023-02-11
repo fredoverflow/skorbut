@@ -13,7 +13,8 @@ class LexerTest {
 
     @Test
     fun identifiers() {
-        lexer = Lexer("a z a0 z9 a_z foo _bar the_quick_brown_fox_jumps_over_the_lazy_dog THE_QUICK_BROWN_FOX_JUMPS_OVER_THE_LAZY_DOG")
+        lexer =
+            Lexer("a z a0 z9 a_z foo _bar the_quick_brown_fox_jumps_over_the_lazy_dog THE_QUICK_BROWN_FOX_JUMPS_OVER_THE_LAZY_DOG")
 
         expectIdentifier("a")
         expectIdentifier("z")
@@ -28,13 +29,15 @@ class LexerTest {
 
     @Test
     fun stringLiterals() {
-        lexer = Lexer("""
+        lexer = Lexer(
+            """
         "hello"
         "hi there"
         "say \"hi\""
         "\"please\" is the magic word"
         "use \\n for a new line"
-        """)
+        """
+        )
 
         expectStringLiteral("hello")
         expectStringLiteral("hi there")
@@ -45,14 +48,16 @@ class LexerTest {
 
     @Test
     fun singleLineComments() {
-        lexer = Lexer("""// comment #1
+        lexer = Lexer(
+            """// comment #1
         a
         // comment #2
         // comment #3
         b
         c // comment #4
         d// comment #5
-        e//""")
+        e//"""
+        )
 
         expectIdentifier("a")
         expectIdentifier("b")
@@ -63,7 +68,8 @@ class LexerTest {
 
     @Test
     fun multiLineComments() {
-        lexer = Lexer("""/*
+        lexer = Lexer(
+            """/*
         comment #1
         */
         a   /* comment #2 */
@@ -71,7 +77,8 @@ class LexerTest {
         c /**/
         d/***/
         e /* / ** / *** /*/
-        f  /*""")
+        f  /*"""
+        )
 
         expectIdentifier("a")
         expectIdentifier("b")

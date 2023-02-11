@@ -5,9 +5,11 @@ import syntax.tree.*
 
 val unusedEmptyHashMap = HashMap<ArithmeticValue, String>()
 
-class State(val continueTarget: String, val breakTarget: String,
-            val switchControlType: ArithmeticType?,
-            val cases: HashMap<ArithmeticValue, String>, var default: String?) {
+class State(
+    val continueTarget: String, val breakTarget: String,
+    val switchControlType: ArithmeticType?,
+    val cases: HashMap<ArithmeticValue, String>, var default: String?
+) {
     constructor() : this("", "", null, unusedEmptyHashMap, null)
 
     fun openLoop(continueTarget: String, breakTarget: String): State {
@@ -77,19 +79,24 @@ class BuildControlFlowGraph(function: FunctionDefinition) {
             is Block -> {
                 statements.flatten(state)
             }
+
             is Declaration -> {
                 add(FlatDeclaration(specifiers, namedDeclarators))
             }
+
             is ExpressionStatement -> {
                 add(FlatExpressionStatement(expression))
             }
+
             is LabeledStatement -> {
                 insertLabel(label.text)
                 statement.flatten(state)
             }
+
             is Goto -> {
                 add(Jump(label.text))
             }
+
             is IfThenElse -> {
                 if (e1se == null) {
                     val execute = generateLabel()
@@ -118,6 +125,7 @@ class BuildControlFlowGraph(function: FunctionDefinition) {
                     insertLabel(done)
                 }
             }
+
             is Switch -> {
                 val done = generateLabel()
 
@@ -127,22 +135,29 @@ class BuildControlFlowGraph(function: FunctionDefinition) {
                 add(SwitchPlaceholder)
                 val basicBlock = currentBasicBlock
                 body.flatten(state)
-                basicBlock.replaceSwitchPlaceholderWithRealSwitch(HashSwitch(control, state.cases, state.default ?: done))
+                basicBlock.replaceSwitchPlaceholderWithRealSwitch(
+                    HashSwitch(control, state.cases, state.default ?: done)
+                )
 
                 insertLabel(done)
             }
+
             is Case -> {
                 if (state.switchControlType == null) {
                     case.error("case label must be nested inside a switch")
                 }
                 val caseLabel = generateLabel()
                 insertLabel(caseLabel)
-                val previous = state.cases.put(state.switchControlType.integralPromotions().cast(choice.value as ArithmeticValue), caseLabel)
+                val previous = state.cases.put(
+                    state.switchControlType.integralPromotions().cast(choice.value as ArithmeticValue),
+                    caseLabel
+                )
                 if (previous != null) {
                     case.error("duplicate case label")
                 }
                 body.flatten(state)
             }
+
             is Default -> {
                 if (state.switchControlType == null) {
                     default.error("default label must be nested inside a switch")
@@ -155,6 +170,7 @@ class BuildControlFlowGraph(function: FunctionDefinition) {
                 state.default = defaultLabel
                 body.flatten(state)
             }
+
             is Do -> {
                 val bodyStart = generateLabel()
                 val checkCondition = generateLabel()
@@ -171,6 +187,7 @@ class BuildControlFlowGraph(function: FunctionDefinition) {
 
                 insertLabel(done)
             }
+
             is While -> {
                 val checkCondition = generateLabel()
                 val bodyStart = generateLabel()
@@ -188,11 +205,13 @@ class BuildControlFlowGraph(function: FunctionDefinition) {
 
                 insertLabel(done)
             }
+
             is For -> {
                 when (init) {
                     is ExpressionStatement -> {
                         add(FlatExpressionStatement(init.expression))
                     }
+
                     is Declaration -> {
                         add(FlatDeclaration(init.specifiers, init.namedDeclarators))
                     }
@@ -233,24 +252,29 @@ class BuildControlFlowGraph(function: FunctionDefinition) {
                     insertLabel(done)
                 }
             }
+
             is Continue -> {
                 if (state.continueTarget.isEmpty()) {
                     continu3.error("continue must be nested inside a loop")
                 }
                 add(Jump(state.continueTarget))
             }
+
             is Break -> {
                 if (state.breakTarget.isEmpty()) {
                     br3ak.error("break must be nested inside a loop or switch")
                 }
                 add(Jump(state.breakTarget))
             }
+
             is Return -> {
                 add(FlatReturn(r3turn, result))
             }
+
             is Assert -> {
                 add(FlatAssert(condition))
             }
+
             else -> {
                 error("no flatten for $this")
             }

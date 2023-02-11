@@ -8,14 +8,17 @@ fun Lexer.constant(): Token {
         when (next()) {
             '0', '1', '2', '3', '4', '5', '6', '7', '8', '9' -> {
             }
+
             'f', 'F' -> {
                 next()
                 return token(FLOAT_CONSTANT)
             }
+
             '.' -> {
                 if (seenDecimalPoint) return token(DOUBLE_CONSTANT)
                 seenDecimalPoint = true
             }
+
             else -> return token(if (seenDecimalPoint) DOUBLE_CONSTANT else INTEGER_CONSTANT)
         }
     }
@@ -33,17 +36,21 @@ fun Lexer.zero(): Token {
         when (next()) {
             '0', '1', '2', '3', '4', '5', '6', '7' -> {
             }
+
             '8', '9' -> {
                 seen8or9 = true
             }
+
             'f', 'F' -> {
                 next()
                 return token(FLOAT_CONSTANT)
             }
+
             '.' -> {
                 if (seenDecimalPoint) return token(DOUBLE_CONSTANT)
                 seenDecimalPoint = true
             }
+
             else -> {
                 if (seenDecimalPoint) return token(DOUBLE_CONSTANT)
                 if (!seen8or9) return token(INTEGER_CONSTANT)

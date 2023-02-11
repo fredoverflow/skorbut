@@ -14,12 +14,14 @@ object Flexer : freditor.Flexer() {
 
     private val CHAR_CONSTANT_END = EMPTY.tail()
     private val CHAR_CONSTANT_ESCAPE = FlexerState('\n', null)
-    private val CHAR_CONSTANT_TAIL = FlexerState('\n', null, '\'', CHAR_CONSTANT_END, '\\', CHAR_CONSTANT_ESCAPE).setDefault(THIS)
+    private val CHAR_CONSTANT_TAIL =
+        FlexerState('\n', null, '\'', CHAR_CONSTANT_END, '\\', CHAR_CONSTANT_ESCAPE).setDefault(THIS)
     private val CHAR_CONSTANT_HEAD = CHAR_CONSTANT_TAIL.head()
 
     private val STRING_LITERAL_END = EMPTY.tail()
     private val STRING_LITERAL_ESCAPE = FlexerState('\n', null)
-    private val STRING_LITERAL_TAIL = FlexerState('\n', null, '\"', STRING_LITERAL_END, '\\', STRING_LITERAL_ESCAPE).setDefault(THIS)
+    private val STRING_LITERAL_TAIL =
+        FlexerState('\n', null, '\"', STRING_LITERAL_END, '\\', STRING_LITERAL_ESCAPE).setDefault(THIS)
     private val STRING_LITERAL_HEAD = STRING_LITERAL_TAIL.head()
 
     init {
@@ -35,28 +37,32 @@ object Flexer : freditor.Flexer() {
     private val IDENTIFIER_HEAD = IDENTIFIER_TAIL.head()
 
     private val START = FlexerStateBuilder()
-            .set('(', OPENING_PAREN)
-            .set(')', CLOSING_PAREN)
-            .set('[', OPENING_BRACKET)
-            .set(']', CLOSING_BRACKET)
-            .set('{', OPENING_BRACE)
-            .set('}', CLOSING_BRACE)
-            .set('\n', NEWLINE)
-            .set(' ', SPACE_HEAD)
-            .set('/', FlexerState('*', SLASH_ASTERISK, '/', SLASH_SLASH).head())
-            .set('\'', CHAR_CONSTANT_HEAD)
-            .set('\"', STRING_LITERAL_HEAD)
-            .set("09", NUMBER_HEAD)
-            .set("AZ__az", IDENTIFIER_HEAD)
-            .build()
-            .verbatim(IDENTIFIER_TAIL, "assert", "auto", "break", "case", "char", "const", "continue",
-                    "default", "do", "double", "else", "enum", "extern", "float", "for", "goto", "if", "int", "long",
-                    "register", "return", "short", "signed", "sizeof", "static", "struct", "switch", "typedef", "union",
-                    "unsigned", "void", "volatile", "while")
-            .verbatim(EMPTY, "!", "!=", "%", "%=", "&", "&&", "&=", "*", "*=", "+", "++", "+=", ",", "-", "--",
-                    "-=", "->", ".", "/", "/=", ":", ";", "<", "<<", "<<=", "<=", "=", "==", ">", ">=", ">>", ">>=", "?",
-                    "^", "^=", "|", "|=", "||", "~")
-            .setDefault(ERROR)
+        .set('(', OPENING_PAREN)
+        .set(')', CLOSING_PAREN)
+        .set('[', OPENING_BRACKET)
+        .set(']', CLOSING_BRACKET)
+        .set('{', OPENING_BRACE)
+        .set('}', CLOSING_BRACE)
+        .set('\n', NEWLINE)
+        .set(' ', SPACE_HEAD)
+        .set('/', FlexerState('*', SLASH_ASTERISK, '/', SLASH_SLASH).head())
+        .set('\'', CHAR_CONSTANT_HEAD)
+        .set('\"', STRING_LITERAL_HEAD)
+        .set("09", NUMBER_HEAD)
+        .set("AZ__az", IDENTIFIER_HEAD)
+        .build()
+        .verbatim(
+            IDENTIFIER_TAIL, "assert", "auto", "break", "case", "char", "const", "continue",
+            "default", "do", "double", "else", "enum", "extern", "float", "for", "goto", "if", "int", "long",
+            "register", "return", "short", "signed", "sizeof", "static", "struct", "switch", "typedef", "union",
+            "unsigned", "void", "volatile", "while"
+        )
+        .verbatim(
+            EMPTY, "!", "!=", "%", "%=", "&", "&&", "&=", "*", "*=", "+", "++", "+=", ",", "-", "--",
+            "-=", "->", ".", "/", "/=", ":", ";", "<", "<<", "<<=", "<=", "=", "==", ">", ">=", ">>", ">>=", "?",
+            "^", "^=", "|", "|=", "||", "~"
+        )
+        .setDefault(ERROR)
 
     override fun start(): FlexerState = START
 
@@ -65,16 +71,32 @@ object Flexer : freditor.Flexer() {
     }
 
     private val lexemeColors = ChampMap.of(ERROR, 0x808080)
-            .put(CHAR_CONSTANT_HEAD, CHAR_CONSTANT_TAIL, CHAR_CONSTANT_ESCAPE, STRING_LITERAL_HEAD, STRING_LITERAL_TAIL, STRING_LITERAL_ESCAPE, 0x808080)
-            .put(SLASH_SLASH, SLASH_ASTERISK, SLASH_ASTERISK___ASTERISK, SLASH_ASTERISK___ASTERISK_SLASH, 0x008000)
-            .put(CHAR_CONSTANT_END, STRING_LITERAL_END, 0xdc009c)
-            .put(NUMBER_HEAD, NUMBER_TAIL, 0x6400c8)
-            .put(START.read("assert", "auto", "break", "case", "const", "continue", "default", "do", "else",
-                    "enum", "extern", "for", "goto", "if", "register", "return", "sizeof", "static", "struct", "switch",
-                    "typedef", "union", "volatile", "while"), 0x0000ff)
-            .put(START.read("char", "double", "float", "int", "long", "short", "signed", "unsigned", "void"), 0x008080)
-            .put(START.read("(", ")", "[", "]", "{", "}"), 0xff0000)
-            .put(START.read("!", "!=", "%", "%=", "&", "&&", "&=", "*", "*=", "+", "++", "+=", "-", "--",
-                    "-=", "->", ".", "/", "/=", ":", "<", "<<", "<<=", "<=", "=", "==", ">", ">=", ">>", ">>=", "?",
-                    "^", "^=", "|", "|=", "||", "~"), 0x804040)
+        .put(
+            CHAR_CONSTANT_HEAD,
+            CHAR_CONSTANT_TAIL,
+            CHAR_CONSTANT_ESCAPE,
+            STRING_LITERAL_HEAD,
+            STRING_LITERAL_TAIL,
+            STRING_LITERAL_ESCAPE,
+            0x808080
+        )
+        .put(SLASH_SLASH, SLASH_ASTERISK, SLASH_ASTERISK___ASTERISK, SLASH_ASTERISK___ASTERISK_SLASH, 0x008000)
+        .put(CHAR_CONSTANT_END, STRING_LITERAL_END, 0xdc009c)
+        .put(NUMBER_HEAD, NUMBER_TAIL, 0x6400c8)
+        .put(
+            START.read(
+                "assert", "auto", "break", "case", "const", "continue", "default", "do", "else",
+                "enum", "extern", "for", "goto", "if", "register", "return", "sizeof", "static", "struct", "switch",
+                "typedef", "union", "volatile", "while"
+            ), 0x0000ff
+        )
+        .put(START.read("char", "double", "float", "int", "long", "short", "signed", "unsigned", "void"), 0x008080)
+        .put(START.read("(", ")", "[", "]", "{", "}"), 0xff0000)
+        .put(
+            START.read(
+                "!", "!=", "%", "%=", "&", "&&", "&=", "*", "*=", "+", "++", "+=", "-", "--",
+                "-=", "->", ".", "/", "/=", ":", "<", "<<", "<<=", "<=", "=", "==", ">", ">=", ">>", ">>=", "?",
+                "^", "^=", "|", "|=", "||", "~"
+            ), 0x804040
+        )
 }

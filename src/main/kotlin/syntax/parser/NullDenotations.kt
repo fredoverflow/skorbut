@@ -13,6 +13,7 @@ object IdentifierDenotation : NullDenotation() {
         return when (token.text) {
             "printf" -> parenthesized { printfCall(token.withTokenKind(PRINTF)) }
             "scanf" -> parenthesized { scanfCall(token.withTokenKind(SCANF)) }
+
             else -> Identifier(token)
         }
     }
@@ -68,14 +69,14 @@ object PrefixDenotation : NullDenotation() {
     override fun Parser.parse(token: Token): Expression {
         val operand = subexpression(PRECEDENCE_PREFIX)
         return when (token.kind) {
-            PLUS_PLUS,
-            HYPHEN_HYPHEN -> Prefix(token, operand)
+            PLUS_PLUS, HYPHEN_HYPHEN -> Prefix(token, operand)
             AMPERSAND -> Reference(token, operand)
             ASTERISK -> Dereference(token, operand)
             PLUS -> UnaryPlus(token, operand)
             HYPHEN -> UnaryMinus(token, operand)
             TILDE -> BitwiseNot(token, operand)
             BANG -> LogicalNot(token, operand)
+
             else -> error("no parse for $token")
         }
     }

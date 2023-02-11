@@ -71,12 +71,19 @@ class Console {
     private fun formatValue(value: Value, specifier: Char): CharSequence {
         return when (specifier) {
             'c' -> (value as ArithmeticValue).value.toLong().toInt().and(0xff).toChar().toString()
+
             'd' -> (value as ArithmeticValue).value.toLong().toInt().toString()
+
             'u' -> (value as ArithmeticValue).value.toLong().and(0xffffffff).toString()
+
             'x' -> Integer.toHexString((value as ArithmeticValue).value.toLong().toInt())
+
             'f' -> "%f".format((value as ArithmeticValue).value).replace(',', '.')
+
             's' -> stringStartingAt(value as PointerValue)
+
             'p' -> value.show()
+
             else -> error("illegal conversion specifier %$specifier")
         }
     }
@@ -101,6 +108,7 @@ class Console {
         while (i < fmt.length) {
             when (fmt[i++]) {
                 ' ' -> skipWhitespace()
+
                 '%' -> {
                     if (i == fmt.length) format.error("trailing %")
                     if (a == arguments.size) format.error("missing scanf argument")
@@ -113,12 +121,14 @@ class Console {
                             val x = scanInt() ?: return a - 1
                             arg.referenced.assign(Value.signedInt(x))
                         }
+
                         'f' -> {
                             if (type !== FloatType) format.error("%f expects ${FloatType.pointer()}, not ${type.pointer()}")
                             skipWhitespace()
                             val x = scanDouble() ?: return a - 1
                             arg.referenced.assign(Value.float(x.toFloat()))
                         }
+
                         'l' -> {
                             if (fmt[i++] != 'f') format.error("l must be followed by f")
                             if (type !== DoubleType) format.error("%f expects ${DoubleType.pointer()}, not ${type.pointer()}")
@@ -126,13 +136,16 @@ class Console {
                             val x = scanDouble() ?: return a - 1
                             arg.referenced.assign(Value.double(x))
                         }
+
                         'c' -> {
                             if (type !== SignedCharType) format.error("%f expects ${SignedCharType.pointer()}, not ${type.pointer()}")
                             arg.referenced.assign(Value.signedChar(getchar()))
                         }
+
                         's' -> {
                             format.error("%s is unsafe, please use %123s instead, where 123 is the maximum length")
                         }
+
                         '1', '2', '3', '4', '5', '6', '7', '8', '9' -> {
                             var len = fmt[i - 1] - '0'
                             while (fmt[i] in '0'..'9') {
@@ -149,10 +162,12 @@ class Console {
                             }
                             obj.assign(Value.NUL)
                         }
+
                         else -> format.error("illegal conversion specifier %${fmt[i - 1]}")
                     }
                     after?.invoke()
                 }
+
                 else -> if (getchar() != fmt[i - 1]) return a
             }
         }
@@ -230,8 +245,11 @@ class Console {
         when (x) {
             in '\u0020'..'\u007e' -> input.append(x)
             in '\u00a0'..'\u00ff' -> input.append(x)
+
             '\b' -> backspace()
+
             '\n' -> enter()
+
             '\u0004', '\u001a' -> stop()
         }
     }

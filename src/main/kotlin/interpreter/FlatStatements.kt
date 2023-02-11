@@ -41,7 +41,8 @@ object SwitchPlaceholder : FlatStatement() {
     override fun transfersControl(): Boolean = true
 }
 
-class HashSwitch(val control: Expression, val cases: HashMap<ArithmeticValue, String>, val default: String) : FlatStatement() {
+class HashSwitch(val control: Expression, val cases: HashMap<ArithmeticValue, String>, val default: String) :
+    FlatStatement() {
     override fun toString(): String {
         return "HashSwitch ($control)"
     }
@@ -54,7 +55,8 @@ class HashSwitch(val control: Expression, val cases: HashMap<ArithmeticValue, St
     }
 }
 
-class FlatDeclaration(val specifiers: DeclarationSpecifiers, val namedDeclarators: List<NamedDeclarator>) : FlatStatement() {
+class FlatDeclaration(val specifiers: DeclarationSpecifiers, val namedDeclarators: List<NamedDeclarator>) :
+    FlatStatement() {
     override fun toString(): String = specifiers.toString()
 }
 

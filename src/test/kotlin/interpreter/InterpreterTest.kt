@@ -7,8 +7,10 @@ class InterpreterTest {
         Interpreter(program).run()
     }
 
-    @Test fun sum() {
-        run("""
+    @Test
+    fun sum() {
+        run(
+            """
 int sum(int a, int b)
 {
     return a + b;
@@ -19,11 +21,14 @@ int main()
     assert sum(1, 2) == 3;
     return 0;
 }
-""")
+"""
+        )
     }
 
-    @Test fun fak() {
-        run("""
+    @Test
+    fun fak() {
+        run(
+            """
 int fak(int n)
 {
     int result;
@@ -44,11 +49,14 @@ int main()
     assert fak(5) == 120;
     return 0;
 }
-""")
+"""
+        )
     }
 
-    @Test fun passingStrategies() {
-        run("""
+    @Test
+    fun passingStrategies() {
+        run(
+            """
 int pass(int i, int * p)
 {
     i = 3;
@@ -66,11 +74,14 @@ int main()
     assert c == 3;
     return 0;
 }
-""")
+"""
+        )
     }
 
-    @Test fun doubleResultType() {
-        run("""
+    @Test
+    fun doubleResultType() {
+        run(
+            """
 double the_answer()
 {
     return 42.5;
@@ -81,11 +92,14 @@ int main()
     assert the_answer() == 42.5;
     return 0;
 }
-""")
+"""
+        )
     }
 
-    @Test fun voidReturnType() {
-        run("""
+    @Test
+    fun voidReturnType() {
+        run(
+            """
 void swap(int * p, int * q)
 {
     int c = *p;
@@ -102,11 +116,14 @@ int main()
     assert k == 1;
     return 0;
 }
-""")
+"""
+        )
     }
 
-    @Test fun multiDeclaration() {
-        run("""
+    @Test
+    fun multiDeclaration() {
+        run(
+            """
 int main()
 {
     int *a, b, **c;
@@ -114,11 +131,14 @@ int main()
     c = &a;
     return 0;
 }
-""")
+"""
+        )
     }
 
-    @Test fun arrayAccess() {
-        run("""
+    @Test
+    fun arrayAccess() {
+        run(
+            """
 int main()
 {
     int a[2][3];
@@ -138,11 +158,14 @@ int main()
 
     return 0;
 }
-""")
+"""
+        )
     }
 
-    @Test fun decay1D() {
-        run("""
+    @Test
+    fun decay1D() {
+        run(
+            """
 int main()
 {
     int a[2][3];
@@ -151,11 +174,14 @@ int main()
     assert p[2] == 42;
     return 0;
 }
-""")
+"""
+        )
     }
 
-    @Test fun decay2D() {
-        run("""
+    @Test
+    fun decay2D() {
+        run(
+            """
 int main()
 {
     int a[2][3];
@@ -164,11 +190,14 @@ int main()
     assert p[1][2] == 42;
     return 0;
 }
-""")
+"""
+        )
     }
 
-    @Test fun pointerArithmetic() {
-        run("""
+    @Test
+    fun pointerArithmetic() {
+        run(
+            """
 int main()
 {
     int a[9];
@@ -177,22 +206,28 @@ int main()
     assert q - p == 3;
     return 0;
 }
-""")
+"""
+        )
     }
 
-    @Test fun charConstants() {
-        run("""
+    @Test
+    fun charConstants() {
+        run(
+            """
 int main()
 {
     char a = 'a';
     assert 'z' - a == 25;
     return 0;
 }
-""")
+"""
+        )
     }
 
-    @Test fun latin1() {
-        run("""
+    @Test
+    fun latin1() {
+        run(
+            """
 int main()
 {
     char x = 'ß';
@@ -220,11 +255,14 @@ int main()
     
     return 0;
 }
-""")
+"""
+        )
     }
 
-    @Test fun sumOfFirstTenNumbers() {
-        run("""
+    @Test
+    fun sumOfFirstTenNumbers() {
+        run(
+            """
 int main()
 {
     int sum = 0;
@@ -235,11 +273,14 @@ int main()
     assert sum == 55;
     return 0;
 }
-""")
+"""
+        )
     }
 
-    @Test fun forIntInt() {
-        run("""
+    @Test
+    fun forIntInt() {
+        run(
+            """
 int main()
 {
     int sum = 0;
@@ -250,11 +291,14 @@ int main()
     assert sum == 1*9 + 2*8 + 3*7 + 4*6 + 5*5;
     return 0;
 }
-""")
+"""
+        )
     }
 
-    @Test fun forIntChar() {
-        run("""
+    @Test
+    fun forIntChar() {
+        run(
+            """
 int main()
 {
     char a[7];
@@ -271,11 +315,14 @@ int main()
     assert a[6] == 'G';
     return 0;
 }
-""")
+"""
+        )
     }
 
-    @Test fun forStatic() {
-        run("""
+    @Test
+    fun forStatic() {
+        run(
+            """
 void fill(char * p, char * q) {
     for (static char c = 'A'; p < q; ++p) {
         *p = c++;
@@ -298,11 +345,14 @@ int main()
     assert a[6] == 'G';
     return 0;
 }
-""")
+"""
+        )
     }
 
-    @Test fun forTypedef() {
-        run("""
+    @Test
+    fun forTypedef() {
+        run(
+            """
 int main()
 {
     char a[5];
@@ -318,11 +368,14 @@ int main()
     assert a[4] == 'd';
     return 0;
 }
-""")
+"""
+        )
     }
 
-    @Test fun forScopes() {
-        run("""
+    @Test
+    fun forScopes() {
+        run(
+            """
 int main()
 {
     int i = 1;
@@ -338,11 +391,14 @@ int main()
     assert i == 1;
     return 0;
 }
-""")
+"""
+        )
     }
 
-    @Test fun gcd() {
-        run("""int gcd(int x, int y)
+    @Test
+    fun gcd() {
+        run(
+            """int gcd(int x, int y)
 {
     while (y)
     {
@@ -360,11 +416,14 @@ int main()
     assert gcd(13, 99) == 1;
     return 0;
 }
-""")
+"""
+        )
     }
 
-    @Test fun twoDimensionalPrimes() {
-        run("""
+    @Test
+    fun twoDimensionalPrimes() {
+        run(
+            """
 int main()
 {
     int primes[2][4] = {{2, 3, 5, 7}, {11, 13, 17, 19}};
@@ -378,11 +437,14 @@ int main()
     assert primes[1][3] == 19;
     return 0;
 }
-""")
+"""
+        )
     }
 
-    @Test fun incompleteArrayParameter() {
-        run("""
+    @Test
+    fun incompleteArrayParameter() {
+        run(
+            """
 int sum(int a[], int n)
 {
     int s = 0;
@@ -400,11 +462,14 @@ int main()
     assert sum(primes, 8) == 77;
     return 0;
 }
-""")
+"""
+        )
     }
 
-    @Test fun bogusSizeArrayParameter() {
-        run("""
+    @Test
+    fun bogusSizeArrayParameter() {
+        run(
+            """
 int sum(int a[5], int n)
 {
     int sum = 0;
@@ -422,11 +487,14 @@ int main()
     assert sum(primes, 8) == 77;
     return 0;
 }
-""")
+"""
+        )
     }
 
-    @Test fun pointerIncrement() {
-        run("""
+    @Test
+    fun pointerIncrement() {
+        run(
+            """
 int main()
 {
     char * a = "123";
@@ -437,11 +505,14 @@ int main()
     assert *c == '3';
     return 0;
 }
-""")
+"""
+        )
     }
 
-    @Test fun pointerDecrement() {
-        run("""
+    @Test
+    fun pointerDecrement() {
+        run(
+            """
 int main()
 {
     char * a = "123" + 2;
@@ -452,11 +523,14 @@ int main()
     assert *c == '1';
     return 0;
 }
-""")
+"""
+        )
     }
 
-    @Test fun relationalAndEqualityOnPointers() {
-        run("""
+    @Test
+    fun relationalAndEqualityOnPointers() {
+        run(
+            """
 int main()
 {
     char * a = "hello";
@@ -472,11 +546,14 @@ int main()
     assert b >= a;
     return 0;
 }
-""")
+"""
+        )
     }
 
-    @Test fun sizeof() {
-        run("""
+    @Test
+    fun sizeof() {
+        run(
+            """
 int main()
 {
     char c;
@@ -493,11 +570,14 @@ int main()
     assert sizeof a == 24;
     return 0;
 }
-""")
+"""
+        )
     }
 
-    @Test fun sizeofType() {
-        run("""
+    @Test
+    fun sizeofType() {
+        run(
+            """
 int main()
 {
     assert sizeof(char) == 1;
@@ -508,11 +588,14 @@ int main()
     assert sizeof(int[6]) == 24;
     return 0;
 }
-""")
+"""
+        )
     }
 
-    @Test fun selfReferentialDeclaration() {
-        run("""
+    @Test
+    fun selfReferentialDeclaration() {
+        run(
+            """
 int main()
 {
     char x;
@@ -522,32 +605,41 @@ int main()
     }
     return 0;
 }
-""")
+"""
+        )
     }
 
-    @Test fun sizeOfParen() {
-        run("""
+    @Test
+    fun sizeOfParen() {
+        run(
+            """
 int main()
 {
     assert sizeof("hello" + 2)[3] == 1;
     return 0;
 }
-""")
+"""
+        )
     }
 
-    @Test fun parenthesizedExpression() {
-        run("""
+    @Test
+    fun parenthesizedExpression() {
+        run(
+            """
 int main()
 {
     assert 1 + 2 * 3 + 4 == 11;
     assert (1 + 2) * (3 + 4) == 21;
     return 0;
 }
-""")
+"""
+        )
     }
 
-    @Test fun comma() {
-        run("""
+    @Test
+    fun comma() {
+        run(
+            """
 int main()
 {
     int a;
@@ -559,11 +651,14 @@ int main()
     assert c == 5;
     return 0;
 }
-""")
+"""
+        )
     }
 
-    @Test fun logicalNot() {
-        run("""
+    @Test
+    fun logicalNot() {
+        run(
+            """
 int main()
 {
     assert !0 == 1;
@@ -571,11 +666,14 @@ int main()
     assert !2 == 0;
     return 0;
 }
-""")
+"""
+        )
     }
 
-    @Test fun logicalAnd() {
-        run("""
+    @Test
+    fun logicalAnd() {
+        run(
+            """
 int main()
 {
     assert (0 && 0) == 0;
@@ -584,11 +682,14 @@ int main()
     assert (1 && 1) == 1;
     return 0;
 }
-""")
+"""
+        )
     }
 
-    @Test fun logicalOr() {
-        run("""
+    @Test
+    fun logicalOr() {
+        run(
+            """
 int main()
 {
     assert (0 || 0) == 0;
@@ -597,11 +698,14 @@ int main()
     assert (1 || 1) == 1;
     return 0;
 }
-""")
+"""
+        )
     }
 
-    @Test fun voidPointers() {
-        run("""
+    @Test
+    fun voidPointers() {
+        run(
+            """
 int main()
 {
     int x;
@@ -613,11 +717,14 @@ int main()
     assert a == c;
     return 0;
 }
-""")
+"""
+        )
     }
 
-    @Test fun plusMinusAssignment() {
-        run("""
+    @Test
+    fun plusMinusAssignment() {
+        run(
+            """
 int main()
 {
     int sum = 0;
@@ -629,11 +736,14 @@ int main()
     assert sum == 9 + 7 + 5 + 3 + 1;
     return 0;
 }
-""")
+"""
+        )
     }
 
-    @Test fun plusAssignmentConst() {
-        run("""
+    @Test
+    fun plusAssignmentConst() {
+        run(
+            """
 int main()
 {
     int a = 1;
@@ -642,41 +752,53 @@ int main()
     assert(a == 3);
     return 0;
 }
-""")
+"""
+        )
     }
 
-    @Test fun bitwiseAnd() {
-        run("""
+    @Test
+    fun bitwiseAnd() {
+        run(
+            """
 int main()
 {
     assert (1103341801 & 630371112) == 25337896;
     return 0;
 }
-""")
+"""
+        )
     }
 
-    @Test fun bitwiseXor() {
-        run("""
+    @Test
+    fun bitwiseXor() {
+        run(
+            """
 int main()
 {
     assert (1103341801 ^ 630371112) == 1683037121;
     return 0;
 }
-""")
+"""
+        )
     }
 
-    @Test fun bitwiseOr() {
-        run("""
+    @Test
+    fun bitwiseOr() {
+        run(
+            """
 int main()
 {
     assert (1103341801 | 630371112) == 1708375017;
     return 0;
 }
-""")
+"""
+        )
     }
 
-    @Test fun doWhile() {
-        run("""
+    @Test
+    fun doWhile() {
+        run(
+            """
 int main()
 {
     int i = 8;
@@ -687,11 +809,14 @@ int main()
     assert i == 16;
     return 0;
 }
-""")
+"""
+        )
     }
 
-    @Test fun functionReturningPointerToArray() {
-        run("""
+    @Test
+    fun functionReturningPointerToArray() {
+        run(
+            """
 char (*f())[6]
 {
     return &"hello";
@@ -703,11 +828,14 @@ int main()
     assert p[0][0] == 'h';
     return 0;
 }
-""")
+"""
+        )
     }
 
-    @Test fun rand() {
-        run("""
+    @Test
+    fun rand() {
+        run(
+            """
 unsigned random;
 
 void srand(unsigned seed)
@@ -736,11 +864,14 @@ int main()
     assert rand() == 30612;
     return 0;
 }
-""")
+"""
+        )
     }
 
-    @Test fun functionPrototype() {
-        run("""
+    @Test
+    fun functionPrototype() {
+        run(
+            """
 int square(int x);
 
 int main()
@@ -753,11 +884,14 @@ int square(int x)
 {
     return x * x;
 }
-""")
+"""
+        )
     }
 
-    @Test fun passStructByReference() {
-        run("""
+    @Test
+    fun passStructByReference() {
+        run(
+            """
 struct Point
 {
     int x, y;
@@ -782,11 +916,14 @@ int main()
     assert r.z == 18;
     return 0;
 }
-""")
+"""
+        )
     }
 
-    @Test fun passStructByValue() {
-        run("""
+    @Test
+    fun passStructByValue() {
+        run(
+            """
 struct Point
 {
     int x;
@@ -821,11 +958,14 @@ int main()
 
     return 0;
 }
-""")
+"""
+        )
     }
 
-    @Test fun assignStruct() {
-        run("""
+    @Test
+    fun assignStruct() {
+        run(
+            """
 struct Point
 {
     int x, y, z;
@@ -852,11 +992,14 @@ int main()
 
     return 0;
 }
-""")
+"""
+        )
     }
 
-    @Test fun initializeStructInArray() {
-        run("""
+    @Test
+    fun initializeStructInArray() {
+        run(
+            """
 struct Point
 {
     int x, y, z;
@@ -886,11 +1029,14 @@ int main()
 
     return 0;
 }
-""")
+"""
+        )
     }
 
-    @Test fun passFunctionPointer() {
-        run("""
+    @Test
+    fun passFunctionPointer() {
+        run(
+            """
 int twice(int (*f)(int x), int x)
 {
     return f(f(x));
@@ -906,11 +1052,14 @@ int main()
     assert twice(square, 3) == 81;
     return 0;
 }
-""")
+"""
+        )
     }
 
-    @Test fun indirectMemberAccessViaArray() {
-        run("""
+    @Test
+    fun indirectMemberAccessViaArray() {
+        run(
+            """
 int main()
 {
     struct Point { int x, y; } a[1];
@@ -920,11 +1069,14 @@ int main()
     assert a[0].y == 2;
     return 0;
 }
-""")
+"""
+        )
     }
 
-    @Test fun unaryPlus() {
-        run("""
+    @Test
+    fun unaryPlus() {
+        run(
+            """
 int abs(int x)
 {
     if (x < 0) return -x; else return +x;
@@ -936,11 +1088,14 @@ int main()
     assert abs(-42) == 42;
     return 0;
 }
-""")
+"""
+        )
     }
 
-    @Test fun conditionalArithmetic() {
-        run("""
+    @Test
+    fun conditionalArithmetic() {
+        run(
+            """
 int abs(int x)
 {
     return (x < 0) ? -x : +x;
@@ -952,22 +1107,28 @@ int main()
     assert abs(-42) == 42;
     return 0;
 }
-""")
+"""
+        )
     }
 
-    @Test fun conditionalMixedArithmetic() {
-        run("""
+    @Test
+    fun conditionalMixedArithmetic() {
+        run(
+            """
 int main()
 {
     double lossy = 1 ? 1234567890 : 3.14f;
     assert lossy == 1234567936;
     return 0;
 }
-""")
+"""
+        )
     }
 
-    @Test fun conditionalVoid() {
-        run("""
+    @Test
+    fun conditionalVoid() {
+        run(
+            """
 char x;
 
 void True()
@@ -988,11 +1149,14 @@ int main()
     assert x == 't';
     return 0;
 }
-""")
+"""
+        )
     }
 
-    @Test fun conditionalPointers() {
-        run("""
+    @Test
+    fun conditionalPointers() {
+        run(
+            """
 int * minimum(int * p, int * q)
 {
     return (*q < *p) ? q : p;
@@ -1007,11 +1171,14 @@ int main()
     assert a[1] == 7;
     return 0;
 }
-""")
+"""
+        )
     }
 
-    @Test fun conditionalVoidPointers() {
-        run("""
+    @Test
+    fun conditionalVoidPointers() {
+        run(
+            """
 int main()
 {
     int * a = malloc(sizeof(int));
@@ -1022,11 +1189,14 @@ int main()
     free(0 ? p : q);
     return 0;
 }
-""")
+"""
+        )
     }
 
-    @Test fun conditionalMixedVoidPointers1() {
-        run("""
+    @Test
+    fun conditionalMixedVoidPointers1() {
+        run(
+            """
 int main()
 {
     int * a = malloc(sizeof(int));
@@ -1036,11 +1206,14 @@ int main()
     free(0 ? p : q);
     return 0;
 }
-""")
+"""
+        )
     }
 
-    @Test fun conditionalMixedVoidPointers2() {
-        run("""
+    @Test
+    fun conditionalMixedVoidPointers2() {
+        run(
+            """
 int main()
 {
     int * p = malloc(sizeof(int));
@@ -1050,11 +1223,14 @@ int main()
     free(0 ? p : q);
     return 0;
 }
-""")
+"""
+        )
     }
 
-    @Test fun conditionalChained() {
-        run("""
+    @Test
+    fun conditionalChained() {
+        run(
+            """
 int signum(int x)
 {
     return x < 0 ? -1 : x > 0 ? +1 : +-0;
@@ -1067,11 +1243,14 @@ int main()
     assert signum(+42) == +1;
     return 0;
 }
-""")
+"""
+        )
     }
 
-    @Test fun forOptional1() {
-        run("""
+    @Test
+    fun forOptional1() {
+        run(
+            """
 int main()
 {
     int sum = 0;
@@ -1084,11 +1263,14 @@ int main()
     assert sum == 55;
     return 0;
 }
-""")
+"""
+        )
     }
 
-    @Test fun forOptional2() {
-        run("""
+    @Test
+    fun forOptional2() {
+        run(
+            """
 int main()
 {
     int sum = 0;
@@ -1103,11 +1285,14 @@ int main()
         sum += i;
     }
 }
-""")
+"""
+        )
     }
 
-    @Test fun forOptional3() {
-        run("""
+    @Test
+    fun forOptional3() {
+        run(
+            """
 int main()
 {
     int sum = 0;
@@ -1123,11 +1308,14 @@ int main()
         ++i;
     }
 }
-""")
+"""
+        )
     }
 
-    @Test fun forOptional4() {
-        run("""
+    @Test
+    fun forOptional4() {
+        run(
+            """
 int main()
 {
     int sum = 0;
@@ -1139,11 +1327,14 @@ int main()
     assert sum == 55;
     return 0;
 }
-""")
+"""
+        )
     }
 
-    @Test fun forOptional5() {
-        run("""
+    @Test
+    fun forOptional5() {
+        run(
+            """
 int main()
 {
     int sum = 0;
@@ -1156,11 +1347,14 @@ int main()
     assert sum == 55;
     return 0;
 }
-""")
+"""
+        )
     }
 
-    @Test fun forOptional6() {
-        run("""
+    @Test
+    fun forOptional6() {
+        run(
+            """
 int main()
 {
     int sum = 0;
@@ -1175,11 +1369,14 @@ int main()
         sum += i;
     }
 }
-""")
+"""
+        )
     }
 
-    @Test fun forOptional7() {
-        run("""
+    @Test
+    fun forOptional7() {
+        run(
+            """
 int main()
 {
     int sum = 0;
@@ -1195,11 +1392,14 @@ int main()
         ++i;
     }
 }
-""")
+"""
+        )
     }
 
-    @Test fun mallocSingleElement() {
-        run("""
+    @Test
+    fun mallocSingleElement() {
+        run(
+            """
 int main()
 {
     int * p = malloc(4);
@@ -1207,11 +1407,14 @@ int main()
     free(p);
     return 0;
 }
-""")
+"""
+        )
     }
 
-    @Test fun mallocArray() {
-        run("""
+    @Test
+    fun mallocArray() {
+        run(
+            """
 int main()
 {
     int * p = malloc(12);
@@ -1221,11 +1424,14 @@ int main()
     free(p);
     return 0;
 }
-""")
+"""
+        )
     }
 
-    @Test fun passMallocResultToFunction() {
-        run("""
+    @Test
+    fun passMallocResultToFunction() {
+        run(
+            """
 int * foo(int * p)
 {
     *p = 42;
@@ -1237,11 +1443,14 @@ int main()
     free(foo(malloc(4)));
     return 0;
 }
-""")
+"""
+        )
     }
 
-    @Test fun typedefScopes() {
-        run("""
+    @Test
+    fun typedefScopes() {
+        run(
+            """
 typedef int X;
 
 X main()
@@ -1259,11 +1468,14 @@ X main()
     Z = "hello";
     return 0;
 }
-""")
+"""
+        )
     }
 
-    @Test fun staticLocalCounter() {
-        run("""
+    @Test
+    fun staticLocalCounter() {
+        run(
+            """
 int a;
 
 int id()
@@ -1284,11 +1496,14 @@ int main()
     assert id() == 2;
     return 0;
 }
-""")
+"""
+        )
     }
 
-    @Test fun staticLocalStringArray() {
-        run("""
+    @Test
+    fun staticLocalStringArray() {
+        run(
+            """
 char * weekday(int n)
 {
     static char * table[] = {
@@ -1309,11 +1524,14 @@ int main()
     assert weekday(6) == "Saturday";
     return 0;
 }
-""")
+"""
+        )
     }
 
-    @Test fun layoutForStaticArrayWithDeducedSize() {
-        run("""
+    @Test
+    fun layoutForStaticArrayWithDeducedSize() {
+        run(
+            """
 int a[] = {1, 2, 3};
 int x = 4;
 
@@ -1322,11 +1540,14 @@ int main()
     assert a[0] == 1;
     return 0;
 }
-""")
+"""
+        )
     }
 
-    @Test fun signedCharDeclarations() {
-        run("""
+    @Test
+    fun signedCharDeclarations() {
+        run(
+            """
 int main()
 {
     signed char a = -1;
@@ -1339,11 +1560,14 @@ int main()
 
     return 0;
 }
-""")
+"""
+        )
     }
 
-    @Test fun unsignedCharDeclarations() {
-        run("""
+    @Test
+    fun unsignedCharDeclarations() {
+        run(
+            """
 int main()
 {
     unsigned char a = -1;
@@ -1356,11 +1580,14 @@ int main()
 
     return 0;
 }
-""")
+"""
+        )
     }
 
-    @Test fun signedShortDeclarations() {
-        run("""
+    @Test
+    fun signedShortDeclarations() {
+        run(
+            """
 int main()
 {
     short a = -1;
@@ -1412,11 +1639,14 @@ int main()
 
     return 0;
 }
-""")
+"""
+        )
     }
 
-    @Test fun unsignedShortDeclarations() {
-        run("""
+    @Test
+    fun unsignedShortDeclarations() {
+        run(
+            """
 int main()
 {
     unsigned short d = -1;
@@ -1454,11 +1684,14 @@ int main()
 
     return 0;
 }
-""")
+"""
+        )
     }
 
-    @Test fun signedIntDeclarations() {
-        run("""
+    @Test
+    fun signedIntDeclarations() {
+        run(
+            """
 int main()
 {
     int a = -1;
@@ -1480,11 +1713,14 @@ int main()
 
     return 0;
 }
-""")
+"""
+        )
     }
 
-    @Test fun unsignedIntDeclarations() {
-        run("""
+    @Test
+    fun unsignedIntDeclarations() {
+        run(
+            """
 int main()
 {
     unsigned b = -1;
@@ -1502,11 +1738,14 @@ int main()
 
     return 0;
 }
-""")
+"""
+        )
     }
 
-    @Test fun typedefAnonymousStruct() {
-        run("""
+    @Test
+    fun typedefAnonymousStruct() {
+        run(
+            """
 typedef struct
 {
     int x, y;
@@ -1531,11 +1770,14 @@ int main()
     assert r.z == 18;
     return 0;
 }
-""")
+"""
+        )
     }
 
-    @Test fun multipleAnonymousStructs() {
-        run("""
+    @Test
+    fun multipleAnonymousStructs() {
+        run(
+            """
 typedef struct
 {
     int x, y;
@@ -1551,11 +1793,14 @@ int main()
 {
     return 0;
 }
-""")
+"""
+        )
     }
 
-    @Test fun missingParameterNames() {
-        run("""
+    @Test
+    fun missingParameterNames() {
+        run(
+            """
 int square(int);
 
 int twice(int(int), int);
@@ -1575,11 +1820,14 @@ int square(int x)
 {
     return x * x;
 }
-""")
+"""
+        )
     }
 
-    @Test fun trailingCommaInArrayInInitializerList() {
-        run("""
+    @Test
+    fun trailingCommaInArrayInInitializerList() {
+        run(
+            """
 int main()
 {
     int a[] = {
@@ -1591,11 +1839,14 @@ int main()
     assert sizeof a == 16;
     return 0;
 }
-""")
+"""
+        )
     }
 
-    @Test fun anonymousFunctionParameter() {
-        run("""
+    @Test
+    fun anonymousFunctionParameter() {
+        run(
+            """
 int foo(int (x));
 
 typedef int x;
@@ -1608,11 +1859,14 @@ int main()
     sizeof bar(foo);
     return 0;
 }
-""")
+"""
+        )
     }
 
-    @Test fun parameterShadowsGlobalTypedef() {
-        run("""
+    @Test
+    fun parameterShadowsGlobalTypedef() {
+        run(
+            """
 typedef int x;
 
 void foo(int x)
@@ -1628,11 +1882,14 @@ int main()
 {
     return 0;
 }
-""")
+"""
+        )
     }
 
-    @Test fun parameterScopeIsClosed() {
-        run("""
+    @Test
+    fun parameterScopeIsClosed() {
+        run(
+            """
 typedef int x;
 
 x a;
@@ -1651,11 +1908,14 @@ int main()
 {
     return 0;
 }
-""")
+"""
+        )
     }
 
-    @Test fun signedLongDeclarations() {
-        run("""
+    @Test
+    fun signedLongDeclarations() {
+        run(
+            """
 int main()
 {
     long a = -1;
@@ -1707,11 +1967,14 @@ int main()
 
     return 0;
 }
-""")
+"""
+        )
     }
 
-    @Test fun unsignedLongDeclarations() {
-        run("""
+    @Test
+    fun unsignedLongDeclarations() {
+        run(
+            """
 int main()
 {
     unsigned long d = -1;
@@ -1749,11 +2012,14 @@ int main()
 
     return 0;
 }
-""")
+"""
+        )
     }
 
-    @Test fun arraySizeConstantExpression() {
-        run("""
+    @Test
+    fun arraySizeConstantExpression() {
+        run(
+            """
 int main()
 {
     short a[3 * 7];
@@ -1764,11 +2030,14 @@ int main()
 
     return 0;
 }
-""")
+"""
+        )
     }
 
-    @Test fun octalSingleDigit() {
-        run("""
+    @Test
+    fun octalSingleDigit() {
+        run(
+            """
 int main()
 {
     assert 00 == 0;
@@ -1782,22 +2051,28 @@ int main()
 
     return 0;
 }
-""")
+"""
+        )
     }
 
-    @Test fun octalAllDigits() {
-        run("""
+    @Test
+    fun octalAllDigits() {
+        run(
+            """
 int main()
 {
     assert 01234567 == 342391;
 
     return 0;
 }
-""")
+"""
+        )
     }
 
-    @Test fun nonOctalFloat() {
-        run("""
+    @Test
+    fun nonOctalFloat() {
+        run(
+            """
 int main()
 {
     assert 010f == 10;
@@ -1807,11 +2082,14 @@ int main()
 
     return 0;
 }
-""")
+"""
+        )
     }
 
-    @Test fun nonOctalDouble() {
-        run("""
+    @Test
+    fun nonOctalDouble() {
+        run(
+            """
 int main()
 {
     assert 010. == 10;
@@ -1821,11 +2099,14 @@ int main()
 
     return 0;
 }
-""")
+"""
+        )
     }
 
-    @Test fun hexSingleDigit() {
-        run("""
+    @Test
+    fun hexSingleDigit() {
+        run(
+            """
 int main()
 {
     assert 0x0 == 0;
@@ -1855,11 +2136,14 @@ int main()
 
     return 0;
 }
-""")
+"""
+        )
     }
 
-    @Test fun hexAllDigits() {
-        run("""
+    @Test
+    fun hexAllDigits() {
+        run(
+            """
 int main()
 {
     assert 0x01234567 == 19088743;
@@ -1869,11 +2153,14 @@ int main()
 
     return 0;
 }
-""")
+"""
+        )
     }
 
-    @Test fun binaryLiterals() {
-        run("""
+    @Test
+    fun binaryLiterals() {
+        run(
+            """
 int main()
 {
     assert 0b0 == 0;
@@ -1901,11 +2188,14 @@ int main()
 
     return 0;
 }
-""")
+"""
+        )
     }
 
-    @Test fun localFunctionPrototype() {
-        run("""
+    @Test
+    fun localFunctionPrototype() {
+        run(
+            """
 int main()
 {
     int square(int);
@@ -1917,11 +2207,14 @@ int square(int x)
 {
     return x * x;
 }
-""")
+"""
+        )
     }
 
-    @Test fun enumUninitialized() {
-        run("""
+    @Test
+    fun enumUninitialized() {
+        run(
+            """
 enum dir { north, east, south, west }
 sun = east;
 
@@ -1941,11 +2234,14 @@ int main()
 
     return 0;
 }
-""")
+"""
+        )
     }
 
-    @Test fun enumInitialized() {
-        run("""
+    @Test
+    fun enumInitialized() {
+        run(
+            """
 enum { Y = 6 };
 
 int main()
@@ -1955,11 +2251,14 @@ int main()
     assert sizeof a == 42;
     return 0;
 }
-""")
+"""
+        )
     }
 
-    @Test fun enumMixed() {
-        run("""
+    @Test
+    fun enumMixed() {
+        run(
+            """
 enum numbers {
     a = 4,
     b = 8,
@@ -1980,11 +2279,14 @@ int main()
 
     return 0;
 }
-""")
+"""
+        )
     }
 
-    @Test fun staticInitializationArithmetic() {
-        run("""
+    @Test
+    fun staticInitializationArithmetic() {
+        run(
+            """
 char a;
 unsigned char b;
 short c;
@@ -2007,11 +2309,14 @@ int main()
 
     return 0;
 }
-""")
+"""
+        )
     }
 
-    @Test fun staticInitializationArray() {
-        run("""
+    @Test
+    fun staticInitializationArray() {
+        run(
+            """
 int a[5];
 
 int main()
@@ -2024,11 +2329,14 @@ int main()
 
     return 0;
 }
-""")
+"""
+        )
     }
 
-    @Test fun staticInitializationStruct() {
-        run("""
+    @Test
+    fun staticInitializationStruct() {
+        run(
+            """
 struct Point
 {
     int x, y, z;
@@ -2042,11 +2350,14 @@ int main()
 
     return 0;
 }
-""")
+"""
+        )
     }
 
-    @Test fun staticInitializationNested() {
-        run("""
+    @Test
+    fun staticInitializationNested() {
+        run(
+            """
 struct Person
 {
     char name[20];
@@ -2065,11 +2376,14 @@ int main()
 
     return 0;
 }
-""")
+"""
+        )
     }
 
-    @Test fun staticInitializationLocal() {
-        run("""
+    @Test
+    fun staticInitializationLocal() {
+        run(
+            """
 int a;
 
 int main()
@@ -2082,11 +2396,14 @@ int main()
 
     return 0;
 }
-""")
+"""
+        )
     }
 
-    @Test fun functionPointersAreConstantExpressions() {
-        run("""
+    @Test
+    fun functionPointersAreConstantExpressions() {
+        run(
+            """
 int square(int x)
 {
     return x * x;
@@ -2100,11 +2417,14 @@ int main()
 
     return 0;
 }
-""")
+"""
+        )
     }
 
-    @Test fun signedUnsignedComparisons() {
-        run("""
+    @Test
+    fun signedUnsignedComparisons() {
+        run(
+            """
 int main()
 {
     assert -1 == 0xffffffff;
@@ -2115,11 +2435,14 @@ int main()
     assert -1 >= z;
     return 0;
 }
-""")
+"""
+        )
     }
 
-    @Test fun realloc() {
-        run("""
+    @Test
+    fun realloc() {
+        run(
+            """
 int main()
 {
     int * p = malloc(12);
@@ -2138,11 +2461,14 @@ int main()
     free(p);
     return 0;
 }
-""")
+"""
+        )
     }
 
-    @Test fun simpleContinue() {
-        run("""
+    @Test
+    fun simpleContinue() {
+        run(
+            """
 int main()
 {
     int x = 0;
@@ -2156,11 +2482,14 @@ int main()
     assert(x == 1+5+7+11);
     return 0;
 }
-""")
+"""
+        )
     }
 
-    @Test fun innerContinue() {
-        run("""
+    @Test
+    fun innerContinue() {
+        run(
+            """
 int main()
 {
     int n = 0;
@@ -2177,11 +2506,14 @@ int main()
     assert(n == 100 - 10);
     return 0;
 }
-""")
+"""
+        )
     }
 
-    @Test fun outerContinue() {
-        run("""
+    @Test
+    fun outerContinue() {
+        run(
+            """
 int main()
 {
     int n = 0;
@@ -2198,11 +2530,14 @@ int main()
     assert(n == 5);
     return 0;
 }
-""")
+"""
+        )
     }
 
-    @Test fun simpleBreak() {
-        run("""
+    @Test
+    fun simpleBreak() {
+        run(
+            """
 int main()
 {
     int n = 0;
@@ -2216,11 +2551,14 @@ int main()
     assert(n == 5 + 4);
     return 0;
 }
-""")
+"""
+        )
     }
 
-    @Test fun simpleGoto() {
-        run("""
+    @Test
+    fun simpleGoto() {
+        run(
+            """
 int main()
 {
     int x = 0;
@@ -2238,11 +2576,14 @@ increment_z:
     assert z == 1;
     return 0;
 }
-""")
+"""
+        )
     }
 
-    @Test fun simulateDoWhileWithGoto() {
-        run("""
+    @Test
+    fun simulateDoWhileWithGoto() {
+        run(
+            """
 int main()
 {
     int sum = 0;
@@ -2256,11 +2597,14 @@ loop:
     assert sum == 55;
     return 0;
 }
-""")
+"""
+        )
     }
 
-    @Test fun fallthrough() {
-        run("""
+    @Test
+    fun fallthrough() {
+        run(
+            """
 int log10(int x)
 {
     int log = 0;
@@ -2294,11 +2638,14 @@ int main()
     assert 9 == log10(1000000000);
     return 0;
 }
-""")
+"""
+        )
     }
 
-    @Test fun defaultAboveOthers() {
-        run("""
+    @Test
+    fun defaultAboveOthers() {
+        run(
+            """
 int isPrime(int x)
 {
     switch (x)
@@ -2325,11 +2672,14 @@ int main()
     assert!isPrime(9);
     return 0;
 }
-""")
+"""
+        )
     }
 
-    @Test fun missingBreak() {
-        run("""
+    @Test
+    fun missingBreak() {
+        run(
+            """
 const char * color(int x)
 {
     const char * result = "";
@@ -2358,11 +2708,14 @@ int main()
     assert color(3) == "";
     return 0;
 }
-""")
+"""
+        )
     }
 
-    @Test fun duffsDevice() {
-        run("""
+    @Test
+    fun duffsDevice() {
+        run(
+            """
 void duffsDevice(char * dst, const char * src, unsigned n)
 {
     unsigned rest = n % 8;
@@ -2398,11 +2751,14 @@ int main()
     assert a[10] == '.';
     return 0;
 }
-""")
+"""
+        )
     }
 
-    @Test fun bitwiseNot() {
-        run("""
+    @Test
+    fun bitwiseNot() {
+        run(
+            """
 int main()
 {
     int i = 0;
@@ -2418,11 +2774,14 @@ int main()
 
     return 0;
 }
-""")
+"""
+        )
     }
 
-    @Test fun signedShift() {
-        run("""
+    @Test
+    fun signedShift() {
+        run(
+            """
 int main()
 {
     int x = 5;
@@ -2436,32 +2795,41 @@ int main()
 
     return 0;
 }
-""")
+"""
+        )
     }
 
-    @Test fun unsignedShift() {
-        run("""
+    @Test
+    fun unsignedShift() {
+        run(
+            """
 int main()
 {
     assert 0x80000000 >> 1 == 0x40000000;
     assert 0x80000000 << 1 == 0;
     return 0;
 }
-""")
+"""
+        )
     }
 
-    @Test fun voidParameterList() {
-        run("""
+    @Test
+    fun voidParameterList() {
+        run(
+            """
 int main(void)
 {
     assert sizeof main() == sizeof(int);
     return 0;
 }
-""")
+"""
+        )
     }
 
-    @Test fun bsearchPresentElements() {
-        run("""
+    @Test
+    fun bsearchPresentElements() {
+        run(
+            """
 int less(const void * x, const void * y)
 {
     const int * p = x;
@@ -2480,11 +2848,14 @@ int main(void)
     }
     return 0;
 }
-""")
+"""
+        )
     }
 
-    @Test fun bsearchAbsentElements() {
-        run("""
+    @Test
+    fun bsearchAbsentElements() {
+        run(
+            """
 int less(const void * x, const void * y)
 {
     const int * p = x;
@@ -2504,11 +2875,14 @@ int main(void)
     }
     return 0;
 }
-""")
+"""
+        )
     }
 
-    @Test fun localTypedefBackReference() {
-        run("""
+    @Test
+    fun localTypedefBackReference() {
+        run(
+            """
 int main()
 {
     typedef double a, b, c[sizeof(a)], d[sizeof(b)];
@@ -2520,11 +2894,14 @@ int main()
 
     return 0;
 }
-""")
+"""
+        )
     }
 
-    @Test fun globalTypedefBackReference() {
-        run("""
+    @Test
+    fun globalTypedefBackReference() {
+        run(
+            """
 typedef double a, b, c[sizeof(a)], d[sizeof(b)];
 
 int main()
@@ -2536,11 +2913,14 @@ int main()
 
     return 0;
 }
-""")
+"""
+        )
     }
 
-    @Test fun postfixAfterSizeof() {
-        run("""
+    @Test
+    fun postfixAfterSizeof() {
+        run(
+            """
 int main()
 {
     char x = 'a';
@@ -2548,21 +2928,27 @@ int main()
     assert sizeof x ++ == 1;
     return 0;
 }
-""")
+"""
+        )
     }
 
-    @Test fun conditionalBindsStrongerThanComma() {
-        run("""
+    @Test
+    fun conditionalBindsStrongerThanComma() {
+        run(
+            """
 int main()
 {
     assert (1 ? 2 : 3, 4) == 4;
     return 0;
 }
-""")
+"""
+        )
     }
 
-    @Test fun initEnumeratorWithSizeof() {
-        run("""
+    @Test
+    fun initEnumeratorWithSizeof() {
+        run(
+            """
 enum { N = sizeof(int) };
 
 int main()
@@ -2570,11 +2956,14 @@ int main()
     assert N == 4;
     return 0;
 }
-""")
+"""
+        )
     }
 
-    @Test fun castConstVoidPointers() {
-        run("""
+    @Test
+    fun castConstVoidPointers() {
+        run(
+            """
 int fruit_compare(const void * const v, const void * w)
 {
     return *(const char * const *)v - *(const char * const * const)w;
@@ -2596,11 +2985,14 @@ int main()
     assert fruits[6] == g;
     return 0;
 }
-""")
+"""
+        )
     }
 
-    @Test fun castIntToDouble() {
-        run("""
+    @Test
+    fun castIntToDouble() {
+        run(
+            """
 int main()
 {
     assert (double)1/2 == 0.5;
@@ -2611,11 +3003,14 @@ int main()
 
     return 0;
 }
-""")
+"""
+        )
     }
 
-    @Test fun castArraySize() {
-        run("""
+    @Test
+    fun castArraySize() {
+        run(
+            """
 int main()
 {
     char pi[(int)3.1416];
@@ -2625,11 +3020,14 @@ int main()
     assert sizeof e == 2;
     return 0;
 }
-""")
+"""
+        )
     }
 
-    @Test fun castCaseLabels() {
-        run("""
+    @Test
+    fun castCaseLabels() {
+        run(
+            """
 const char * pronounce(int x)
 {
     switch (x)
@@ -2649,11 +3047,14 @@ int main()
     assert pronounce(4) == "???";
     return 0;
 }
-""")
+"""
+        )
     }
 
-    @Test fun switchCharCaseInt() {
-        run("""
+    @Test
+    fun switchCharCaseInt() {
+        run(
+            """
 int main()
 {
     const char x = 'A';
@@ -2664,11 +3065,14 @@ int main()
     }
     return 0;
 }
-""")
+"""
+        )
     }
 
-    @Test fun switchUnsignedCaseInt() {
-        run("""
+    @Test
+    fun switchUnsignedCaseInt() {
+        run(
+            """
 int main()
 {
     switch (0xffffffff)
@@ -2678,11 +3082,14 @@ int main()
     }
     return 0;
 }
-""")
+"""
+        )
     }
 
-    @Test fun returnEarlyFromVoidFunction() {
-        run("""
+    @Test
+    fun returnEarlyFromVoidFunction() {
+        run(
+            """
 int lastSign;
 
 void setSign(int x)
@@ -2713,11 +3120,14 @@ int main()
     assert sign(+42) == +1;
     return 0;
 }
-""")
+"""
+        )
     }
 
-    @Test fun sameOffsetInDifferentSegments() {
-        run("""
+    @Test
+    fun sameOffsetInDifferentSegments() {
+        run(
+            """
 int main()
 {
     int * a = malloc(sizeof(int));
@@ -2728,11 +3138,14 @@ int main()
     free(b);
     return 0;
 }
-""")
+"""
+        )
     }
 
-    @Test fun strlen() {
-        run("""
+    @Test
+    fun strlen() {
+        run(
+            """
 int main()
 {
     assert strlen("") == 0;
@@ -2744,11 +3157,14 @@ int main()
 
     return 0;
 }
-""")
+"""
+        )
     }
 
-    @Test fun strcmp() {
-        run("""
+    @Test
+    fun strcmp() {
+        run(
+            """
 int main()
 {
     assert strcmp("apple", "apple") == 0;
@@ -2770,6 +3186,7 @@ int main()
 
     return 0;
 }
-""")
+"""
+        )
     }
 }

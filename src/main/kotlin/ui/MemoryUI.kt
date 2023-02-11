@@ -45,7 +45,10 @@ class MemoryUI(var memory: Memory) : JPanel() {
             else -> scalarComponent()
         }
         component.alignmentX = Component.LEFT_ALIGNMENT
-        component.border = CompoundBorder(emptyBorder, TitledBorder(lineBorder, title, TitledBorder.LEADING, TitledBorder.DEFAULT_POSITION, Fronts.sansSerif))
+        component.border = CompoundBorder(
+            emptyBorder,
+            TitledBorder(lineBorder, title, TitledBorder.LEADING, TitledBorder.DEFAULT_POSITION, Fronts.sansSerif)
+        )
         objects[this]!![address][type] = component
         return component
     }

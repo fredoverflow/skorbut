@@ -73,20 +73,25 @@ tailrec fun Lexer.nextToken(): Token {
                 skipSingleLineComment()
                 nextToken()
             }
+
             '*' -> {
                 skipMultiLineComment()
                 nextToken()
             }
+
             '=' -> nextVerbatim(SLASH_EQUAL)
+
             else -> verbatim(SLASH)
         }
 
         '<' -> when (next()) {
             '=' -> nextVerbatim(LESS_EQUAL)
+
             '<' -> when (next()) {
                 '=' -> nextVerbatim(LESS_LESS_EQUAL)
                 else -> verbatim(LESS_LESS)
             }
+
             else -> verbatim(LESS)
         }
 
@@ -97,10 +102,12 @@ tailrec fun Lexer.nextToken(): Token {
 
         '>' -> when (next()) {
             '=' -> nextVerbatim(MORE_EQUAL)
+
             '>' -> when (next()) {
                 '=' -> nextVerbatim(MORE_MORE_EQUAL)
                 else -> verbatim(MORE_MORE)
             }
+
             else -> verbatim(MORE)
         }
 

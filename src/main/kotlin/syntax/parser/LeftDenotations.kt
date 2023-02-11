@@ -38,13 +38,15 @@ object PostfixCrementDenotation : LeftDenotation(PRECEDENCE_POSTFIX) {
     }
 }
 
-class LeftAssociativeDenotation(precedence: Int, val factory: (Expression, Token, Expression) -> Expression) : LeftDenotation(precedence) {
+class LeftAssociativeDenotation(precedence: Int, val factory: (Expression, Token, Expression) -> Expression) :
+    LeftDenotation(precedence) {
     override fun Parser.parse(left: Expression, operator: Token): Expression {
         return factory(left, operator, subexpression(precedence))
     }
 }
 
-class RightAssociativeDenotation(precedence: Int, val factory: (Expression, Token, Expression) -> Expression) : LeftDenotation(precedence) {
+class RightAssociativeDenotation(precedence: Int, val factory: (Expression, Token, Expression) -> Expression) :
+    LeftDenotation(precedence) {
     override fun Parser.parse(left: Expression, operator: Token): Expression {
         return factory(left, operator, subexpression(precedence - 1))
     }

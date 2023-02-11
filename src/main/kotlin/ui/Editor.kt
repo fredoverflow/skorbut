@@ -8,7 +8,8 @@ class Editor : FreditorUI(Flexer, JavaIndenter.instance, 0, 25) {
     val autosaver: Autosaver = newAutosaver("skorbut")
 
     init {
-        autosaver.loadOrDefault("""int main()
+        autosaver.loadOrDefault(
+            """int main()
 {
     char a[] = "hello";
     char * p = a;
@@ -18,6 +19,7 @@ class Editor : FreditorUI(Flexer, JavaIndenter.instance, 0, 25) {
     ++p; // pointers CAN be incremented
     return 0;
 }
-""")
+"""
+        )
     }
 }

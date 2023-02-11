@@ -27,10 +27,16 @@ class TranslationUnit(val externalDeclarations: List<Node>) : Node() {
     override fun toString(): String = "translation unit"
 }
 
-class FunctionDefinition(val specifiers: DeclarationSpecifiers, val namedDeclarator: NamedDeclarator, val body: List<Statement>, val closingBrace: Token) : Node() {
+class FunctionDefinition(
+    val specifiers: DeclarationSpecifiers,
+    val namedDeclarator: NamedDeclarator,
+    val body: List<Statement>,
+    val closingBrace: Token
+) : Node() {
     fun name(): String = namedDeclarator.name.text
 
-    val parameters: List<NamedDeclarator> = (namedDeclarator.declarator.leaf() as Declarator.Function).parameters.map(FunctionParameter::namedDeclarator)
+    val parameters: List<NamedDeclarator> =
+        (namedDeclarator.declarator.leaf() as Declarator.Function).parameters.map(FunctionParameter::namedDeclarator)
 
     var stackFrameType: StructType = StructTypeLater
 

@@ -44,7 +44,8 @@ class Memory(stringLiterals: Iterable<String>, variables: Iterable<NamedDeclarat
     init {
         var stringOffset = 0
         for (stringLiteral in stringLiterals) {
-            stringObjects[stringLiteral] = Object(stringConstants, stringOffset, ArrayType(stringLiteral.length + 1, SignedCharType), 0, 1)
+            stringObjects[stringLiteral] =
+                Object(stringConstants, stringOffset, ArrayType(stringLiteral.length + 1, SignedCharType), 0, 1)
             for (x in stringLiteral) {
                 stringConstants[stringOffset++] = Value.signedChar(x)
             }

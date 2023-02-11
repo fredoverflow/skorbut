@@ -19,7 +19,8 @@ abstract class ArithmeticType : Type {
 
     override fun cast(source: Value): Value = cast(source as ArithmeticValue)
 
-    fun cast(source: ArithmeticValue): ArithmeticValue = if (source.type === this) source else ArithmeticValue(trim(source.value), this)
+    fun cast(source: ArithmeticValue): ArithmeticValue =
+        if (source.type === this) source else ArithmeticValue(trim(source.value), this)
 
     fun integralPromotions(): ArithmeticType = this.max(SignedIntType)
 

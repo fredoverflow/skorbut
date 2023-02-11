@@ -96,13 +96,15 @@ class AutocompletionTest {
 
     @Test
     fun directStructAccess() {
-        val actual = autocompleteIdentifier("struct Person { int age; char name[12]; }; int noob; void f(struct Person p) { p.n")
+        val actual =
+            autocompleteIdentifier("struct Person { int age; char name[12]; }; int noob; void f(struct Person p) { p.n")
         assertEquals(listOf("ame"), actual)
     }
 
     @Test
     fun indirectStructAccess() {
-        val actual = autocompleteIdentifier("struct Person { int age; char name[12]; }; int noob; void f(struct Person * p) { p->n")
+        val actual =
+            autocompleteIdentifier("struct Person { int age; char name[12]; }; int noob; void f(struct Person * p) { p->n")
         assertEquals(listOf("ame"), actual)
     }
 

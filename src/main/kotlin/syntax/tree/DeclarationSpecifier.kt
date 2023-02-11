@@ -68,10 +68,12 @@ class StructDeclaration(val specifiers: DeclarationSpecifiers, val declarators: 
     override fun toString(): String = specifiers.toString()
 }
 
-class DeclarationSpecifiers(val list: List<DeclarationSpecifier>,
-                            val storageClass: TokenKind,
-                            val qualifiers: TokenKindSet,
-                            val typeTokens: TokenKindSet) : Node() {
+class DeclarationSpecifiers(
+    val list: List<DeclarationSpecifier>,
+    val storageClass: TokenKind,
+    val qualifiers: TokenKindSet,
+    val typeTokens: TokenKindSet
+) : Node() {
     var type: Type = Later
 
     override fun root(): Token = list[0].root()
@@ -85,7 +87,10 @@ class DeclarationSpecifiers(val list: List<DeclarationSpecifier>,
     fun defTagName(): Token? {
         when (typeTokens.first()) {
             ENUM -> list.forEach { if (it is DeclarationSpecifier.EnumDef && it.name.wasProvided()) return it.name }
+
             STRUCT -> list.forEach { if (it is DeclarationSpecifier.StructDef && it.name.wasProvided()) return it.name }
+
+            else -> {}
         }
         return null
     }
@@ -93,7 +98,9 @@ class DeclarationSpecifiers(val list: List<DeclarationSpecifier>,
     fun isDeclaratorOptional(): Boolean {
         return (storageClass != TokenKind.TYPEDEF) && when (typeTokens.first()) {
             ENUM -> true
+
             STRUCT -> list.any { it is DeclarationSpecifier.StructDef && it.name.wasProvided() }
+
             else -> false
         }
     }

@@ -40,10 +40,12 @@ data class Object(val segment: Segment, val offset: Int, val type: Type, val ind
                 // array-to-pointer decay
                 PointerValue(copy(type = type.elementType, index = 0, bound = type.size))
             }
+
             is StructType -> {
                 // structs are not values, they must be preserved as objects
                 StructPseudoValue(this)
             }
+
             else -> {
                 preventSentinelAccess()
                 val result = segment[offset]
@@ -79,7 +81,8 @@ interface Value {
         fun unsignedShort(x: Int): ArithmeticValue = ArithmeticValue(x.toDouble(), UnsignedShortType)
 
         fun signedInt(x: Int): ArithmeticValue = ArithmeticValue(x.toDouble(), SignedIntType)
-        fun unsignedInt(x: Int): ArithmeticValue = ArithmeticValue(x.toLong().and(0xffffffff).toDouble(), UnsignedIntType)
+        fun unsignedInt(x: Int): ArithmeticValue =
+            ArithmeticValue(x.toLong().and(0xffffffff).toDouble(), UnsignedIntType)
 
         fun float(x: Float): ArithmeticValue = ArithmeticValue(x.toDouble(), FloatType)
         fun double(x: Double): ArithmeticValue = ArithmeticValue(x, DoubleType)
@@ -104,15 +107,20 @@ data class ArithmeticValue(val value: Double, val type: ArithmeticType) : Value 
 
     override fun show(): String = type.show(value)
 
-    operator fun plus(that: ArithmeticValue): ArithmeticValue = ArithmeticValue(value + that.value, type.usualArithmeticConversions(that.type)).trim()
+    operator fun plus(that: ArithmeticValue): ArithmeticValue =
+        ArithmeticValue(value + that.value, type.usualArithmeticConversions(that.type)).trim()
 
-    operator fun minus(that: ArithmeticValue): ArithmeticValue = ArithmeticValue(value - that.value, type.usualArithmeticConversions(that.type)).trim()
+    operator fun minus(that: ArithmeticValue): ArithmeticValue =
+        ArithmeticValue(value - that.value, type.usualArithmeticConversions(that.type)).trim()
 
-    operator fun times(that: ArithmeticValue): ArithmeticValue = ArithmeticValue(value * that.value, type.usualArithmeticConversions(that.type)).trim()
+    operator fun times(that: ArithmeticValue): ArithmeticValue =
+        ArithmeticValue(value * that.value, type.usualArithmeticConversions(that.type)).trim()
 
-    operator fun div(that: ArithmeticValue): ArithmeticValue = ArithmeticValue(value / that.value, type.usualArithmeticConversions(that.type)).trim()
+    operator fun div(that: ArithmeticValue): ArithmeticValue =
+        ArithmeticValue(value / that.value, type.usualArithmeticConversions(that.type)).trim()
 
-    operator fun rem(that: ArithmeticValue): ArithmeticValue = ArithmeticValue(value % that.value, type.usualArithmeticConversions(that.type)).trim()
+    operator fun rem(that: ArithmeticValue): ArithmeticValue =
+        ArithmeticValue(value % that.value, type.usualArithmeticConversions(that.type)).trim()
 
     private fun trim(): ArithmeticValue = ArithmeticValue(type.trim(value), type)
 

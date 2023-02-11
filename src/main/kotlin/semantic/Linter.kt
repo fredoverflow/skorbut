@@ -21,6 +21,7 @@ class Linter(val translationUnit: TranslationUnit) : LinterBase() {
                 is Comma -> {
                     it.left.detectOperatorWithoutEffect()
                 }
+
                 is ExpressionStatement -> {
                     if (it.expression is FunctionCall) {
                         if (it.expression.type !== VoidType) {
@@ -30,19 +31,24 @@ class Linter(val translationUnit: TranslationUnit) : LinterBase() {
                         it.expression.detectOperatorWithoutEffect()
                     }
                 }
+
                 is IfThenElse -> {
                     it.condition.detectSuspiciousCondition()
                 }
+
                 is While -> {
                     it.condition.detectSuspiciousCondition()
                 }
+
                 is Do -> {
                     it.condition.detectSuspiciousCondition()
                 }
+
                 is For -> {
                     it.condition?.run { detectSuspiciousCondition() }
                     it.update?.run { detectOperatorWithoutEffect() }
                 }
+
                 is Assert -> {
                     it.condition.detectSuspiciousCondition()
                 }
@@ -56,14 +62,19 @@ class Linter(val translationUnit: TranslationUnit) : LinterBase() {
             EQUAL_EQUAL -> {
                 root.warn("== is comparison, did you mean = instead?")
             }
+
             IDENTIFIER -> when (type) {
                 is FunctionType -> root.warn("missing () for function call")
+
                 else -> root.warn("$root has no effect")
             }
+
             PLUS, HYPHEN -> when (this) {
                 is Binary -> root.warn("$root has no effect, did you mean $root= instead?")
+
                 else -> root.warn("$root has no effect")
             }
+
             OPENING_PAREN, SIZEOF, OPENING_BRACKET, DOT, HYPHEN_MORE,
             AMPERSAND, ASTERISK, TILDE, BANG, SLASH, PERCENT,
             LESS_LESS, MORE_MORE, LESS, MORE, LESS_EQUAL, MORE_EQUAL, BANG_EQUAL,
@@ -72,6 +83,7 @@ class Linter(val translationUnit: TranslationUnit) : LinterBase() {
             CHARACTER_CONSTANT, STRING_LITERAL -> {
                 root.warn("$root has no effect")
             }
+
             else -> {
             }
         }
@@ -82,6 +94,7 @@ class Linter(val translationUnit: TranslationUnit) : LinterBase() {
             is Assignment -> {
                 warn("= is assignment, did you mean == instead?")
             }
+
             is RelationalEquality -> {
                 if (left is RelationalEquality) {
                     val op1 = left.operator
@@ -89,6 +102,7 @@ class Linter(val translationUnit: TranslationUnit) : LinterBase() {
                     warn("a${op1}b${op2}c does not do what you think it does. You probably want a${op1}b && b${op2}c instead.")
                 }
             }
+
             is Logical -> {
                 left.detectSuspiciousCondition()
                 right.detectSuspiciousCondition()
@@ -107,6 +121,7 @@ class Linter(val translationUnit: TranslationUnit) : LinterBase() {
                 is FunctionDefinition -> {
                     node.parameters.forEach { unusedVariables.add(it.name) }
                 }
+
                 is Declaration -> {
                     if (node.specifiers.storageClass != TYPEDEF) {
                         for (namedDeclarator in node.namedDeclarators) {
@@ -156,8 +171,11 @@ class Linter(val translationUnit: TranslationUnit) : LinterBase() {
     private fun Statement.hasDefiniteReturn(): Boolean {
         return when (this) {
             is Return -> true
+
             is IfThenElse -> e1se != null && th3n.hasDefiniteReturn() && e1se.hasDefiniteReturn()
+
             is Block -> statements.hasDefiniteReturn()
+
             else -> false
         }
     }

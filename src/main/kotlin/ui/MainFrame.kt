@@ -159,7 +159,12 @@ class MainFrame : JFrame() {
                     interpreter.console.keyTyped(event.keyChar)
                     updateConsole()
                 } else {
-                    JOptionPane.showMessageDialog(this@MainFrame, "You probably forgot one STEP", "Nobody is waiting for input yet", JOptionPane.ERROR_MESSAGE)
+                    JOptionPane.showMessageDialog(
+                        this@MainFrame,
+                        "You probably forgot one STEP",
+                        "Nobody is waiting for input yet",
+                        JOptionPane.ERROR_MESSAGE
+                    )
                 }
             }
         })
@@ -247,7 +252,9 @@ class MainFrame : JFrame() {
                     KeyEvent.VK_SPACE -> if (event.isControlDown) {
                         autocompleteIdentifier()
                     }
+
                     KeyEvent.VK_F1 -> showType()
+
                     KeyEvent.VK_F5 -> into.doClick()
                     KeyEvent.VK_F6 -> over.doClick()
                     KeyEvent.VK_F7 -> r3turn.doClick()
@@ -464,12 +471,15 @@ class MainFrame : JFrame() {
             "into" -> {
                 targetStackDepth = Int.MAX_VALUE
             }
+
             "over" -> {
                 targetStackDepth = interpreter.stackDepth
             }
+
             "return" -> {
                 targetStackDepth = interpreter.stackDepth - 1
             }
+
             "stop" -> {
                 timer.stop()
                 throw StopTheProgram

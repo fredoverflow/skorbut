@@ -45,9 +45,20 @@ class TypeToStringTest {
     @Test
     fun bsearch() {
         val predicate = FunctionType.binary(ConstVoidPointerType, ConstVoidPointerType, SignedIntType).pointer()
-        val bsearch = FunctionType(listOf(ConstVoidPointerType, ConstVoidPointerType, UnsignedIntType, UnsignedIntType, predicate), VoidPointerType)
+        val bsearch = FunctionType(
+            listOf(
+                ConstVoidPointerType,
+                ConstVoidPointerType,
+                UnsignedIntType,
+                UnsignedIntType,
+                predicate
+            ), VoidPointerType
+        )
 
-        assertEquals("void*(const void*,const void*,unsigned int,unsigned int,int(*)(const void*,const void*))", bsearch.toString())
+        assertEquals(
+            "void*(const void*,const void*,unsigned int,unsigned int,int(*)(const void*,const void*))",
+            bsearch.toString()
+        )
     }
 
     @Test
@@ -118,7 +129,10 @@ class TypeToStringTest {
 
     @Test
     fun constPointerToFunction() {
-        assertEquals("int(*const)(int)", Const(PointerType(FunctionType.unary(SignedIntType, SignedIntType))).toString())
+        assertEquals(
+            "int(*const)(int)",
+            Const(PointerType(FunctionType.unary(SignedIntType, SignedIntType))).toString()
+        )
     }
 
     @Test

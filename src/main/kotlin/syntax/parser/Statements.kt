@@ -6,24 +6,35 @@ import syntax.tree.*
 fun Parser.statement(): Statement = when (current) {
 
     IF -> IfThenElse(accept(), condition(), statement(), optional(ELSE, ::statement))
+
     SWITCH -> Switch(accept(), condition(), statement())
+
     CASE -> Case(accept(), expression() before COLON, statement())
+
     DEFAULT -> Default(accept() before COLON, statement())
 
     WHILE -> While(accept(), condition(), statement())
+
     DO -> Do(accept(), statement() before WHILE, condition()).semicolon()
+
     FOR -> symbolTable.scoped {
-        For(accept() before OPENING_PAREN,
-                forInit(),
-                ::expression optionalBefore SEMICOLON,
-                ::expression optionalBefore CLOSING_PAREN,
-                statement())
+        For(
+            accept() before OPENING_PAREN,
+            forInit(),
+            ::expression optionalBefore SEMICOLON,
+            ::expression optionalBefore CLOSING_PAREN,
+            statement()
+        )
     }
 
     GOTO -> Goto(accept(), expect(IDENTIFIER)).semicolon()
+
     CONTINUE -> Continue(accept()).semicolon()
+
     BREAK -> Break(accept()).semicolon()
+
     RETURN -> Return(accept(), ::expression optionalBefore SEMICOLON)
+
     ASSERT -> Assert(accept(), expression()).semicolon()
 
     TYPEDEF, EXTERN, STATIC, AUTO, REGISTER, CONST, VOLATILE,

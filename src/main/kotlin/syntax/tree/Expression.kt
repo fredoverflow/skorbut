@@ -118,9 +118,11 @@ class BitwiseNot(f: Token, x: Expression) : Unary(f, x)
 
 class LogicalNot(f: Token, x: Expression) : Unary(f, x)
 
-class Cast(operator: Token, val specifiers: DeclarationSpecifiers, val declarator: Declarator, operand: Expression) : Unary(operator, operand)
+class Cast(operator: Token, val specifiers: DeclarationSpecifiers, val declarator: Declarator, operand: Expression) :
+    Unary(operator, operand)
 
-class SizeofType(val operator: Token, val specifiers: DeclarationSpecifiers, val declarator: Declarator) : Expression() {
+class SizeofType(val operator: Token, val specifiers: DeclarationSpecifiers, val declarator: Declarator) :
+    Expression() {
     var operandType: Type = Later
 
     override fun root(): Token = operator
@@ -142,7 +144,13 @@ class Bitwise(x: Expression, f: Token, y: Expression) : Binary(x, f, y)
 
 class Logical(x: Expression, f: Token, y: Expression) : Binary(x, f, y)
 
-class Conditional(val condition: Expression, val question: Token, val th3n: Expression, val colon: Token, val e1se: Expression) : Expression() {
+class Conditional(
+    val condition: Expression,
+    val question: Token,
+    val th3n: Expression,
+    val colon: Token,
+    val e1se: Expression
+) : Expression() {
     override fun forEachChild(action: (Node) -> Unit) {
         action(condition)
         action(th3n)

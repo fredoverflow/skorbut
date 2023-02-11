@@ -103,4 +103,4 @@ enum class TokenKind(val lexeme: String) {
 }
 
 val keywords: StringedValueMap<TokenKind> = TokenKind.KEYWORDS
-        .fold(StringedValueMap.empty(), StringedValueMap<TokenKind>::put)
+    .fold(StringedValueMap.empty(), StringedValueMap<TokenKind>::put)
