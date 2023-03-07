@@ -32,28 +32,33 @@ import javax.swing.tree.TreePath
 
 object StopTheProgram : Exception()
 
+fun <T : JComponent> T.sansSerif(): T {
+    this.font = Fronts.sansSerif
+    return this
+}
+
 class MainFrame : JFrame() {
     private val queue = ArrayBlockingQueue<String>(1)
     private var interpreter = Interpreter("int main(){return 0;}")
 
     private val memoryUI = MemoryUI(Memory(emptySet(), emptyList()))
-    private val syntaxTree = JTree()
-    private val visualizer = JTabbedPane()
+    private val syntaxTree = JTree().sansSerif()
+    private val visualizer = JTabbedPane().sansSerif()
 
     private val editor = Editor()
-    private val slider = JSlider(0, 11, 0)
+    private val slider = JSlider(0, 11, 0).sansSerif()
     private val timer = Timer(1000) { queue.offer("into") }
 
-    private val start = JButton("start")
-    private val into = JButton("step into (F5)")
-    private val over = JButton("step over (F6)")
-    private val r3turn = JButton("step return (F7)")
-    private val stop = JButton("stop")
+    private val start = JButton("start").sansSerif()
+    private val into = JButton("step into (F5)").sansSerif()
+    private val over = JButton("step over (F6)").sansSerif()
+    private val r3turn = JButton("step return (F7)").sansSerif()
+    private val stop = JButton("stop").sansSerif()
     private val buttons = JPanel()
 
     private val scrolledDiagnostics = JScrollPane()
     private val consoleUI = JTextArea()
-    private val output = JTabbedPane()
+    private val output = JTabbedPane().sansSerif()
 
     private val controls = JPanel()
 
@@ -66,7 +71,6 @@ class MainFrame : JFrame() {
         val scrolledMemory = JScrollPane(memoryUI)
         scrolledMemory.preferredSize = Dimension(500, 500)
 
-        syntaxTree.font = Fronts.sansSerif
         val scrolledSyntaxTree = JScrollPane(syntaxTree)
         scrolledSyntaxTree.preferredSize = Dimension(500, 500)
 
@@ -424,7 +428,7 @@ class MainFrame : JFrame() {
     }
 
     private fun updateDiagnostics(diagnostics: List<Diagnostic>) {
-        val list = JList(diagnostics.toTypedArray())
+        val list = JList(diagnostics.toTypedArray()).sansSerif()
         list.addListSelectionListener { event ->
             if (!event.valueIsAdjusting) {
                 val index = list.selectedIndex
