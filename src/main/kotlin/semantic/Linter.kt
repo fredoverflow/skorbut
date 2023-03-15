@@ -167,20 +167,4 @@ class Linter(val translationUnit: TranslationUnit) : LinterBase() {
             }
         }
     }
-
-    private fun List<Statement>.hasDefiniteReturn(): Boolean {
-        return any { it.hasDefiniteReturn() }
-    }
-
-    private fun Statement.hasDefiniteReturn(): Boolean {
-        return when (this) {
-            is Return -> true
-
-            is IfThenElse -> e1se != null && th3n.hasDefiniteReturn() && e1se.hasDefiniteReturn()
-
-            is Block -> statements.hasDefiniteReturn()
-
-            else -> false
-        }
-    }
 }
