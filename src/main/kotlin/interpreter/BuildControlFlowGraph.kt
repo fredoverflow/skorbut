@@ -1,6 +1,7 @@
 package interpreter
 
 import semantic.types.ArithmeticType
+import syntax.lexer.missingIdentifier
 import syntax.tree.*
 
 val unusedEmptyHashMap = HashMap<ArithmeticValue, String>()
@@ -44,7 +45,6 @@ class BuildControlFlowGraph(function: FunctionDefinition) {
     private fun add(statement: FlatStatement) {
         if (currentBasicBlock.isClosed()) {
             currentBasicBlock = BasicBlock()
-            // definitely unreachable code, maybe complain later?
             currentLabelStr = generateLabel()
             controlFlowGraph[currentLabelStr] = currentBasicBlock
         }
@@ -53,7 +53,7 @@ class BuildControlFlowGraph(function: FunctionDefinition) {
 
     private fun jumpIfOpen(target: String) {
         if (currentBasicBlock.isOpen()) {
-            add(Jump(target))
+            add(Jump(missingIdentifier, target))
         }
     }
 
@@ -94,7 +94,7 @@ class BuildControlFlowGraph(function: FunctionDefinition) {
             }
 
             is Goto -> {
-                add(Jump(label.text))
+                add(Jump(goto, label.text))
             }
 
             is IfThenElse -> {
@@ -201,7 +201,7 @@ class BuildControlFlowGraph(function: FunctionDefinition) {
 
                 insertLabel(bodyStart)
                 body.flatten(state)
-                jumpIfOpen(checkCondition)
+                add(ImplicitContinue(whi1e, checkCondition))
 
                 insertLabel(done)
             }
@@ -236,7 +236,7 @@ class BuildControlFlowGraph(function: FunctionDefinition) {
                     if (update != null) {
                         add(FlatExpressionStatement(update))
                     }
-                    add(Jump(checkCondition))
+                    add(ImplicitContinue(f0r, checkCondition))
 
                     insertLabel(done)
                 } else {
@@ -247,7 +247,7 @@ class BuildControlFlowGraph(function: FunctionDefinition) {
                     if (update != null) {
                         add(FlatExpressionStatement(update))
                     }
-                    add(Jump(loopStart))
+                    add(ImplicitContinue(f0r, loopStart))
 
                     insertLabel(done)
                 }
@@ -257,14 +257,14 @@ class BuildControlFlowGraph(function: FunctionDefinition) {
                 if (state.continueTarget.isEmpty()) {
                     continu3.error("continue must be nested inside a loop")
                 }
-                add(Jump(state.continueTarget))
+                add(Jump(continu3, state.continueTarget))
             }
 
             is Break -> {
                 if (state.breakTarget.isEmpty()) {
                     br3ak.error("break must be nested inside a loop or switch")
                 }
-                add(Jump(state.breakTarget))
+                add(Jump(br3ak, state.breakTarget))
             }
 
             is Return -> {

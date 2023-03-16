@@ -1,6 +1,8 @@
 package semantic
 
 import interpreter.ArithmeticValue
+import interpreter.BasicBlock
+import interpreter.ImplicitContinue
 import interpreter.returnType
 import semantic.types.FunctionType
 import semantic.types.VoidType
@@ -13,6 +15,7 @@ class Linter(val translationUnit: TranslationUnit) : LinterBase() {
         detectLowHangingFruit()
         detectUnusedVariables()
         detectMissingReturns()
+        detectUnreachableCode()
     }
 
     private fun detectLowHangingFruit() {
@@ -166,5 +169,24 @@ class Linter(val translationUnit: TranslationUnit) : LinterBase() {
                 root().warn("function ${name()} does not return a result on all code paths")
             }
         }
+    }
+
+    private fun detectUnreachableCode() {
+        translationUnit.functions.forEach { it.detectUnreachableCode() }
+    }
+
+    private fun FunctionDefinition.detectUnreachableCode() {
+        controlFlowGraph.values.asSequence()
+            .filterNot(BasicBlock::isReachable)
+            .flatMap(BasicBlock::getStatements)
+            .filterNot { it.root().start < 0 }
+            .firstOrNull()
+            ?.apply {
+                if (this is ImplicitContinue) {
+                    root().warn("loop never repeats")
+                } else {
+                    root().warn("unreachable code")
+                }
+            }
     }
 }

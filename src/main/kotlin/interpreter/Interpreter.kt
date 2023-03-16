@@ -176,6 +176,11 @@ class Interpreter(program: String) {
                             pc = 0
                         }
 
+                        is ImplicitContinue -> {
+                            basicBlock = controlFlowGraph[target]!!.getStatements()
+                            pc = 0
+                        }
+
                         is JumpIf -> {
                             val target = if (condition.delayedCondition()) th3n else e1se
                             basicBlock = controlFlowGraph[target]!!.getStatements()
