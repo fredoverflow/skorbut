@@ -9,7 +9,7 @@ class BasicBlock {
     }
 
     fun isClosed(): Boolean {
-        return statements.lastOrNull()?.transfersControl() ?: false
+        return statements.lastOrNull() is TransferringControl
     }
 
     fun isEmpty(): Boolean {
@@ -24,10 +24,6 @@ class BasicBlock {
     fun replaceSwitchPlaceholderWithRealSwitch(replacement: HashSwitch) {
         assert(statements.last() === SwitchPlaceholder)
         statements[statements.lastIndex] = replacement
-    }
-
-    override fun toString(): String {
-        return "[${if (isReachable) '*' else ' '}] $statements"
     }
 
     var isReachable = false
