@@ -7,11 +7,3 @@ fun String.skipDigits(start: Int): Int {
     }
     return n
 }
-
-fun String.parseInt(start: Int, end: Int): Int {
-    var x = 0
-    for (i in start until end) {
-        x = x * 10 + (this[i] - '0')
-    }
-    return x
-}

@@ -899,7 +899,11 @@ class TypeChecker(translationUnit: TranslationUnit) {
             var k = fmt.indexOf('%')
             while (k != -1) {
                 if (fmt[++k] != '%') {
-                    k = fmt.skipDigits(k)
+                    k = fmt.skipDigits(k) // width
+                    if (fmt[k] == '.') {
+                        k = fmt.skipDigits(k + 1) // precision
+                        if (fmt[k] != 'f') format.error(". only works inside %f, not %${fmt[k]}")
+                    }
                     val specifier = fmt[k]
                     if (!args.hasNext()) format.error("missing argument for %$specifier")
                     val arg = args.next()

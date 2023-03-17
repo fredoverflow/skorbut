@@ -5,7 +5,6 @@ import semantic.types.FloatType
 import semantic.types.SignedCharType
 import semantic.types.SignedIntType
 import syntax.lexer.Token
-import text.parseInt
 import text.skipDigits
 
 import java.util.concurrent.LinkedBlockingDeque
@@ -53,12 +52,12 @@ class Console {
                 sb.append('%')
             } else {
                 i = k
-                val fill = if (fmt[i] == '0') '0' else ' '
-                k = fmt.skipDigits(i)
-                val width = fmt.parseInt(i, k)
-                val str = formatValue(args.next(), fmt[k])
-                repeat(width - str.length) { sb.append(fill) }
-                sb.append(str)
+                k = fmt.skipDigits(i) // width
+                if (fmt[k] == '.') {
+                    k = fmt.skipDigits(k + 1) // precision
+                }
+                val specifier = fmt.substring(i - 1, k + 1)
+                sb.append(formatValue(args.next(), specifier))
             }
             i = k + 1
             k = fmt.indexOf('%', i)
@@ -68,23 +67,23 @@ class Console {
         return sb.length
     }
 
-    private fun formatValue(value: Value, specifier: Char): CharSequence {
-        return when (specifier) {
-            'c' -> (value as ArithmeticValue).value.toLong().toInt().and(0xff).toChar().toString()
+    private fun formatValue(value: Value, specifier: String): String {
+        return when (specifier.last()) {
+            'c' -> specifier.format((value as ArithmeticValue).value.toLong().toInt().and(0xff))
 
-            'd' -> (value as ArithmeticValue).value.toLong().toInt().toString()
+            'd' -> specifier.format((value as ArithmeticValue).value.toLong().toInt())
 
-            'u' -> (value as ArithmeticValue).value.toLong().and(0xffffffff).toString()
+            'u' -> specifier.replace('u', 'd').format((value as ArithmeticValue).value.toLong().and(0xffffffff))
 
-            'x' -> Integer.toHexString((value as ArithmeticValue).value.toLong().toInt())
+            'x' -> specifier.format((value as ArithmeticValue).value.toLong().toInt())
 
-            'f' -> "%f".format((value as ArithmeticValue).value).replace(',', '.')
+            'f' -> specifier.format(java.util.Locale.ENGLISH, (value as ArithmeticValue).value)
 
-            's' -> stringStartingAt(value as PointerValue)
+            's' -> specifier.format(stringStartingAt(value as PointerValue))
 
-            'p' -> value.show()
+            'p' -> specifier.replace('p', 's').format(value.show())
 
-            else -> error("illegal conversion specifier %$specifier")
+            else -> error("illegal conversion specifier %${specifier.last()}")
         }
     }
 
