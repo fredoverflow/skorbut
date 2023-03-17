@@ -2,6 +2,7 @@ package syntax.lexer
 
 import common.Diagnostic
 import syntax.lexer.TokenKind.IDENTIFIER
+import syntax.lexer.TokenKind.STRING_LITERAL
 
 class Token(val kind: TokenKind, val start: Int, val source: String, val text: String) {
     val end: Int
@@ -27,6 +28,19 @@ class Token(val kind: TokenKind, val start: Int, val source: String, val text: S
 
     fun error(message: String, previous: Token): Nothing {
         throw Diagnostic(start, message, previous.start)
+    }
+
+    //  0123 456  index
+    // "ABC\nXYZ"
+    // 0123456789 origin
+    fun stringErrorAt(index: Int, message: String): Nothing {
+        assert(kind == STRING_LITERAL)
+        var origin = 1
+        repeat(index) {
+            if (source[origin] == '\\') ++origin
+            ++origin
+        }
+        throw Diagnostic(start + origin, message)
     }
 
     override fun toString(): String = source

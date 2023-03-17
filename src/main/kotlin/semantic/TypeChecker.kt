@@ -1,5 +1,6 @@
 package semantic
 
+import common.Diagnostic
 import freditor.Levenshtein
 import interpreter.*
 import semantic.types.*
@@ -901,19 +902,20 @@ class TypeChecker(translationUnit: TranslationUnit) {
                 if (fmt[++k] != '%') {
                     k = fmt.skipDigits(k) // width
                     if (fmt[k] == '.') {
+                        val dot = k
                         k = fmt.skipDigits(k + 1) // precision
-                        if (fmt[k] !in "eEfgGs") format.error(". only works inside %e %E %f %g %G %s, not %${fmt[k]}")
+                        if (fmt[k] !in "eEfgGs") format.stringErrorAt(dot, ". only works inside %e %E %f %g %G %s")
                     }
-                    val specifier = fmt[k]
-                    if (!args.hasNext()) format.error("missing argument for %$specifier")
+                    if (fmt[k] !in "ciudoxXeEfgGspn") format.stringErrorAt(k, "illegal conversion specifier")
+                    if (!args.hasNext()) format.stringErrorAt(k, "missing argument after format string")
                     val arg = args.next()
-                    checkPrintfConversionSpecifier(specifier, arg.typeCheck().decayed(), arg.root())
+                    checkPrintfConversionSpecifier(fmt[k], arg.typeCheck().decayed(), arg.root())
                 }
                 k = fmt.indexOf('%', k + 1)
             }
-            if (args.hasNext()) args.next().root().error("missing conversion specifier")
+            if (args.hasNext()) args.next().root().error("missing conversion specifier in format string")
         } catch (ex: StringIndexOutOfBoundsException) {
-            format.error("incomplete conversion specifier")
+            throw Diagnostic(format.end - 1, "incomplete conversion specifier")
         }
     }
 
