@@ -71,13 +71,13 @@ class Console {
         return when (specifier.last()) {
             'c' -> specifier.format((value as ArithmeticValue).value.toLong().toInt().and(0xff))
 
-            'd' -> specifier.format((value as ArithmeticValue).value.toLong().toInt())
+            'i' -> specifier.replace('i', 'd').format((value as ArithmeticValue).value.toLong().toInt())
 
             'u' -> specifier.replace('u', 'd').format((value as ArithmeticValue).value.toLong().and(0xffffffff))
 
-            'x' -> specifier.format((value as ArithmeticValue).value.toLong().toInt())
+            'd', 'o', 'x', 'X' -> specifier.format((value as ArithmeticValue).value.toLong().toInt())
 
-            'f' -> specifier.format(java.util.Locale.ENGLISH, (value as ArithmeticValue).value)
+            'e', 'E', 'f', 'g', 'G' -> specifier.format(java.util.Locale.ENGLISH, (value as ArithmeticValue).value)
 
             's' -> specifier.format(stringStartingAt(value as PointerValue))
 

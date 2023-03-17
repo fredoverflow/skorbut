@@ -902,7 +902,7 @@ class TypeChecker(translationUnit: TranslationUnit) {
                     k = fmt.skipDigits(k) // width
                     if (fmt[k] == '.') {
                         k = fmt.skipDigits(k + 1) // precision
-                        if (fmt[k] != 'f') format.error(". only works inside %f, not %${fmt[k]}")
+                        if (fmt[k] !in "eEfgGs") format.error(". only works inside %e %E %f %g %G %s, not %${fmt[k]}")
                     }
                     val specifier = fmt[k]
                     if (!args.hasNext()) format.error("missing argument for %$specifier")
@@ -919,11 +919,11 @@ class TypeChecker(translationUnit: TranslationUnit) {
 
     private fun checkPrintfConversionSpecifier(specifier: Char, type: Type, where: Token) {
         when (specifier) {
-            'c', 'd', 'u', 'x' -> if (type !is ArithmeticType || !type.isIntegral()) {
+            'c', 'i', 'u', 'd', 'o', 'x', 'X' -> if (type !is ArithmeticType || !type.isIntegral()) {
                 where.error("%$specifier expects integral type, not $type")
             }
 
-            'f' -> if (type !is ArithmeticType || type.isIntegral()) {
+            'e', 'E', 'f', 'g', 'G' -> if (type !is ArithmeticType || type.isIntegral()) {
                 where.error("%$specifier expects floating type, not $type")
             }
 
@@ -935,7 +935,7 @@ class TypeChecker(translationUnit: TranslationUnit) {
                 where.error("%$specifier expects pointer, not $type")
             }
 
-            'i', 'o', 'X', 'e', 'E', 'g', 'G', 'n' -> where.error("%$specifier not implemented yet")
+            'n' -> where.error("%$specifier not implemented yet")
 
             else -> where.error("illegal conversion specifier %$specifier")
         }
