@@ -150,17 +150,18 @@ class MemoryUI(var memory: Memory) : JPanel() {
             val place = pointerCounter.count(pointer)
             val obj = pointer.referenced
             val offset = if (obj.isSentinel()) obj.minus(1).offset else obj.offset
-            val target = objects[obj.segment]!![offset][obj.type.unqualified()]!!
-            val sourcePos = SwingUtilities.convertPoint(source, 0, 0, this)
-            val targetPos = SwingUtilities.convertPoint(target, 0, 0, this)
-            val x1 = sourcePos.x + source.width / 2
-            val y1 = sourcePos.y + source.height / 2
-            val x2 = targetPos.x + if (obj.isSentinel()) target.width else lerp(source.width, 0.5.pow(place * 0.5), 16)
-            var y2 = targetPos.y + 8
-            if (y2 < y1) {
-                y2 = targetPos.y + target.height - 8
+            objects[obj.segment]!![offset][obj.type.unqualified()]?.let { target ->
+                val sourcePos = SwingUtilities.convertPoint(source, 0, 0, this)
+                val targetPos = SwingUtilities.convertPoint(target, 0, 0, this)
+                val x1 = sourcePos.x + source.width / 2
+                val y1 = sourcePos.y + source.height / 2
+                val x2 = targetPos.x + if (obj.isSentinel()) target.width else lerp(source.width, 0.5.pow(place * 0.5), 16)
+                var y2 = targetPos.y + 8
+                if (y2 < y1) {
+                    y2 = targetPos.y + target.height - 8
+                }
+                drawPointer(g2d, x1.toDouble(), y1.toDouble(), x2.toDouble(), y2.toDouble())
             }
-            drawPointer(g2d, x1.toDouble(), y1.toDouble(), x2.toDouble(), y2.toDouble())
         }
     }
 
