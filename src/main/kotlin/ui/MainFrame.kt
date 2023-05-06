@@ -42,6 +42,7 @@ class MainFrame : JFrame() {
     private var interpreter = Interpreter("int main(){return 0;}")
 
     private val memoryUI = MemoryUI(Memory(emptySet(), emptyList()))
+    private val scrolledMemory = JScrollPane(memoryUI)
     private val syntaxTree = JTree().sansSerif()
     private val visualizer = JTabbedPane().sansSerif()
 
@@ -68,7 +69,6 @@ class MainFrame : JFrame() {
     init {
         title = editor.autosaver.pathname
 
-        val scrolledMemory = JScrollPane(memoryUI)
         scrolledMemory.preferredSize = Dimension(500, 500)
 
         val scrolledSyntaxTree = JScrollPane(syntaxTree)
@@ -77,7 +77,9 @@ class MainFrame : JFrame() {
         visualizer.addTab("memory", scrolledMemory)
         visualizer.addTab("syntax tree", scrolledSyntaxTree)
         visualizer.addChangeListener {
-            if (visualizer.selectedComponent === scrolledSyntaxTree) {
+            if (visualizer.selectedComponent === scrolledMemory) {
+                memoryUI.update()
+            } else if (visualizer.selectedComponent === scrolledSyntaxTree) {
                 if (!isRunning()) {
                     tryCompile(andRun = false)
                 }
@@ -343,7 +345,9 @@ class MainFrame : JFrame() {
         interpreter.before = ::pauseAt
         interpreter.after = {
             EventQueue.invokeAndWait {
-                memoryUI.update()
+                if (visualizer.selectedComponent === scrolledMemory) {
+                    memoryUI.update()
+                }
                 if (interpreter.console.isDirty) {
                     updateConsole()
                 }
