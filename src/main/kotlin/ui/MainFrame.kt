@@ -78,7 +78,9 @@ class MainFrame : JFrame() {
         visualizer.addTab("syntax tree", scrolledSyntaxTree)
         visualizer.addChangeListener {
             if (visualizer.selectedComponent === scrolledSyntaxTree) {
-                tryCompile(andRun = false)
+                if (!isRunning()) {
+                    tryCompile(andRun = false)
+                }
             }
         }
 
