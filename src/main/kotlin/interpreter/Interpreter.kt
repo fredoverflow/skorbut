@@ -163,98 +163,94 @@ class Interpreter(program: String) {
     private fun FunctionDefinition.execute(arguments: List<Value>): Value {
         ++stackDepth
         try {
-            memory.functionScoped(stackFrameType) {
-                val segment = memory.currentStackFrame()
-                for ((param, arg) in parameters.zip(arguments)) {
-                    param.type.cast(arg).store(segment, param.offset)
-                }
-                after?.invoke()
+            val stackFrame = Segment(stackFrameType)
+            memory.stack.add(stackFrame)
+            for ((param, arg) in parameters.zip(arguments)) {
+                param.type.cast(arg).store(stackFrame, param.offset)
+            }
+            after?.invoke()
 
-                var basicBlock = controlFlowGraph["0"]!!.getStatements()
-                var pc = 0
-                while (pc != basicBlock.size) {
-                    with(basicBlock[pc++]) {
-                        when (this) {
-                            is Jump -> {
-                                basicBlock = controlFlowGraph[target]!!.getStatements()
-                                pc = 0
-                            }
+            var basicBlock = controlFlowGraph["0"]!!.getStatements()
+            var pc = 0
+            while (pc != basicBlock.size) {
+                with(basicBlock[pc++]) {
+                    when (this) {
+                        is Jump -> {
+                            basicBlock = controlFlowGraph[target]!!.getStatements()
+                            pc = 0
+                        }
 
-                            is JumpIf -> {
-                                val target = if (condition.delayedCondition()) th3n else e1se
-                                basicBlock = controlFlowGraph[target]!!.getStatements()
-                                pc = 0
-                            }
+                        is JumpIf -> {
+                            val target = if (condition.delayedCondition()) th3n else e1se
+                            basicBlock = controlFlowGraph[target]!!.getStatements()
+                            pc = 0
+                        }
 
-                            is HashSwitch -> {
-                                val case = cases[(control.delayed() as ArithmeticValue).integralPromotions()]
-                                val target = case ?: default
-                                basicBlock = controlFlowGraph[target]!!.getStatements()
-                                pc = 0
-                            }
+                        is HashSwitch -> {
+                            val target = cases[(control.delayed() as ArithmeticValue).integralPromotions()] ?: default
+                            basicBlock = controlFlowGraph[target]!!.getStatements()
+                            pc = 0
+                        }
 
-                            is FlatDeclaration -> {
-                                for (namedDeclarator in namedDeclarators) {
-                                    with(namedDeclarator) {
-                                        if (declarator is Declarator.Initialized && offset >= 0) {
-                                            before?.invoke(name.start)
-                                            initialize(type, declarator.init, memory.currentStackFrame(), offset)
-                                            after?.invoke()
-                                        }
+                        is FlatDeclaration -> {
+                            for (namedDeclarator in namedDeclarators) {
+                                with(namedDeclarator) {
+                                    if (declarator is Declarator.Initialized && offset >= 0) {
+                                        before?.invoke(name.start)
+                                        initialize(type, declarator.init, stackFrame, offset)
+                                        after?.invoke()
                                     }
                                 }
                             }
-
-                            is FlatExpressionStatement -> {
-                                expression.delayed()
-                            }
-
-                            is FlatReturn -> {
-                                if (result == null) {
-                                    before?.invoke(r3turn.start)
-                                    after?.invoke()
-                                } else {
-                                    targetType = (namedDeclarator.type as FunctionType).returnType
-                                    return result.delayed()
-                                }
-                            }
-
-                            is FlatAssert -> {
-                                if (condition is RelationalEquality && condition.right.type is ArithmeticType) {
-                                    val left = condition.left.delayed()
-                                    val right = condition.right.evaluate()
-                                    if (relationalEquality(
-                                            left as ArithmeticValue,
-                                            condition.operator,
-                                            right as ArithmeticValue
-                                        ).isFalse()
-                                    ) {
-                                        val leftShow = left.show()
-                                        condition.root().error(
-                                            " $leftShow ${condition.operator} ${right.show()} ",
-                                            -leftShow.length - 2
-                                        )
-                                    }
-                                } else if (!condition.delayedCondition()) {
-                                    condition.root().error("assertion failed")
-                                }
-                                ++passedAssertions
-                            }
-
-                            else -> error("no execute for $this")
                         }
-                        {
-                            // Without this empty block, the return type of "with" is deduced incorrectly
+
+                        is FlatExpressionStatement -> {
+                            expression.delayed()
                         }
+
+                        is FlatReturn -> {
+                            if (result == null) {
+                                before?.invoke(r3turn.start)
+                                after?.invoke()
+                            } else {
+                                targetType = (namedDeclarator.type as FunctionType).returnType
+                                return result.delayed().also { memory.popStackFrameUnlessEntryPoint() }
+                            }
+                        }
+
+                        is FlatAssert -> {
+                            if (condition is RelationalEquality && condition.right.type is ArithmeticType) {
+                                val left = condition.left.delayed()
+                                val right = condition.right.evaluate()
+                                if (relationalEquality(
+                                        left as ArithmeticValue,
+                                        condition.operator,
+                                        right as ArithmeticValue
+                                    ).isFalse()
+                                ) {
+                                    val leftShow = left.show()
+                                    condition.root().error(
+                                        " $leftShow ${condition.operator} ${right.show()} ",
+                                        -leftShow.length - 2
+                                    )
+                                }
+                            } else if (!condition.delayedCondition()) {
+                                condition.root().error("assertion failed")
+                            }
+                            ++passedAssertions
+                        }
+
+                        else -> error("no execute for $this")
                     }
                 }
-
-                before?.invoke(closingBrace.start)
-
-                if (returnType() !== VoidType) {
-                    throw Diagnostic(closingBrace.start, "missing return statement")
-                }
             }
+
+            before?.invoke(closingBrace.start)
+
+            if (returnType() !== VoidType) {
+                throw Diagnostic(closingBrace.start, "missing return statement")
+            }
+            memory.popStackFrameUnlessEntryPoint()
             return VoidValue
         } finally {
             --stackDepth

@@ -502,19 +502,15 @@ class MainFrame : JFrame() {
     private fun tryExecute() {
         Thread {
             try {
-                memoryUI.active = true
                 targetStackDepth = Int.MAX_VALUE
                 lastReceivedPosition = 0
                 interpreter.run(editor.cursor(), previousEntryPoint)
-            } catch (stop: StopTheProgram) {
-                memoryUI.active = false
+            } catch (_: StopTheProgram) {
             } catch (diagnostic: Diagnostic) {
-                memoryUI.active = false
                 EventQueue.invokeLater {
                     showDiagnostic(diagnostic)
                 }
             } catch (other: Throwable) {
-                memoryUI.active = false
                 EventQueue.invokeLater {
                     showDiagnostic(lastReceivedPosition, other.message ?: "null")
                     other.printStackTrace()

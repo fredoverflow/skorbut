@@ -26,8 +26,6 @@ class MemoryUI(var memory: Memory) : JPanel() {
         layout = BoxLayout(this, BoxLayout.Y_AXIS)
     }
 
-    var active = true
-
     private val emptyBorder = EmptyBorder(8, 8, 8, 8)
     private val stringsBorder = LineBorder(Color.LIGHT_GRAY, 2, true)
     private val staticsBorder = LineBorder(Color.GRAY, 2, true)
@@ -93,18 +91,16 @@ class MemoryUI(var memory: Memory) : JPanel() {
     private var valueIndex = 0
 
     fun update() {
-        if (active) {
-            removeAll()
-            objects.clear()
-            pointers.clear()
-            updateSingleSegment(memory.stringConstants, stringsBorder)
-            updateSingleSegment(memory.staticVariables, staticsBorder)
-            updateMultipleSegments(memory.heap, heapBorder)
-            add(Box.createVerticalGlue())
-            updateMultipleSegments(memory.stack, stackBorder)
-            revalidate()
-            repaint()
-        }
+        removeAll()
+        objects.clear()
+        pointers.clear()
+        updateSingleSegment(memory.stringConstants, stringsBorder)
+        updateSingleSegment(memory.staticVariables, staticsBorder)
+        updateMultipleSegments(memory.heap, heapBorder)
+        add(Box.createVerticalGlue())
+        updateMultipleSegments(memory.stack, stackBorder)
+        revalidate()
+        repaint()
     }
 
     private fun updateSingleSegment(segment: Segment, border: LineBorder) {

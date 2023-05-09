@@ -54,24 +54,19 @@ class Memory(stringLiterals: Iterable<String>, variables: Iterable<NamedDeclarat
         stringConstants.readOnlyErrorMessage = "attempt to modify a string literal"
     }
 
-    fun currentStackFrame() = stack.last()
-
     fun makeObject(symbol: Symbol): Object {
         return with(symbol) {
             if (offset < 0) {
                 Object(staticVariables, offset + Int.MIN_VALUE, type, 0, 1)
             } else {
-                Object(currentStackFrame(), offset, type, 0, 1)
+                Object(stack.last(), offset, type, 0, 1)
             }
         }
     }
 
-    inline fun functionScoped(stackFrameType: StructType, action: () -> Unit) {
-        stack.add(Segment(stackFrameType))
-        try {
-            action()
-        } finally {
-            stack.removeAt(stack.lastIndex).kill()
+    fun popStackFrameUnlessEntryPoint() {
+        if (stack.size > 1) {
+            stack.removeLast().kill()
         }
     }
 
