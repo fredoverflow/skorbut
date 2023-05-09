@@ -100,6 +100,10 @@ class Linter(val translationUnit: TranslationUnit) : LinterBase() {
                     val op1 = left.operator
                     val op2 = this.operator
                     warn("a${op1}b${op2}c does not do what you think it does. You probably want a${op1}b && b${op2}c instead.")
+                } else if (operator.kind == LESS || operator.kind == BANG_EQUAL) {
+                    if (right is FunctionCall && right.function is Identifier && right.function.name.text == "strlen") {
+                        warn("consider replacing SLOW i${operator.kind}strlen(s) with FAST s[i]")
+                    }
                 }
             }
 
