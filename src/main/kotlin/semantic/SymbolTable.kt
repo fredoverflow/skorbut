@@ -10,8 +10,9 @@ data class Symbol(val name: Token, val type: Type, val offset: Int) {
 }
 
 class SymbolTable {
-    private val scopes = Array(128) { StringedValueMap.empty<Symbol>() }
+    private val scopes = Array<StringedValueMap<Symbol>>(128) { StringedValueMap.empty() }
     private var current = 0
+    private val closedScopes = ArrayList<StringedValueMap<Symbol>>()
 
     fun atGlobalScope(): Boolean {
         return current == 0
@@ -23,6 +24,11 @@ class SymbolTable {
 
     fun closeScope() {
         assert(!atGlobalScope()) { "Attempt to close the global scope" }
+        if (current == 1) {
+            closedScopes.clear()
+        } else {
+            closedScopes.add(scopes[current])
+        }
         --current
     }
 
@@ -48,6 +54,14 @@ class SymbolTable {
         val text = name.text
         for (i in current downTo 0) {
             scopes[i].get(text)?.let { symbol -> return symbol }
+        }
+        return null
+    }
+
+    fun lookupInClosedScopes(name: Token): Symbol? {
+        val text = name.text
+        for (i in closedScopes.lastIndex downTo 0) {
+            closedScopes[i].get(text)?.let { symbol -> return symbol }
         }
         return null
     }

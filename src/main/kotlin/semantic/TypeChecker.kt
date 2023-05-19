@@ -532,6 +532,10 @@ class TypeChecker(translationUnit: TranslationUnit) {
             is Identifier -> {
                 val temp = symbolTable.lookup(name)
                 if (temp == null) {
+                    val symbol = symbolTable.lookupInClosedScopes(name)
+                    if (symbol != null) {
+                        name.error("symbol $name no longer in scope", symbol.name)
+                    }
                     val functionToken = functionTokens[name.text]
                     if (functionToken != null && functionToken.start > name.start) {
                         name.error("must declare function before use", functionToken)
