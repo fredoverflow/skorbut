@@ -7,6 +7,10 @@ data class Diagnostic(
 ) : Exception(message) {
 
     override fun toString(): String {
-        return message
+        return if (secondPosition < 0) {
+            message
+        } else {
+            "$message \uD83D\uDDB0 toggle position"
+        }
     }
 }
