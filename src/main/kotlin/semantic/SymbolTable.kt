@@ -96,7 +96,7 @@ class SymbolTable {
     }
 
     fun currentFunction(): Symbol? {
-        return scopes[0].maxByOrNull(Symbol::offset)
+        return scopes[0].maxByOrNull { symbol -> symbol.name.start }
     }
 
     fun symbols(): Sequence<Symbol> = sequence {
