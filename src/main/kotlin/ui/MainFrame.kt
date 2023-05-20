@@ -81,7 +81,7 @@ class MainFrame : JFrame() {
                 memoryUI.update()
             } else if (visualizer.selectedComponent === scrolledSyntaxTree) {
                 if (!isRunning()) {
-                    tryCompile(andRun = false)
+                    tryCompile()
                 }
             }
         }
@@ -226,7 +226,9 @@ class MainFrame : JFrame() {
             editor.clearDiagnostics()
             editor.requestFocusInWindow()
             queue.clear()
-            tryCompile(andRun = true)
+            if (tryCompile()) {
+                run()
+            }
         }
 
         into.addActionListener {
@@ -315,10 +317,10 @@ class MainFrame : JFrame() {
         }
     }
 
-    private fun tryCompile(andRun: Boolean) {
+    private fun tryCompile(): Boolean {
         try {
             compile()
-            if (andRun) run()
+            return true
         } catch (diagnostic: Diagnostic) {
             showDiagnostic(diagnostic)
             updateDiagnostics(arrayListOf(diagnostic))
@@ -326,6 +328,7 @@ class MainFrame : JFrame() {
             showDiagnostic(other.message ?: "null")
             other.printStackTrace()
         }
+        return false
     }
 
     private fun compile() {
