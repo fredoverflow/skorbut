@@ -20,7 +20,7 @@ fun FunctionDefinition.returnType(): Type = (namedDeclarator.type as FunctionTyp
 
 class Interpreter(program: String) {
     val translationUnit = Parser(Lexer(program)).translationUnit()
-    private val typeChecker = TypeChecker(translationUnit)
+    val typeChecker = TypeChecker(translationUnit)
 
     private val functions = translationUnit.functions.associateBy(FunctionDefinition::name)
 

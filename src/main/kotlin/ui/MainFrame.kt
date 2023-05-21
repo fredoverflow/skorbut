@@ -1,6 +1,7 @@
 package ui
 
 import common.Diagnostic
+import freditor.FreditorUI
 import freditor.Fronts
 import freditor.LineNumbers
 import interpreter.Interpreter
@@ -8,6 +9,7 @@ import interpreter.Memory
 import semantic.Linter
 import semantic.TypeChecker
 import syntax.lexer.Lexer
+import syntax.lexer.keywords
 import syntax.parser.Parser
 import syntax.parser.autocompleteIdentifier
 import syntax.parser.translationUnit
@@ -29,6 +31,8 @@ import javax.swing.*
 import javax.swing.event.TreeModelListener
 import javax.swing.tree.TreeModel
 import javax.swing.tree.TreePath
+
+private val NAME = Regex("""[A-Z_a-z][0-9A-Z_a-z]*""")
 
 object StopTheProgram : Exception()
 
@@ -263,6 +267,10 @@ class MainFrame : JFrame() {
                         autocompleteIdentifier()
                     }
 
+                    KeyEvent.VK_R -> if (FreditorUI.isControlRespectivelyCommandDown(event) && event.isAltDown) {
+                        renameSymbol()
+                    }
+
                     KeyEvent.VK_F1 -> showType()
 
                     KeyEvent.VK_F5 -> into.doClick()
@@ -285,6 +293,34 @@ class MainFrame : JFrame() {
             showDiagnostic(diagnostic)
             updateDiagnostics(arrayListOf(diagnostic))
         }
+    }
+
+    private fun renameSymbol() {
+        if (isRunning() || !tryCompile()) return
+
+        val symbol = interpreter.typeChecker.symbolAt(editor.cursor()) ?: return
+
+        val oldName = symbol.name.text
+        val input = JOptionPane.showInputDialog(
+            this,
+            oldName,
+            "rename symbol",
+            JOptionPane.QUESTION_MESSAGE,
+            null,
+            null,
+            oldName
+        ) ?: return
+
+        val newName = input.toString().trim()
+        if (!NAME.matches(newName) || newName in keywords) return
+
+        val positions = IntArray(1 + symbol.usages.size)
+        positions[0] = symbol.name.start
+        symbol.usages.forEachIndexed { index, usage ->
+            positions[1 + index] = usage.name.start
+        }
+        editor.rename(oldName, newName, positions)
+        tryCompile()
     }
 
     private fun detectRoot(node: Node) {

@@ -102,6 +102,10 @@ class TypeChecker(translationUnit: TranslationUnit) {
         symbolTable.declareOutside(name, type, staticOffset)
     }
 
+    fun symbolAt(position: Int): Symbol? {
+        return symbolTable.symbolAt(position)
+    }
+
     private fun DeclarationSpecifiers.typeCheckNoStorageClass(): Type {
         typeCheck()
         if (storageClass != VOID) root().error("no storage class allowed in this context")
@@ -530,8 +534,8 @@ class TypeChecker(translationUnit: TranslationUnit) {
             }
 
             is Identifier -> {
-                val temp = symbolTable.lookup(name)
-                if (temp == null) {
+                val symbol = symbolTable.lookup(name)
+                if (symbol == null) {
                     val symbol = symbolTable.lookupInClosedScopes(name)
                     if (symbol != null) {
                         name.error("symbol $name no longer in scope", symbol.name)
@@ -551,13 +555,15 @@ class TypeChecker(translationUnit: TranslationUnit) {
                     }
                 }
 
-                symbol = temp
-                if (temp.type is EnumerationConstant) {
-                    value = temp.type.value
+                this.symbol = symbol
+                symbol.usages.add(this)
+
+                if (symbol.type is EnumerationConstant) {
+                    value = symbol.type.value
                     SignedIntType
                 } else {
-                    isLocator = (temp.type !is FunctionType)
-                    temp.type
+                    isLocator = (symbol.type !is FunctionType)
+                    symbol.type
                 }
             }
 
