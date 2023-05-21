@@ -273,6 +273,8 @@ class MainFrame : JFrame() {
 
                     KeyEvent.VK_F1 -> showType()
 
+                    KeyEvent.VK_F3 -> jumpToDeclarationAndFindUsages()
+
                     KeyEvent.VK_F5 -> into.doClick()
                     KeyEvent.VK_F6 -> over.doClick()
                     KeyEvent.VK_F7 -> r3turn.doClick()
@@ -351,6 +353,23 @@ class MainFrame : JFrame() {
         } catch (diagnostic: Diagnostic) {
             showDiagnostic(diagnostic)
         }
+    }
+
+    private fun jumpToDeclarationAndFindUsages() {
+        if (isRunning() || !tryCompile()) return
+
+        val symbol = interpreter.typeChecker.symbolAt(editor.cursor()) ?: return
+
+        val symbolStart = symbol.name.start
+        editor.setCursorTo(symbolStart)
+
+        val name = symbol.name.text
+        val diagnostics = symbol.usages.map { usage ->
+            val usageStart = usage.name.start
+            val line = 1 + editor.lineOfPosition(usageStart)
+            Diagnostic(usageStart, "usage of $name on line $line", symbolStart)
+        }
+        updateDiagnostics(diagnostics)
     }
 
     private fun tryCompile(): Boolean {
