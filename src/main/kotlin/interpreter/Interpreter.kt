@@ -12,7 +12,6 @@ import syntax.tree.*
 import java.time.LocalTime
 import java.time.format.DateTimeFormatter.ISO_TIME
 import java.time.temporal.ChronoUnit.SECONDS
-import java.util.concurrent.atomic.AtomicReference
 import kotlin.math.floor
 import kotlin.math.pow
 
@@ -48,42 +47,47 @@ class Interpreter(program: String) {
     var before: Function1<Int, Unit>? = null
     var after: Function0<Unit>? = null
 
-    fun run(cursor: Int, previousEntryPoint: AtomicReference<String>) {
-        var entryPoint = translationUnit.functions.firstOrNull { function ->
-            cursor in function.specifiers.list.first().root().start..function.closingBrace.start
-        }
-        if ("main" == entryPoint?.name()) {
-            previousEntryPoint.set("")
-            run()
-            return
-        }
-        if (entryPoint == null || entryPoint.returnType() != VoidType || entryPoint.parameters.isNotEmpty()) {
-            entryPoint = functions[previousEntryPoint.get()]
-            if (entryPoint == null || entryPoint.returnType() != VoidType || entryPoint.parameters.isNotEmpty()) {
-                run()
-                return
+    fun run(cursor: Int, bottom: Int) {
+        val main = translationUnit.functions.firstOrNull { it.name() == "main" }
+        if (main != null) {
+            if (main.returnType() !== SignedIntType || main.parameters.isNotEmpty()) {
+                main.specifiers.root().error("int main() expected")
             }
+            runMain(main)
+        } else {
+            val (beforeCursor, afterCursor) = translationUnit.functions
+                .filter { it.returnType() === VoidType && it.parameters.isEmpty() }
+                .partition { it.closingBrace.end < cursor }
+
+            val entryPoint = afterCursor.firstOrNull() ?: beforeCursor.lastOrNull()
+            ?: throw Diagnostic(
+                bottom,
+                "missing entry point, must provide one of:\n· void allNamesAreFine()\n· int  main()"
+            )
+            run(entryPoint)
         }
-        previousEntryPoint.set(entryPoint.name())
-        initializeMemory(entryPoint)
-        entryPoint.execute(emptyList())
-        reportPassedAssertions(entryPoint.name())
-        reportMemoryLeaks(entryPoint)
     }
 
-    fun run() {
-        val main = translationUnit.functions.firstOrNull { it.name() == "main" }
-            ?: throw Diagnostic(0, "no main function found")
-        if (main.parameters.isNotEmpty()) main.root().error("main cannot have parameters")
-        if (main.returnType() !== SignedIntType) main.root().error("main must return int")
-
+    private fun runMain(main: FunctionDefinition) {
         initializeMemory(main)
-        val result = main.execute(emptyList())
-        val exitCode = (result as ArithmeticValue).value.toInt()
-        console.print("\nmain finished with exit code $exitCode\n")
+        val exitCode = main.execute(emptyList()) as ArithmeticValue
+
+        console.print("\nmain finished with exit code ${exitCode.value.toInt()}\n")
         console.update?.invoke()
-        reportPassedAssertions("main")
+
         reportMemoryLeaks(main)
+    }
+
+    private fun run(entryPoint: FunctionDefinition) {
+        initializeMemory(entryPoint)
+        entryPoint.execute(emptyList())
+
+        if (passedAssertions != 0) {
+            val now = LocalTime.now().truncatedTo(SECONDS).format(ISO_TIME)
+            console.print("\n[$now] ${entryPoint.name()}: ALL $passedAssertions assertions PASSED\n")
+            console.update?.invoke()
+        }
+        reportMemoryLeaks(entryPoint)
     }
 
     private fun initializeMemory(start: FunctionDefinition) {
@@ -143,14 +147,6 @@ class Interpreter(program: String) {
                     }
                 }
             }
-        }
-    }
-
-    private fun reportPassedAssertions(entryPoint: String) {
-        if (passedAssertions != 0) {
-            val now = LocalTime.now().truncatedTo(SECONDS).format(ISO_TIME)
-            console.print("\n[$now] $entryPoint: ALL $passedAssertions assertions PASSED\n")
-            console.update?.invoke()
         }
     }
 

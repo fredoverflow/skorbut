@@ -24,7 +24,6 @@ import java.awt.event.KeyEvent
 import java.awt.event.WindowAdapter
 import java.awt.event.WindowEvent
 import java.util.concurrent.ArrayBlockingQueue
-import java.util.concurrent.atomic.AtomicReference
 import java.util.function.Consumer
 
 import javax.swing.*
@@ -555,14 +554,12 @@ class MainFrame : JFrame() {
         }
     }
 
-    private val previousEntryPoint = AtomicReference("")
-
     private fun tryExecute() {
         Thread {
             try {
                 targetStackDepth = Int.MAX_VALUE
                 lastReceivedPosition = 0
-                interpreter.run(editor.cursor(), previousEntryPoint)
+                interpreter.run(editor.cursor(), editor.length())
             } catch (_: StopTheProgram) {
             } catch (diagnostic: Diagnostic) {
                 EventQueue.invokeLater {

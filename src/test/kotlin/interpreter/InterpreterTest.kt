@@ -4,7 +4,7 @@ import org.junit.Test
 
 class InterpreterTest {
     private fun run(program: String) {
-        Interpreter(program).run()
+        Interpreter(program).run(program.length, program.length)
     }
 
     @Test
