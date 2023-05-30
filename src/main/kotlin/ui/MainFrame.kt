@@ -3,7 +3,8 @@ package ui
 import common.Diagnostic
 import freditor.FreditorUI
 import freditor.Fronts
-import freditor.LineNumbers
+import freditor.JavaIndenter
+import freditor.TabbedEditors
 import interpreter.Interpreter
 import interpreter.Memory
 import semantic.Linter
@@ -14,18 +15,14 @@ import syntax.parser.Parser
 import syntax.parser.autocompleteIdentifier
 import syntax.parser.translationUnit
 import syntax.tree.*
-
 import java.awt.BorderLayout
 import java.awt.Dimension
 import java.awt.EventQueue
 import java.awt.Toolkit
 import java.awt.event.KeyAdapter
 import java.awt.event.KeyEvent
-import java.awt.event.WindowAdapter
-import java.awt.event.WindowEvent
 import java.util.concurrent.ArrayBlockingQueue
 import java.util.function.Consumer
-
 import javax.swing.*
 import javax.swing.event.TreeModelListener
 import javax.swing.tree.TreeModel
@@ -47,9 +44,45 @@ class MainFrame : JFrame() {
     private val memoryUI = MemoryUI(Memory(emptySet(), emptyList()))
     private val scrolledMemory = JScrollPane(memoryUI)
     private val syntaxTree = JTree().sansSerif()
+    private val scrolledSyntaxTree = JScrollPane(syntaxTree)
     private val visualizer = JTabbedPane().sansSerif()
 
-    private val editor = Editor()
+    private val tabbedEditors = TabbedEditors("skorbut", Flexer, JavaIndenter.instance) { freditor ->
+        val editor = FreditorUI(freditor, 0, 25)
+
+        editor.addKeyListener(object : KeyAdapter() {
+            override fun keyPressed(event: KeyEvent) {
+                when (event.keyCode) {
+                    KeyEvent.VK_SPACE -> if (event.isControlDown) {
+                        autocompleteIdentifier()
+                    }
+
+                    KeyEvent.VK_R -> if (FreditorUI.isControlRespectivelyCommandDown(event) && event.isAltDown) {
+                        renameSymbol()
+                    }
+
+                    KeyEvent.VK_F1 -> showType()
+
+                    KeyEvent.VK_F3 -> jumpToDeclarationAndFindUsages()
+
+                    KeyEvent.VK_F5 -> into.doClick()
+                    KeyEvent.VK_F6 -> over.doClick()
+                    KeyEvent.VK_F7 -> r3turn.doClick()
+                }
+            }
+        })
+
+        editor.onRightClick = Consumer {
+            editor.clearDiagnostics()
+            showType()
+        }
+
+        editor
+    }
+
+    private val editor
+        get() = tabbedEditors.selectedEditor
+
     private val slider = JSlider(0, 11, 0).sansSerif()
     private val timer = Timer(1000) { queue.offer("into") }
 
@@ -70,11 +103,9 @@ class MainFrame : JFrame() {
     private var lastReceivedPosition = 0
 
     init {
-        title = editor.autosaver.pathname
+        title = editor.file.parent.toString()
 
         scrolledMemory.preferredSize = Dimension(500, 500)
-
-        val scrolledSyntaxTree = JScrollPane(syntaxTree)
         scrolledSyntaxTree.preferredSize = Dimension(500, 500)
 
         visualizer.addTab("memory", scrolledMemory)
@@ -82,24 +113,20 @@ class MainFrame : JFrame() {
         visualizer.addChangeListener {
             if (visualizer.selectedComponent === scrolledMemory) {
                 memoryUI.update()
-            } else if (visualizer.selectedComponent === scrolledSyntaxTree) {
-                if (!isRunning()) {
-                    tryCompile()
-                }
+            } else {
+                hideDirtySyntaxTree()
             }
         }
 
-        val editorWithLineNumbers = JPanel()
-        editorWithLineNumbers.layout = BoxLayout(editorWithLineNumbers, BoxLayout.X_AXIS)
-        editorWithLineNumbers.add(LineNumbers(editor))
-        editorWithLineNumbers.add(editor)
-        editor.onRightClick = Consumer {
-            editor.clearDiagnostics()
-            showType()
+        if (editor.length() == 0) {
+            editor.load(helloWorld)
         }
-        editor.setComponentToRepaint(editorWithLineNumbers)
+        tabbedEditors.tabs.addChangeListener {
+            updateDiagnostics(emptyList())
+            hideDirtySyntaxTree()
+        }
 
-        val horizontalSplit = JSplitPane(JSplitPane.HORIZONTAL_SPLIT, visualizer, editorWithLineNumbers)
+        val horizontalSplit = JSplitPane(JSplitPane.HORIZONTAL_SPLIT, visualizer, tabbedEditors.tabs)
         horizontalSplit.preferredSize = Dimension(1000, 500)
 
         slider.majorTickSpacing = 1
@@ -138,19 +165,21 @@ class MainFrame : JFrame() {
         listenToSyntaxTree()
         listenToSlider()
         listenToButtons()
-        listenToKeyboard()
         listenToConsole()
 
         defaultCloseOperation = EXIT_ON_CLOSE
-        addWindowListener(object : WindowAdapter() {
-            override fun windowClosing(event: WindowEvent) {
-                editor.autosaver.save()
-            }
-        })
+        tabbedEditors.saveOnExit(this)
         pack()
         isVisible = true
-        // extendedState = Frame.MAXIMIZED_BOTH
         editor.requestFocusInWindow()
+    }
+
+    private fun hideDirtySyntaxTree() {
+        if (visualizer.selectedComponent === scrolledSyntaxTree) {
+            if (!isRunning() && !tryCompile()) {
+                visualizer.selectedComponent = scrolledMemory
+            }
+        }
     }
 
     private fun listenToSyntaxTree() {
@@ -225,7 +254,7 @@ class MainFrame : JFrame() {
     private fun listenToButtons() {
         start.addActionListener {
             editor.indent()
-            editor.autosaver.save()
+            editor.saveWithBackup()
             editor.clearDiagnostics()
             editor.requestFocusInWindow()
             queue.clear()
@@ -256,30 +285,6 @@ class MainFrame : JFrame() {
             queue.put("stop")
             interpreter.console.stop()
         }
-    }
-
-    private fun listenToKeyboard() {
-        editor.addKeyListener(object : KeyAdapter() {
-            override fun keyPressed(event: KeyEvent) {
-                when (event.keyCode) {
-                    KeyEvent.VK_SPACE -> if (event.isControlDown) {
-                        autocompleteIdentifier()
-                    }
-
-                    KeyEvent.VK_R -> if (FreditorUI.isControlRespectivelyCommandDown(event) && event.isAltDown) {
-                        renameSymbol()
-                    }
-
-                    KeyEvent.VK_F1 -> showType()
-
-                    KeyEvent.VK_F3 -> jumpToDeclarationAndFindUsages()
-
-                    KeyEvent.VK_F5 -> into.doClick()
-                    KeyEvent.VK_F6 -> over.doClick()
-                    KeyEvent.VK_F7 -> r3turn.doClick()
-                }
-            }
-        })
     }
 
     private fun autocompleteIdentifier() {
@@ -413,6 +418,7 @@ class MainFrame : JFrame() {
         consoleUI.text = ""
         interpreter.console.update = { EventQueue.invokeAndWait(::updateConsole) }
 
+        tabbedEditors.tabs.isEnabled = false
         start.isEnabled = false
         into.isEnabled = true
         over.isEnabled = true
@@ -572,6 +578,7 @@ class MainFrame : JFrame() {
                 }
             } finally {
                 EventQueue.invokeLater {
+                    tabbedEditors.tabs.isEnabled = true
                     start.isEnabled = true
                     into.isEnabled = false
                     over.isEnabled = false
@@ -583,3 +590,13 @@ class MainFrame : JFrame() {
         }.start()
     }
 }
+
+const val helloWorld = """void demo()
+{
+    char a[] = "hi";
+    char * p = a;
+    ++p;
+    ++p;
+    ++p;
+}
+"""
