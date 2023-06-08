@@ -85,6 +85,7 @@ class SymbolTable {
             if (previous.type is FunctionType && !previous.type.defined && type is FunctionType && type.defined) {
                 if (previous.type == type) {
                     previous.type.defined = true
+                    previous.usages.add(Identifier(name).also { it.symbol = previous })
                     return previous
                 } else {
                     name.error("function definition signature does not agree with function declaration signature")
