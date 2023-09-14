@@ -1,10 +1,7 @@
 package ui
 
 import common.Diagnostic
-import freditor.FreditorUI
-import freditor.Fronts
-import freditor.JavaIndenter
-import freditor.TabbedEditors
+import freditor.*
 import interpreter.Interpreter
 import interpreter.Memory
 import semantic.Linter
@@ -103,7 +100,7 @@ class MainFrame : JFrame() {
     private var lastReceivedPosition = 0
 
     init {
-        title = editor.file.parent.toString()
+        title = "skorbut version ${Release.compilationDate(MainFrame::class.java)} @ ${editor.file.parent}"
 
         scrolledMemory.preferredSize = Dimension(500, 500)
         scrolledSyntaxTree.preferredSize = Dimension(500, 500)
