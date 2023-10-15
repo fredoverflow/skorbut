@@ -48,8 +48,8 @@ class Linter(val translationUnit: TranslationUnit) : LinterBase() {
                 }
 
                 is For -> {
-                    it.condition?.run { detectSuspiciousCondition() }
-                    it.update?.run { detectOperatorWithoutEffect() }
+                    it.condition?.detectSuspiciousCondition()
+                    it.update?.detectOperatorWithoutEffect()
                 }
 
                 is Assert -> {

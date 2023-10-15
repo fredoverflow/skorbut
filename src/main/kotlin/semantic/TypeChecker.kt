@@ -335,9 +335,9 @@ class TypeChecker(translationUnit: TranslationUnit) {
 
             is For -> {
                 symbolTable.scoped {
-                    init?.run { typeCheck() }
-                    condition?.run { typeCheck() }
-                    update?.run { typeCheck() }
+                    init?.typeCheck()
+                    condition?.typeCheck()
+                    update?.typeCheck()
                     body.typeCheck()
                 }
             }
