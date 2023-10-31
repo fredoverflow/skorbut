@@ -32,3 +32,5 @@ data class ArrayType(var size: Int, val elementType: Type) : Type {
         }
     }
 }
+
+fun Type.isString(): Boolean = this is ArrayType && elementType.unqualified() == SignedCharType

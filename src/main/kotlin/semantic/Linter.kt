@@ -6,6 +6,7 @@ import interpreter.ImplicitContinue
 import interpreter.returnType
 import semantic.types.FunctionType
 import semantic.types.VoidType
+import semantic.types.isString
 import syntax.lexer.Token
 import syntax.lexer.TokenKind.*
 import syntax.tree.*
@@ -99,13 +100,21 @@ class Linter(val translationUnit: TranslationUnit) : LinterBase() {
             }
 
             is RelationalEquality -> {
-                if (left is RelationalEquality) {
-                    val op1 = left.operator
-                    val op2 = this.operator
-                    warn("a${op1}b${op2}c does not do what you think it does. You probably want a${op1}b && b${op2}c instead.")
-                } else if (operator.kind == LESS || operator.kind == BANG_EQUAL) {
-                    if (right is FunctionCall && right.function is Identifier && right.function.name.text == "strlen") {
-                        warn("consider replacing SLOW i${operator.kind}strlen(s) with FAST s[i]")
+                when {
+                    left is RelationalEquality -> {
+                        val op1 = left.operator
+                        val op2 = this.operator
+                        warn("a${op1}b${op2}c does not do what you think it does. You probably want a${op1}b && b${op2}c instead.")
+                    }
+
+                    left.type.isString() || right.type.isString() -> {
+                        warn("a $operator b compares string addresses. To compare characters: strcmp(a, b) $operator 0")
+                    }
+
+                    operator.kind == LESS || operator.kind == BANG_EQUAL -> {
+                        if (right is FunctionCall && right.function is Identifier && right.function.name.text == "strlen") {
+                            warn("consider replacing SLOW i${operator.kind}strlen(s) with FAST s[i]")
+                        }
                     }
                 }
             }
