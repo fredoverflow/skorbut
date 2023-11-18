@@ -2961,6 +2961,78 @@ int main()
     }
 
     @Test
+    fun qsortStressTest() {
+        run(
+            """
+int compare(const void* v, const void* w)
+{
+    return *(const short*)v - *(const short*)w;
+}
+
+int main()
+{
+    struct { short a[7]; } sequence, clone;
+    unsigned char contains[7] = {0, 0, 0, 0, 0, 0, 0};
+    int permutations = 0;
+    for (int i = 0; i < 7; ++i)
+    {
+        if (contains[i]) continue;
+        contains[i] = 1;
+        sequence.a[0] = i;
+        for (int i = 0; i < 7; ++i)
+        {
+            if (contains[i]) continue;
+            contains[i] = 1;
+            sequence.a[1] = i;
+            for (int i = 0; i < 7; ++i)
+            {
+                if (contains[i]) continue;
+                contains[i] = 1;
+                sequence.a[2] = i;
+                for (int i = 0; i < 7; ++i)
+                {
+                    if (contains[i]) continue;
+                    contains[i] = 1;
+                    sequence.a[3] = i;
+                    for (int i = 0; i < 7; ++i)
+                    {
+                        if (contains[i]) continue;
+                        contains[i] = 1;
+                        sequence.a[4] = i;
+                        for (int i = 0; i < 7; ++i)
+                        {
+                            if (contains[i]) continue;
+                            contains[i] = 1;
+                            sequence.a[5] = i;
+                            for (int i = 0; i < 7; ++i)
+                            {
+                                if (contains[i]) continue;
+                                ++permutations;
+                                sequence.a[6] = i;
+                                clone = sequence;
+                                qsort(clone.a, 7, sizeof(short), compare);
+                                assert(clone.a[0] < clone.a[1] && clone.a[1] < clone.a[2] && clone.a[2] < clone.a[3] && clone.a[3] < clone.a[4] && clone.a[4] < clone.a[5] && clone.a[5] < clone.a[6]);
+                            }
+                            contains[i] = 0;
+                        }
+                        contains[i] = 0;
+                    }
+                    contains[i] = 0;
+                }
+                contains[i] = 0;
+            }
+            contains[i] = 0;
+        }
+        contains[i] = 0;
+    }
+    assert(permutations == 7*6*5*4*3*2*1);
+    return 0;
+}
+"""
+        )
+    }
+
+    @Test
     fun castConstVoidPointers() {
         run(
             """

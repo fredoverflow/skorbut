@@ -117,13 +117,4 @@ class Memory(stringLiterals: Iterable<String>, variables: Iterable<NamedDeclarat
         heap.add(newSegment)
         return PointerValue(Object(newSegment, 0, arrayType.elementType, 0, arrayType.size))
     }
-
-    fun swap(a: Object, b: Object) {
-        for (i in 0 until a.type.count()) {
-            val x = a.segment[a.offset + i]
-            val y = b.segment[b.offset + i]
-            a.segment[a.offset + i] = y
-            b.segment[b.offset + i] = x
-        }
-    }
 }

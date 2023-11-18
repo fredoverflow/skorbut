@@ -14,6 +14,7 @@ import java.time.format.DateTimeFormatter.ISO_TIME
 import java.time.temporal.ChronoUnit.SECONDS
 import kotlin.math.floor
 import kotlin.math.pow
+import kotlin.random.Random
 
 fun FunctionDefinition.returnType(): Type = (namedDeclarator.type as FunctionType).returnType
 
@@ -699,15 +700,36 @@ class Interpreter(program: String) {
     }
 
     private fun qsort(base: PointerValue, count: Int, comp: FunctionDefinition) {
-        for (k in count - 1 downTo 1) {
-            val q = base + k
-            for (i in 0 until k) {
-                val p = base + i
-                val comparison = comp.execute(listOf(p, q))
-                if ((comparison as ArithmeticValue).value > 0) {
-                    memory.swap(p.referenced, q.referenced)
+        // Programming Pearls
+        // 11.3 Better Quicksorts
+        fun q(l: Int, u: Int) {
+            if (l < u) {
+                val pivot = base + l
+                swap(pivot, base + Random.nextInt(l, u + 1))
+                var i = l
+                var j = u + 1
+                while (true) {
+                    do ++i while (i <= u && (comp.execute(listOf(base + i, pivot)) as ArithmeticValue).value < 0)
+                    do --j while (/*     */ (comp.execute(listOf(base + j, pivot)) as ArithmeticValue).value > 0)
+                    if (i > j) break
+                    swap(base + i, base + j)
                 }
+                swap(pivot, base + j)
+                q(l, j - 1)
+                q(j + 1, u)
             }
+        }
+        q(0, count - 1)
+    }
+
+    private fun swap(p: PointerValue, q: PointerValue) {
+        val a = p.referenced
+        val b = q.referenced
+        for (i in 0 until a.type.count()) {
+            val x = a.segment[a.offset + i]
+            val y = b.segment[b.offset + i]
+            a.segment[a.offset + i] = y
+            b.segment[b.offset + i] = x
         }
     }
 
