@@ -1,12 +1,10 @@
 package semantic.types
 
-data class FunctionType(val parameters: List<Type>, val returnType: Type) : Type {
+data class FunctionType(val returnType: Type, val parameters: List<Type>) : Type {
     companion object {
-        fun nullary(returnType: Type): FunctionType = FunctionType(emptyList(), returnType)
-        fun unary(x: Type, returnType: Type): FunctionType = FunctionType(listOf(x), returnType)
-        fun binary(x: Type, y: Type, returnType: Type): FunctionType = FunctionType(listOf(x, y), returnType)
+        operator fun invoke(returnType: Type, vararg parameters: Type) = FunctionType(returnType, parameters.toList())
 
-        fun declarationMarker(): FunctionType = nullary(VoidType)
+        fun declarationMarker(): FunctionType = FunctionType(VoidType)
         val DEFINITION_MARKER: FunctionType = declarationMarker().apply { defined = true }
     }
 

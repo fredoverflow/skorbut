@@ -36,23 +36,17 @@ class TypeToStringTest {
 
     @Test
     fun qsort() {
-        val predicate = FunctionType.binary(ConstVoidPointerType, ConstVoidPointerType, SignedIntType).pointer()
-        val qsort = FunctionType(listOf(VoidPointerType, UnsignedIntType, UnsignedIntType, predicate), VoidType)
+        val predicate = FunctionType(SignedIntType, ConstVoidPointerType, ConstVoidPointerType).pointer()
+        val qsort = FunctionType(VoidType, VoidPointerType, UnsignedIntType, UnsignedIntType, predicate)
 
         assertEquals("void(void*,unsigned int,unsigned int,int(*)(const void*,const void*))", qsort.toString())
     }
 
     @Test
     fun bsearch() {
-        val predicate = FunctionType.binary(ConstVoidPointerType, ConstVoidPointerType, SignedIntType).pointer()
+        val predicate = FunctionType(SignedIntType, ConstVoidPointerType, ConstVoidPointerType).pointer()
         val bsearch = FunctionType(
-            listOf(
-                ConstVoidPointerType,
-                ConstVoidPointerType,
-                UnsignedIntType,
-                UnsignedIntType,
-                predicate
-            ), VoidPointerType
+            VoidPointerType, ConstVoidPointerType, ConstVoidPointerType, UnsignedIntType, UnsignedIntType, predicate
         )
 
         assertEquals(
@@ -63,28 +57,28 @@ class TypeToStringTest {
 
     @Test
     fun function() {
-        assertEquals("int()", FunctionType.nullary(SignedIntType).toString())
+        assertEquals("int()", FunctionType(SignedIntType).toString())
     }
 
     @Test
     fun functionReturningPointer() {
-        assertEquals("int*()", FunctionType.nullary(PointerType(SignedIntType)).toString())
+        assertEquals("int*()", FunctionType(PointerType(SignedIntType)).toString())
     }
 
     @Test
     fun functionReturningPointerToPointer() {
-        assertEquals("int**()", FunctionType.nullary(PointerType(PointerType(SignedIntType))).toString())
+        assertEquals("int**()", FunctionType(PointerType(PointerType(SignedIntType))).toString())
     }
 
     @Test
     fun functionReturningPointerToArray() {
-        assertEquals("int(*())[10]", FunctionType.nullary(PointerType(ArrayType(10, SignedIntType))).toString())
+        assertEquals("int(*())[10]", FunctionType(PointerType(ArrayType(10, SignedIntType))).toString())
     }
 
     @Test
     fun functionReturningPointerToFunction() {
-        val callback = PointerType(FunctionType.binary(SignedIntType, SignedIntType, SignedIntType))
-        assertEquals("int(*(int(*)(int,int)))(int,int)", FunctionType.unary(callback, callback).toString())
+        val callback = PointerType(FunctionType(SignedIntType, SignedIntType, SignedIntType))
+        assertEquals("int(*(int(*)(int,int)))(int,int)", FunctionType(callback, callback).toString())
     }
 
     @Test
@@ -131,7 +125,7 @@ class TypeToStringTest {
     fun constPointerToFunction() {
         assertEquals(
             "int(*const)(int)",
-            Const(PointerType(FunctionType.unary(SignedIntType, SignedIntType))).toString()
+            Const(PointerType(FunctionType(SignedIntType, SignedIntType))).toString()
         )
     }
 

@@ -23,38 +23,32 @@ class TypeChecker(translationUnit: TranslationUnit) {
     private var currentStackFrameSymbols = ArrayList<Symbol>()
 
     init {
-        declare(fakeIdentifier("pow"), FunctionType.binary(DoubleType, DoubleType, DoubleType))
-        declare(fakeIdentifier("time"), FunctionType.unary(SignedIntType, UnsignedIntType))
+        declare(fakeIdentifier("pow"), FunctionType(DoubleType, DoubleType, DoubleType))
+        declare(fakeIdentifier("time"), FunctionType(UnsignedIntType, SignedIntType))
 
         val constCharPointer = PointerType(Const(SignedCharType))
-        declare(fakeIdentifier("puts"), FunctionType.unary(constCharPointer, VoidType))
-        declare(fakeIdentifier("putchar"), FunctionType.unary(SignedIntType, VoidType))
-        declare(fakeIdentifier("getchar"), FunctionType.nullary(SignedIntType))
+        declare(fakeIdentifier("puts"), FunctionType(VoidType, constCharPointer))
+        declare(fakeIdentifier("putchar"), FunctionType(VoidType, SignedIntType))
+        declare(fakeIdentifier("getchar"), FunctionType(SignedIntType))
 
-        declare(fakeIdentifier("malloc"), FunctionType.unary(UnsignedIntType, VoidPointerType))
-        declare(fakeIdentifier("free"), FunctionType.unary(VoidPointerType, VoidType))
-        declare(fakeIdentifier("realloc"), FunctionType.binary(VoidPointerType, UnsignedIntType, VoidPointerType))
+        declare(fakeIdentifier("malloc"), FunctionType(VoidPointerType, UnsignedIntType))
+        declare(fakeIdentifier("free"), FunctionType(VoidType, VoidPointerType))
+        declare(fakeIdentifier("realloc"), FunctionType(VoidPointerType, VoidPointerType, UnsignedIntType))
 
-        val predicate = FunctionType.binary(ConstVoidPointerType, ConstVoidPointerType, SignedIntType).pointer()
+        val predicate = FunctionType(SignedIntType, ConstVoidPointerType, ConstVoidPointerType).pointer()
         declare(
             fakeIdentifier("qsort"),
-            FunctionType(listOf(VoidPointerType, UnsignedIntType, UnsignedIntType, predicate), VoidType)
+            FunctionType(VoidType, VoidPointerType, UnsignedIntType, UnsignedIntType, predicate)
         )
         declare(
             fakeIdentifier("bsearch"),
             FunctionType(
-                listOf(
-                    ConstVoidPointerType,
-                    ConstVoidPointerType,
-                    UnsignedIntType,
-                    UnsignedIntType,
-                    predicate
-                ), VoidPointerType
+                VoidPointerType, ConstVoidPointerType, ConstVoidPointerType, UnsignedIntType, UnsignedIntType, predicate
             )
         )
 
-        declare(fakeIdentifier("strlen"), FunctionType.unary(constCharPointer, UnsignedIntType))
-        declare(fakeIdentifier("strcmp"), FunctionType.binary(constCharPointer, constCharPointer, SignedIntType))
+        declare(fakeIdentifier("strlen"), FunctionType(UnsignedIntType, constCharPointer))
+        declare(fakeIdentifier("strcmp"), FunctionType(SignedIntType, constCharPointer, constCharPointer))
 
         translationUnit.externalDeclarations.forEach {
             when (it) {
@@ -228,7 +222,7 @@ class TypeChecker(translationUnit: TranslationUnit) {
 
             is Declarator.Function -> child.type(
                 // ignore top-level const in function types
-                FunctionType(parameters.map { it.typeCheck().unqualified() }, from.unqualified())
+                FunctionType(from.unqualified(), parameters.map { it.typeCheck().unqualified() })
             )
 
             is Declarator.Initialized -> declarator.type(from)
