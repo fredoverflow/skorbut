@@ -3,7 +3,7 @@ package interpreter
 import semantic.types.Type
 
 class Segment(val type: Type) {
-    private val memory: MutableList<Value> = generateSequence { IndeterminateValue }.take(type.count()).toMutableList()
+    private val memory: MutableList<Value> = MutableList(type.count()) { IndeterminateValue }
     var readOnlyErrorMessage: String? = null
 
     var alive = true

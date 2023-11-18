@@ -112,7 +112,7 @@ class MemoryUI(var memory: Memory) : JPanel() {
     }
 
     private fun update(segment: Segment) {
-        objects[segment] = generateSequence { HashMap<Type, JComponent>() }.take(segment.type.count()).toMutableList()
+        objects[segment] = MutableList(segment.type.count()) { HashMap() }
         valueIndex = 0
         with(segment) {
             if (type is StructType) {
