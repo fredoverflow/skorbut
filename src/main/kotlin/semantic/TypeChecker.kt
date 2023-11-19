@@ -35,6 +35,8 @@ class TypeChecker(translationUnit: TranslationUnit) {
         declare(fakeIdentifier("free"), FunctionType(VoidType, VoidPointerType))
         declare(fakeIdentifier("realloc"), FunctionType(VoidPointerType, VoidPointerType, UnsignedIntType))
 
+        declare(fakeIdentifier("memswap"), FunctionType(VoidType, VoidPointerType, VoidPointerType, UnsignedIntType))
+
         val predicate = FunctionType(SignedIntType, ConstVoidPointerType, ConstVoidPointerType).pointer()
         declare(
             fakeIdentifier("qsort"),
@@ -735,9 +737,9 @@ class TypeChecker(translationUnit: TranslationUnit) {
             is Plus -> {
                 val leftType = left.typeCheck().decayed()
                 val rightType = right.typeCheck().decayed()
-                if ((leftType is PointerType) && (rightType is ArithmeticType)) {
+                if ((leftType is ComparablePointerType) && (rightType is ArithmeticType)) {
                     leftType
-                } else if ((leftType is ArithmeticType) && (rightType is PointerType)) {
+                } else if ((leftType is ArithmeticType) && (rightType is ComparablePointerType)) {
                     rightType
                 } else if ((leftType is ArithmeticType) && (rightType is ArithmeticType)) {
                     this.determineValue(::plus)
@@ -750,9 +752,9 @@ class TypeChecker(translationUnit: TranslationUnit) {
             is Minus -> {
                 val leftType = left.typeCheck().decayed()
                 val rightType = right.typeCheck().decayed()
-                if ((leftType is PointerType) && (rightType is ArithmeticType)) {
+                if ((leftType is ComparablePointerType) && (rightType is ArithmeticType)) {
                     leftType
-                } else if ((leftType is PointerType) && (rightType is PointerType)) {
+                } else if ((leftType is ComparablePointerType) && (rightType is ComparablePointerType)) {
                     SignedIntType
                 } else if ((leftType is ArithmeticType) && (rightType is ArithmeticType)) {
                     this.determineValue(::minus)
@@ -890,7 +892,7 @@ class TypeChecker(translationUnit: TranslationUnit) {
         val rightType = right.typeCheck().decayed()
         if ((leftType is ArithmeticType) && (rightType is ArithmeticType)) {
             return leftType
-        } else if ((leftType is PointerType) && (rightType is ArithmeticType)) {
+        } else if ((leftType is ComparablePointerType) && (rightType is ArithmeticType)) {
             return leftType
         } else {
             operator.error("$leftType ", "$operator $rightType")

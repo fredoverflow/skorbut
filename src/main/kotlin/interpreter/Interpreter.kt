@@ -468,6 +468,21 @@ class Interpreter(program: String) {
                         )
                     }
 
+                    "memswap" -> {
+                        val p = arguments[0].evaluate() as PointerValue
+                        val q = arguments[1].evaluate() as PointerValue
+                        if (p.referenced.type != q.referenced.type) {
+                            error("${p.referenced.type} != ${q.referenced.type}")
+                        }
+                        val size = (arguments[2].evaluate() as ArithmeticValue).value.toInt()
+                        val actualSize = p.referenced.type.sizeof()
+                        if (size != actualSize) {
+                            error("element type ${p.referenced.type} has size $actualSize, not $size")
+                        }
+                        swap(p, q)
+                        return VoidValue
+                    }
+
                     "qsort" -> {
                         val base = arguments[0].evaluate() as PointerValue
                         val count = (arguments[1].evaluate() as ArithmeticValue).value.toInt()
@@ -572,21 +587,26 @@ class Interpreter(program: String) {
                 val left = left.evaluate()
                 val right = right.evaluate()
                 if (left is PointerValue && right is ArithmeticValue) {
-                    left + right.value.toInt()
+                    pointerPlus(left, this.left.type, right)
                 } else if (left is ArithmeticValue && right is PointerValue) {
-                    right + left.value.toInt()
+                    pointerPlus(right, this.right.type, left)
                 } else {
                     plus(left, right)
                 }
             }
 
             is Minus -> {
+                val type = this.left.type
                 val left = left.evaluate()
                 val right = right.evaluate()
                 if (left is PointerValue && right is ArithmeticValue) {
-                    left - right.value.toInt()
+                    pointerMinus(left, type, right)
                 } else if (left is PointerValue && right is PointerValue) {
-                    Value.signedInt(left - right)
+                    if (type is VoidPointerType || type is ConstVoidPointerType) {
+                        Value.signedInt((left - right) * left.referenced.type.sizeof())
+                    } else {
+                        Value.signedInt(left - right)
+                    }
                 } else {
                     minus(left, right)
                 }
@@ -664,7 +684,7 @@ class Interpreter(program: String) {
                 val value = when (left) {
                     is ArithmeticValue -> target.type.cast(left + right)
 
-                    is PointerValue -> left + right.value.toInt()
+                    is PointerValue -> pointerPlus(left, target.type, right)
 
                     else -> error("no evaluate for $this")
                 }
@@ -679,7 +699,7 @@ class Interpreter(program: String) {
                 val value = when (left) {
                     is ArithmeticValue -> target.type.cast(left - right)
 
-                    is PointerValue -> left - right.value.toInt()
+                    is PointerValue -> pointerMinus(left, target.type, right)
 
                     else -> error("no evaluate for $this")
                 }
@@ -696,6 +716,32 @@ class Interpreter(program: String) {
                 if (!isLocator) error("no evaluate for $this")
                 locate().evaluate()
             }
+        }
+    }
+
+    private fun Binary.pointerPlus(pointer: PointerValue, type: Type, arithmetic: ArithmeticValue): Value {
+        val delta = arithmetic.value.toInt()
+        return if (type is VoidPointerType || type is ConstVoidPointerType) {
+            val sizeof = pointer.referenced.type.sizeof()
+            if (delta % sizeof != 0) {
+                this.root().error("$delta is not a multiple of $sizeof")
+            }
+            pointer + delta / sizeof
+        } else {
+            pointer + delta
+        }
+    }
+
+    private fun Binary.pointerMinus(pointer: PointerValue, type: Type, arithmetic: ArithmeticValue): Value {
+        val delta = arithmetic.value.toInt()
+        return if (type is VoidPointerType || type is ConstVoidPointerType) {
+            val sizeof = pointer.referenced.type.sizeof()
+            if (delta % sizeof != 0) {
+                this.root().error("$delta is not a multiple of $sizeof")
+            }
+            pointer - delta / sizeof
+        } else {
+            pointer - delta
         }
     }
 
