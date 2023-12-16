@@ -215,8 +215,8 @@ class Interpreter(program: String) {
                                 before?.invoke(r3turn.start)
                                 after?.invoke()
                             } else {
-                                targetType = (namedDeclarator.type as FunctionType).returnType
-                                return result.delayed().also { memory.popStackFrameUnlessEntryPoint() }
+                                targetType = this@execute.returnType()
+                                return targetType.cast(result.delayed()).also { memory.popStackFrameUnlessEntryPoint() }
                             }
                         }
 
@@ -419,8 +419,7 @@ class Interpreter(program: String) {
                         targetType = it.first.type
                         it.second.evaluate()
                     }
-                    val result = definition.execute(evaluatedArguments)
-                    return definition.returnType().cast(result)
+                    return definition.execute(evaluatedArguments)
                 }
                 when (name.text) {
                     "pow" -> {
