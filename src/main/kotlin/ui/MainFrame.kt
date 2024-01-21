@@ -27,7 +27,9 @@ import javax.swing.tree.TreePath
 
 private val NAME = Regex("""[A-Z_a-z][0-9A-Z_a-z]*""")
 
-object StopTheProgram : Exception()
+object StopTheProgram : Exception() {
+    private fun readResolve(): Any = StopTheProgram
+}
 
 fun <T : JComponent> T.sansSerif(): T {
     this.font = Fronts.sansSerif
