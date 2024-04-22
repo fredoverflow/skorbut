@@ -66,7 +66,7 @@ class Memory(stringLiterals: Iterable<String>, variables: Iterable<NamedDeclarat
 
     fun popStackFrameUnlessEntryPoint() {
         if (stack.size > 1) {
-            stack.removeLast().kill()
+            stack.removeAt(stack.lastIndex).kill()
         }
     }
 
