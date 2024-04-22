@@ -96,9 +96,8 @@ enum class TokenKind(val lexeme: String) {
     override fun toString(): String = lexeme
 
     companion object {
-        val ALL = values().asList()
-        val KEYWORDS = ALL.subList(ASSERT.ordinal, WHILE.ordinal + 1)
-        val OPERATORS_SEPARATORS = ALL.subList(OPENING_BRACKET.ordinal, SEMICOLON.ordinal + 1)
+        val KEYWORDS = entries.subList(ASSERT.ordinal, WHILE.ordinal + 1)
+        val OPERATORS_SEPARATORS = entries.subList(OPENING_BRACKET.ordinal, SEMICOLON.ordinal + 1)
     }
 }
 

@@ -34,8 +34,6 @@ class TokenKindSet(private val bits: Long) {
         fun of(kind1: TokenKind, kind2: TokenKind, kind3: TokenKind, kind4: TokenKind, kind5: TokenKind): TokenKindSet {
             return TokenKindSet(kind1.bitmask or kind2.bitmask or kind3.bitmask or kind4.bitmask or kind5.bitmask)
         }
-
-        private val tokenKindValues = TokenKind.values()
     }
 
     fun contains(kind: TokenKind): Boolean {
@@ -51,7 +49,7 @@ class TokenKindSet(private val bits: Long) {
     }
 
     fun first(): TokenKind {
-        return tokenKindValues[numberOfTrailingZeros(bits)]
+        return TokenKind.entries[numberOfTrailingZeros(bits)]
     }
 
     override fun equals(other: Any?): Boolean {
@@ -66,7 +64,7 @@ class TokenKindSet(private val bits: Long) {
     override fun toString(): String {
         return generateSequence(bits) { b -> b xor lowestOneBit(b) }
             .takeWhile { b -> b != 0L }
-            .map { b -> tokenKindValues[numberOfTrailingZeros(b)] }
+            .map { b -> TokenKind.entries[numberOfTrailingZeros(b)] }
             .joinToString(", ", "[", "]")
     }
 }
