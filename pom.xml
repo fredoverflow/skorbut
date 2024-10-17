@@ -104,7 +104,7 @@
                 <configuration>
                     <includeDependencyInjar>true</includeDependencyInjar>
                     <outFilter>META-INF/MANIFEST.MF,!META-INF/**,!**.kotlin_*</outFilter>
-                    <outjar>../../${project.artifactId}-release/${project.artifactId}.jar</outjar>
+                    <outjar>${project.artifactId}.jar</outjar>
                     <options>
                         <!-- for some reason, the usual approach via configuration/libs/lib does not work -->
                         <option>-libraryjars ${java.runtime}</option>
