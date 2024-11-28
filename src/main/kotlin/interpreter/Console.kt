@@ -106,55 +106,63 @@ class Console {
         var a = 0
         while (i < fmt.length) {
             when (fmt[i++]) {
-                ' ' -> skipWhitespace()
+                '\t', '\n', ' ' -> skipWhitespace()
 
                 '%' -> {
-                    if (i == fmt.length) format.error("trailing %")
-                    if (a == arguments.size) format.error("missing scanf argument")
+                    val percent = i - 1
+                    if (i == fmt.length) format.stringErrorAt(percent, "incomplete conversion specifier")
+                    if (a == arguments.size) format.stringErrorAt(percent, "missing argument after format string")
                     val arg = arguments[a++] as PointerValue
-                    val type = arg.referenced.type
+                    val referenced = arg.referenced
+                    val type = referenced.type
                     when (fmt[i++]) {
                         'd' -> {
-                            if (type !== SignedIntType) format.error("%d expects ${SignedIntType.pointer()}, not ${type.pointer()}")
+                            if (type !== SignedIntType) format.stringErrorAt(percent, "%d expects int*, not ${type.pointer()}")
                             skipWhitespace()
                             val x = scanInt() ?: return a - 1
-                            arg.referenced.assign(Value.signedInt(x))
+                            referenced.assign(Value.signedInt(x))
                         }
 
                         'f' -> {
-                            if (type !== FloatType) format.error("%f expects ${FloatType.pointer()}, not ${type.pointer()}")
+                            if (type !== FloatType) format.stringErrorAt(percent, "%f expects float*, not ${type.pointer()}")
                             skipWhitespace()
                             val x = scanDouble() ?: return a - 1
-                            arg.referenced.assign(Value.float(x.toFloat()))
+                            referenced.assign(Value.float(x.toFloat()))
                         }
 
                         'l' -> {
-                            if (fmt[i++] != 'f') format.error("l must be followed by f")
-                            if (type !== DoubleType) format.error("%f expects ${DoubleType.pointer()}, not ${type.pointer()}")
+                            if (i == fmt.length || fmt[i] != 'f') format.stringErrorAt(i, "missing f after %l")
+                            ++i
+                            if (type !== DoubleType) format.stringErrorAt(percent, "%lf expects double*, not ${type.pointer()}")
                             skipWhitespace()
                             val x = scanDouble() ?: return a - 1
-                            arg.referenced.assign(Value.double(x))
+                            referenced.assign(Value.double(x))
                         }
 
                         'c' -> {
-                            if (type !== SignedCharType) format.error("%f expects ${SignedCharType.pointer()}, not ${type.pointer()}")
-                            arg.referenced.assign(Value.signedChar(getchar()))
+                            if (type !== SignedCharType) format.stringErrorAt(percent, "%c expects char*, not ${type.pointer()}")
+                            referenced.assign(Value.signedChar(getchar()))
                         }
 
                         's' -> {
-                            format.error("%s is unsafe, please use %123s instead, where 123 is the maximum length")
+                            if (type !== SignedCharType) format.stringErrorAt(percent, "%s expects char*, not ${type.pointer()}")
+                            val maxLen = referenced.bound - referenced.index - 1
+                            format.stringErrorAt(percent, "%s is unsafe\nuse %${maxLen}s instead")
                         }
 
                         '1', '2', '3', '4', '5', '6', '7', '8', '9' -> {
                             var len = fmt[i - 1] - '0'
-                            while (fmt[i] in '0'..'9') {
+                            while (i < fmt.length && fmt[i] in '0'..'9') {
                                 len = len * 10 + (fmt[i++] - '0')
                             }
-                            if (fmt[i++] != 's') format.error("Did you forget to put the s after %$len?")
-                            if (type !== SignedCharType) format.error("%s expects ${SignedCharType.pointer()}, not ${type.pointer()}")
+                            if (i == fmt.length || fmt[i] != 's') format.stringErrorAt(i, "missing s after %$len")
+                            ++i
+                            if (type !== SignedCharType) format.stringErrorAt(percent, "%s expects char*, not ${type.pointer()}")
+                            val maxLen = referenced.bound - referenced.index - 1
+                            if (len > maxLen) format.stringErrorAt(percent, "%${len}s is ${len - maxLen} too long\nuse %${maxLen}s instead")
                             skipWhitespace()
                             val x = scanString(len)
-                            var obj = arg.referenced
+                            var obj = referenced
                             for (c in x) {
                                 obj.assign(Value.signedChar(c))
                                 obj += 1
@@ -162,12 +170,15 @@ class Console {
                             obj.assign(Value.NUL)
                         }
 
-                        else -> format.error("illegal conversion specifier %${fmt[i - 1]}")
+                        else -> format.stringErrorAt(percent, "illegal conversion specifier %${fmt[i - 1]}")
                     }
                     after?.invoke()
                 }
 
-                else -> if (getchar() != fmt[i - 1]) return a
+                else -> if (getchar() != fmt[i - 1]) {
+                    unget()
+                    return a
+                }
             }
         }
         return arguments.size
