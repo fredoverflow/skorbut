@@ -115,7 +115,7 @@ class TypeChecker(translationUnit: TranslationUnit) {
     }
 
     private fun DeclarationSpecifiers.determineType() {
-        type = typeSpecifiers.get(typeTokens)
+        type = typeSpecifiers[typeTokens]!!
         if (type == Later) {
             type = when (typeTokens.first()) {
                 ENUM -> list.firstNotNullOf { it.enumType() }

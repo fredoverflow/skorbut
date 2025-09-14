@@ -1,6 +1,5 @@
 package semantic
 
-import freditor.persistent.StringedValueMap
 import semantic.types.FunctionType
 import semantic.types.Type
 import syntax.lexer.Token
@@ -13,9 +12,9 @@ data class Symbol(val name: Token, val type: Type, val offset: Int) {
 }
 
 class SymbolTable {
-    private val scopes = Array<StringedValueMap<Symbol>>(128) { StringedValueMap.empty() }
+    private val scopes = Array<HashMap<String, Symbol>>(128) { HashMap() }
     private var current = 0
-    private val closedScopes = ArrayList<StringedValueMap<Symbol>>()
+    private val closedScopes = ArrayList<Map<String, Symbol>>()
     private val allSymbols = ArrayList<Symbol>()
 
     fun atGlobalScope(): Boolean {
@@ -23,7 +22,7 @@ class SymbolTable {
     }
 
     fun openScope() {
-        scopes[++current] = StringedValueMap.empty()
+        scopes[++current] = HashMap()
     }
 
     fun closeScope() {
@@ -57,7 +56,7 @@ class SymbolTable {
     fun lookup(name: Token): Symbol? {
         val text = name.text
         for (i in current downTo 0) {
-            scopes[i].get(text)?.let { symbol -> return symbol }
+            scopes[i][text]?.let { symbol -> return symbol }
         }
         return null
     }
@@ -65,22 +64,22 @@ class SymbolTable {
     fun lookupInClosedScopes(name: Token): Symbol? {
         val text = name.text
         for (i in closedScopes.lastIndex downTo 0) {
-            closedScopes[i].get(text)?.let { symbol -> return symbol }
+            closedScopes[i][text]?.let { symbol -> return symbol }
         }
         return null
     }
 
     fun declare(name: Token, type: Type, offset: Int): Symbol {
-        return declareAt(current, name, type, offset)
+        return declareIn(scopes[current], name, type, offset)
     }
 
     fun declareOutside(name: Token, type: Type, offset: Int): Symbol {
-        return declareAt(current - 1, name, type, offset)
+        return declareIn(scopes[current - 1], name, type, offset)
     }
 
-    private fun declareAt(index: Int, name: Token, type: Type, offset: Int): Symbol {
+    private fun declareIn(scope: HashMap<String, Symbol>, name: Token, type: Type, offset: Int): Symbol {
         val text = name.text
-        val previous = scopes[index].get(text)
+        val previous = scope[text]
         if (previous != null) {
             if (previous.type is FunctionType && !previous.type.defined && type is FunctionType && type.defined) {
                 if (previous.type == type) {
@@ -95,24 +94,22 @@ class SymbolTable {
             }
         } else {
             val symbol = Symbol(name, type, offset)
-            scopes[index] = scopes[index].put(symbol)
+            scope[text] = symbol
             allSymbols.add(symbol)
             return symbol
         }
     }
 
     fun currentFunction(): Symbol? {
-        return scopes[0].maxByOrNull { symbol -> symbol.name.start }
+        return scopes[0].values.maxByOrNull { symbol -> symbol.name.start }
     }
 
-    fun symbols(): Sequence<Symbol> = sequence {
+    fun names(): Sequence<String> = sequence {
         for (i in current downTo 0) {
-            yieldAll(scopes[i])
+            for ((_, symbol) in scopes[i]) {
+                yield(symbol.name.text)
+            }
         }
-    }
-
-    fun names(): Sequence<String> {
-        return symbols().map(Symbol::toString)
     }
 
     fun symbolAt(position: Int): Symbol? {

@@ -1,7 +1,6 @@
 package syntax.lexer
 
 import common.Diagnostic
-import freditor.persistent.StringedValueMap
 
 const val EOF = '\u0000'
 
@@ -58,6 +57,5 @@ class Lexer(private val input: String) {
         throw Diagnostic(index, message)
     }
 
-    @Suppress("UNCHECKED_CAST")
-    var identifiersOrKeywords = keywords as StringedValueMap<Any>
+    val identifiersOrKeywords = HashMap<String, Any>(keywords)
 }

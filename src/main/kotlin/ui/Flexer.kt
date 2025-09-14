@@ -1,10 +1,10 @@
 package ui
 
+import common.puts
 import freditor.FlexerState
 import freditor.FlexerState.EMPTY
 import freditor.FlexerState.THIS
 import freditor.FlexerStateBuilder
-import freditor.persistent.ChampMap
 
 object Flexer : freditor.Flexer() {
     private val SLASH_SLASH = FlexerState('\n', null).setDefault(THIS)
@@ -70,8 +70,8 @@ object Flexer : freditor.Flexer() {
         return lexemeColors[endState] ?: 0x000000
     }
 
-    private val lexemeColors = ChampMap.of(ERROR, 0x808080)
-        .put(
+    private val lexemeColors = hashMapOf(ERROR to 0x808080)
+        .puts(
             CHAR_CONSTANT_HEAD,
             CHAR_CONSTANT_TAIL,
             CHAR_CONSTANT_ESCAPE,
@@ -80,19 +80,19 @@ object Flexer : freditor.Flexer() {
             STRING_LITERAL_ESCAPE,
             0x808080
         )
-        .put(SLASH_SLASH, SLASH_ASTERISK, SLASH_ASTERISK___ASTERISK, SLASH_ASTERISK___ASTERISK_SLASH, 0x008000)
-        .put(CHAR_CONSTANT_END, STRING_LITERAL_END, 0xdc009c)
-        .put(NUMBER_HEAD, NUMBER_TAIL, 0x6400c8)
-        .put(
+        .puts(SLASH_SLASH, SLASH_ASTERISK, SLASH_ASTERISK___ASTERISK, SLASH_ASTERISK___ASTERISK_SLASH, 0x008000)
+        .puts(CHAR_CONSTANT_END, STRING_LITERAL_END, 0xdc009c)
+        .puts(NUMBER_HEAD, NUMBER_TAIL, 0x6400c8)
+        .puts(
             START.read(
                 "assert", "auto", "break", "case", "const", "continue", "default", "do", "else",
                 "enum", "extern", "for", "goto", "if", "register", "return", "sizeof", "static", "struct", "switch",
                 "typedef", "union", "volatile", "while"
             ), 0x0000ff
         )
-        .put(START.read("char", "double", "float", "int", "long", "short", "signed", "unsigned", "void"), 0x008080)
-        .put(START.read("(", ")", "[", "]", "{", "}"), 0xff0000)
-        .put(
+        .puts(START.read("char", "double", "float", "int", "long", "short", "signed", "unsigned", "void"), 0x008080)
+        .puts(START.read("(", ")", "[", "]", "{", "}"), 0xff0000)
+        .puts(
             START.read(
                 "!", "!=", "%", "%=", "&", "&&", "&=", "*", "*=", "+", "++", "+=", "-", "--",
                 "-=", "->", ".", "/", "/=", ":", "<", "<<", "<<=", "<=", "=", "==", ">", ">=", ">>", ">>=", "?",

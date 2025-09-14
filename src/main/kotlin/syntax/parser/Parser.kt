@@ -1,7 +1,6 @@
 package syntax.parser
 
 import common.Diagnostic
-import freditor.persistent.HamtSet
 import semantic.SymbolTable
 import syntax.lexer.Lexer
 import syntax.lexer.Token
@@ -153,5 +152,5 @@ class Parser(private val lexer: Lexer) {
     }
 
     val symbolTable = SymbolTable()
-    var allMemberNames: HamtSet<String> = HamtSet.empty()
+    val allMemberNames = HashSet<String>()
 }

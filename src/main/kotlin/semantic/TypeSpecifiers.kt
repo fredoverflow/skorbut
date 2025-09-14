@@ -1,6 +1,5 @@
 package semantic
 
-import freditor.persistent.ChampMap
 import semantic.types.*
 import syntax.lexer.TokenKind.*
 import syntax.lexer.TokenKindSet
@@ -10,30 +9,31 @@ val storageClasses = TokenKindSet.of(TYPEDEF, EXTERN, STATIC, AUTO, REGISTER)
 
 val typeSpecifierIdentifier = TokenKindSet.of(IDENTIFIER)
 
-val typeSpecifiers: ChampMap<TokenKindSet, Type> = ChampMap.empty<TokenKindSet, Type>()
-    .put(TokenKindSet.of(VOID), VoidType)
-    .put(TokenKindSet.of(CHAR), SignedCharType)
-    .put(TokenKindSet.of(SIGNED, CHAR), SignedCharType)
-    .put(TokenKindSet.of(UNSIGNED, CHAR), UnsignedCharType)
-    .put(TokenKindSet.of(SHORT), SignedShortType)
-    .put(TokenKindSet.of(SHORT, INT), SignedShortType)
-    .put(TokenKindSet.of(SIGNED, SHORT), SignedShortType)
-    .put(TokenKindSet.of(SIGNED, SHORT, INT), SignedShortType)
-    .put(TokenKindSet.of(UNSIGNED, SHORT), UnsignedShortType)
-    .put(TokenKindSet.of(UNSIGNED, SHORT, INT), UnsignedShortType)
-    .put(TokenKindSet.of(INT), SignedIntType)
-    .put(TokenKindSet.of(SIGNED), SignedIntType)
-    .put(TokenKindSet.of(SIGNED, INT), SignedIntType)
-    .put(TokenKindSet.of(UNSIGNED), UnsignedIntType)
-    .put(TokenKindSet.of(UNSIGNED, INT), UnsignedIntType)
-    .put(TokenKindSet.of(LONG), SignedIntType)
-    .put(TokenKindSet.of(LONG, INT), SignedIntType)
-    .put(TokenKindSet.of(SIGNED, LONG), SignedIntType)
-    .put(TokenKindSet.of(SIGNED, LONG, INT), SignedIntType)
-    .put(TokenKindSet.of(UNSIGNED, LONG), UnsignedIntType)
-    .put(TokenKindSet.of(UNSIGNED, LONG, INT), UnsignedIntType)
-    .put(TokenKindSet.of(FLOAT), FloatType)
-    .put(TokenKindSet.of(DOUBLE), DoubleType)
-    .put(TokenKindSet.of(ENUM), Later)
-    .put(TokenKindSet.of(STRUCT), Later)
-    .put(typeSpecifierIdentifier, Later)
+val typeSpecifiers = mapOf(
+    TokenKindSet.of(VOID) to VoidType,
+    TokenKindSet.of(CHAR) to SignedCharType,
+    TokenKindSet.of(SIGNED, CHAR) to SignedCharType,
+    TokenKindSet.of(UNSIGNED, CHAR) to UnsignedCharType,
+    TokenKindSet.of(SHORT) to SignedShortType,
+    TokenKindSet.of(SHORT, INT) to SignedShortType,
+    TokenKindSet.of(SIGNED, SHORT) to SignedShortType,
+    TokenKindSet.of(SIGNED, SHORT, INT) to SignedShortType,
+    TokenKindSet.of(UNSIGNED, SHORT) to UnsignedShortType,
+    TokenKindSet.of(UNSIGNED, SHORT, INT) to UnsignedShortType,
+    TokenKindSet.of(INT) to SignedIntType,
+    TokenKindSet.of(SIGNED) to SignedIntType,
+    TokenKindSet.of(SIGNED, INT) to SignedIntType,
+    TokenKindSet.of(UNSIGNED) to UnsignedIntType,
+    TokenKindSet.of(UNSIGNED, INT) to UnsignedIntType,
+    TokenKindSet.of(LONG) to SignedIntType,
+    TokenKindSet.of(LONG, INT) to SignedIntType,
+    TokenKindSet.of(SIGNED, LONG) to SignedIntType,
+    TokenKindSet.of(SIGNED, LONG, INT) to SignedIntType,
+    TokenKindSet.of(UNSIGNED, LONG) to UnsignedIntType,
+    TokenKindSet.of(UNSIGNED, LONG, INT) to UnsignedIntType,
+    TokenKindSet.of(FLOAT) to FloatType,
+    TokenKindSet.of(DOUBLE) to DoubleType,
+    TokenKindSet.of(ENUM) to Later,
+    TokenKindSet.of(STRUCT) to Later,
+    typeSpecifierIdentifier to Later,
+)

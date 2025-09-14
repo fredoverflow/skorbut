@@ -126,9 +126,8 @@ fun Parser.declarationSpecifiers0(): DeclarationSpecifiers {
                     val previous = list.first { it.kind() == current }
                     token.error("duplicate type specifier", previous.root())
                 } else {
-                    val combination = typeTokens + current
-                    val intern = typeSpecifiers.getKey(combination)
-                    typeTokens = intern ?: token.error("illegal combination of type specifiers: $combination")
+                    typeTokens += current
+                    if (typeTokens !in typeSpecifiers) token.error("illegal combination of type specifiers: $typeTokens")
                 }
 
             else -> break@loop
@@ -192,7 +191,7 @@ fun Parser.structBody(): List<StructDeclaration> {
     return braced {
         list1Until(CLOSING_BRACE) {
             StructDeclaration(declarationSpecifiers1(), commaSeparatedList1 {
-                namedDeclarator().apply { allMemberNames = allMemberNames.put(name.text) }
+                namedDeclarator().apply { allMemberNames.add(name.text) }
             }).semicolon()
         }
     }
