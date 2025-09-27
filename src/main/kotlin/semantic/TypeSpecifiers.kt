@@ -37,3 +37,23 @@ val typeSpecifiers = mapOf(
     TokenKindSet.of(STRUCT) to Later,
     typeSpecifierIdentifier to Later,
 )
+
+fun main() {
+    var spread = 0x1_0000_0001
+    while (!perfect(spread)) {
+        spread += 2
+    }
+    println("return (bits * 0x%x).ushr(32).toInt()".format(spread))
+}
+
+private fun perfect(spread: Long): Boolean {
+    var set = 0
+    for (key in typeSpecifiers.keys) {
+        val hash = (key.bits * spread).ushr(32).toInt()
+        val index = hash xor (hash ushr 16) and 31
+        val mask = 1 shl index
+        if (set and mask != 0) return false
+        set = set or mask
+    }
+    return true
+}

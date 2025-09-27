@@ -9,7 +9,7 @@ private val TokenKind.bitmask: Long
         return 1L shl ordinal
     }
 
-class TokenKindSet(private val bits: Long) {
+class TokenKindSet(val bits: Long) {
     companion object {
         val EMPTY = TokenKindSet(0L)
 
@@ -32,8 +32,6 @@ class TokenKindSet(private val bits: Long) {
         fun of(kind1: TokenKind, kind2: TokenKind, kind3: TokenKind, kind4: TokenKind, kind5: TokenKind): TokenKindSet {
             return TokenKindSet(kind1.bitmask or kind2.bitmask or kind3.bitmask or kind4.bitmask or kind5.bitmask)
         }
-
-        const val GOLDEN_RATIO = -7046029254386353131L
     }
 
     fun contains(kind: TokenKind): Boolean {
@@ -56,9 +54,9 @@ class TokenKindSet(private val bits: Long) {
         return other is TokenKindSet && this.bits == other.bits
     }
 
-    override fun hashCode(): Int = fibonacciHash
-
-    private val fibonacciHash = (bits * GOLDEN_RATIO).ushr(32).toInt()
+    override fun hashCode(): Int {
+        return (bits * 0x10418282f).ushr(32).toInt()
+    }
 
     override fun toString(): String {
         return generateSequence(bits) { b -> b xor lowestOneBit(b) }
