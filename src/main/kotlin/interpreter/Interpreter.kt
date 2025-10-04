@@ -926,12 +926,12 @@ fun bitwise(x: Value, operator: Token, y: Value, type: Type): Value {
     return type.cast(Value.signedInt(result))
 }
 
-private fun log(x: Int, operator: String, y: Int, result: Int): Int {
-    println()
-    println("   " + x.toBinaryString32() + " " + x)
-    println(operator + y.toBinaryString32() + " " + y)
-    println(" = " + result.toBinaryString32() + " " + result)
-    return result
+private fun log(x: Int, op: String, y: Int, z: Int): Int {
+    println("""
+   ${x.toBinaryString32()} $x
+$op${y.toBinaryString32()} $y
+ = ${z.toBinaryString32()} $z""")
+    return z
 }
 
 private fun Int.toBinaryString32(): String {

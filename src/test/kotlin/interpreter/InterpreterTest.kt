@@ -1,6 +1,6 @@
 package interpreter
 
-import org.junit.Test
+import org.junit.jupiter.api.Test
 
 class InterpreterTest {
     private fun run(program: String) {
