@@ -42,7 +42,7 @@ class MemoryUI(var memory: Memory) : JPanel() {
             is StructType -> structComponent(type)
             else -> scalarComponent()
         }
-        component.alignmentX = Component.LEFT_ALIGNMENT
+        component.alignmentX = LEFT_ALIGNMENT
         component.border = CompoundBorder(
             emptyBorder,
             TitledBorder(lineBorder, title, TitledBorder.LEADING, TitledBorder.DEFAULT_POSITION, Fronts.sansSerif)
@@ -119,7 +119,7 @@ class MemoryUI(var memory: Memory) : JPanel() {
                 val title = "%04x  %s".format(address.and(0xffff), type.name.text)
                 val component = objectComponent(title, type)
                 val rigidArea = Box.createRigidArea(rigidWidth) as JComponent
-                rigidArea.alignmentX = JComponent.LEFT_ALIGNMENT
+                rigidArea.alignmentX = LEFT_ALIGNMENT
                 component.add(rigidArea)
                 add(component)
             } else {

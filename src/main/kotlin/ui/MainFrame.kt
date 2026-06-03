@@ -27,6 +27,7 @@ import javax.swing.tree.TreePath
 
 private val NAME = Regex("""[A-Z_a-z][0-9A-Z_a-z]*""")
 
+@Suppress("ObjectInheritsException")
 object StopTheProgram : Exception() {
     private fun readResolve(): Any = StopTheProgram
 }

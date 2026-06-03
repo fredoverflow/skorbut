@@ -26,7 +26,7 @@ class Interpreter(program: String) {
 
     var onMemorySet: Function1<Memory, Unit>? = null
     private var memory = Memory(emptySet(), emptyList())
-        private set(value) {
+        set(value) {
             field = value
             onMemorySet?.invoke(value)
         }
@@ -425,40 +425,40 @@ class Interpreter(program: String) {
                     "pow" -> {
                         val base = (arguments[0].evaluate() as ArithmeticValue).value
                         val exponent = (arguments[1].evaluate() as ArithmeticValue).value
-                        return ArithmeticValue(base.pow(exponent), DoubleType)
+                        ArithmeticValue(base.pow(exponent), DoubleType)
                     }
 
                     "time" -> {
-                        return ArithmeticValue(floor(System.currentTimeMillis() / 1000.0), UnsignedIntType)
+                        ArithmeticValue(floor(System.currentTimeMillis() / 1000.0), UnsignedIntType)
                     }
 
                     "puts" -> {
                         console.puts(arguments[0].evaluate() as PointerValue)
-                        return VoidValue
+                        VoidValue
                     }
 
                     "putchar" -> {
                         val arg = arguments[0].evaluate() as ArithmeticValue
                         console.putchar(arg.value.toLong().toInt().and(0xff).toChar())
-                        return VoidValue
+                        VoidValue
                     }
 
                     "getchar" -> {
-                        return Value.signedInt(console.getchar().code.toByte().toInt())
+                        Value.signedInt(console.getchar().code.toByte().toInt())
                     }
 
                     "malloc" -> {
-                        return allocate(function, arguments[0], memory::malloc, memory::malloc)
+                        allocate(function, arguments[0], memory::malloc, memory::malloc)
                     }
 
                     "free" -> {
                         memory.free(arguments[0].evaluate() as PointerValue)
-                        return VoidValue
+                        VoidValue
                     }
 
                     "realloc" -> {
                         val pointer = arguments[0].evaluate() as PointerValue
-                        return allocate(
+                        allocate(
                             function,
                             arguments[1],
                             // DO NOT REFACTOR: The lambdas call different realloc overloads!
@@ -479,7 +479,7 @@ class Interpreter(program: String) {
                             error("element type ${p.referenced.type} has size $actualSize, not $size")
                         }
                         swap(p, q)
-                        return VoidValue
+                        VoidValue
                     }
 
                     "qsort" -> {
@@ -496,7 +496,7 @@ class Interpreter(program: String) {
                         }
                         val comp = arguments[3].evaluate().decayed() as FunctionPointerValue
                         qsort(base, count, functions[comp.designator.functionName.text]!!)
-                        return VoidValue
+                        VoidValue
                     }
 
                     "bsearch" -> {
@@ -513,18 +513,18 @@ class Interpreter(program: String) {
                             error("element type ${base.referenced.type} has size $actualSize, not $size")
                         }
                         val comp = arguments[4].evaluate().decayed() as FunctionPointerValue
-                        return bsearch(key, base, count, functions[comp.designator.functionName.text]!!)
+                        bsearch(key, base, count, functions[comp.designator.functionName.text]!!)
                     }
 
                     "strlen" -> {
                         val s = arguments[0].evaluate() as PointerValue
-                        return strlen(s, 0)
+                        strlen(s, 0)
                     }
 
                     "strcmp" -> {
                         val s = arguments[0].evaluate() as PointerValue
                         val t = arguments[1].evaluate() as PointerValue
-                        return strcmp(s, t)
+                        strcmp(s, t)
                     }
 
                     else -> error("undefined function $name")
