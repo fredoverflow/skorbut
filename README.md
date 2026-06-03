@@ -25,7 +25,7 @@ Most problems stem from skipping or misunderstanding important steps.
 
 5. Click Next, Next, Install, Finish
 
-6. Click [skorbut.jar](https://raw.githubusercontent.com/fredoverflow/skorbut/release/skorbut.jar) to download Skorbut<br>
+6. Click [skorbut.jar](https://raw.githubusercontent.com/fredoverflow/fredoverflow.github.io/master/skorbut/skorbut.jar) to download Skorbut<br>
 **If Skorbut fails to download**, continue with ⚠️ Troubleshooting *Windows*, or ⚠️ Troubleshooting *macOS*
 
 7. Open the `Downloads` folder and double-click `skorbut.jar` to start Skorbut<br>
@@ -41,7 +41,7 @@ Steps 1 through 5 (install Java) worked, but steps 6 (download Skorbut) or 7 (st
 ```cmd
 cd Downloads
 if exist skorbut.jar.zip erase skorbut.jar.zip
-curl -o skorbut.jar https://raw.githubusercontent.com/fredoverflow/skorbut/release/skorbut.jar
+curl -o skorbut.jar https://raw.githubusercontent.com/fredoverflow/fredoverflow.github.io/master/skorbut/skorbut.jar
 echo java -version > skorbut.cmd
 echo java -jar skorbut.jar >> skorbut.cmd
 skorbut.cmd
@@ -64,7 +64,7 @@ Steps 1 through 5 (install Java) worked, but steps 6 (download Skorbut) or 7 (st
 - Click that button to copy the script
 ```sh
 cd Downloads
-curl -o skorbut.jar https://raw.githubusercontent.com/fredoverflow/skorbut/release/skorbut.jar
+curl -o skorbut.jar https://raw.githubusercontent.com/fredoverflow/fredoverflow.github.io/master/skorbut/skorbut.jar
 chmod +x skorbut.jar
 echo java -version > skorbut.sh
 echo java -jar skorbut.jar >> skorbut.sh
@@ -85,7 +85,7 @@ Feel free to move `skorbut.jar` and `skorbut.sh` to the Desktop or any other fol
 ```sh
 sudo apt install default-jdk
 cd Downloads
-curl -o skorbut.jar https://raw.githubusercontent.com/fredoverflow/skorbut/release/skorbut.jar
+curl -o skorbut.jar https://raw.githubusercontent.com/fredoverflow/fredoverflow.github.io/master/skorbut/skorbut.jar
 chmod +x skorbut.jar
 echo java -version > skorbut.sh
 echo java -jar -Dsun.java2d.opengl=True skorbut.jar >> skorbut.sh
